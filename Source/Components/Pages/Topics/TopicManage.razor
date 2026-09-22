@@ -1,29 +1,428 @@
 @page "/topics"
+@rendermode InteractiveServer
+@inject IVocabularyService VocabularyService
 
-<PageTitle>Quản lý chủ đề - LearnNN</PageTitle>
+<PageTitle>Quản lý chủ đề - LearnNN 📁</PageTitle>
 
 <div class="container-fluid p-0">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
         <div>
-            <h2 class="fw-bold mb-1">📁 Quản lý chủ đề</h2>
+            <h2 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-folder2-open text-primary me-2"></i>Quản lý Chủ đề
+            </h2>
             <p class="text-muted mb-0">Phân loại và gom nhóm từ vựng theo từng chủ đề học tập</p>
         </div>
+        <button class="btn btn-primary rounded-pill px-4 py-2 shadow-sm d-flex align-items-center gap-2" @onclick="OpenAddModal">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Thêm chủ đề mới</span>
+        </button>
     </div>
 
-    <div class="card border p-5 text-center bg-white rounded-3 shadow-sm">
-        <div class="py-4">
-            <div class="display-4 mb-3 text-primary">
-                <i class="bi bi-folder-plus"></i>
+    <!-- Alert Message -->
+    @if (!string.IsNullOrEmpty(alertMessage))
+    {
+        <div class="alert @alertClass alert-dismissible fade show rounded-3 shadow-sm border mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi @alertIcon fs-5 me-2"></i>
+                <div>@alertMessage</div>
             </div>
-            <h4 class="fw-bold">Chức năng đang được phát triển</h4>
-            <p class="text-muted mx-auto" style="max-width: 500px;">
-                Màn hình quản lý chủ đề với tính năng thêm, sửa, xóa và kiểm tra trùng tên chủ đề sẽ được triển khai trong <strong>Task 05 – Topic Management</strong>.
-            </p>
-            <div class="mt-4">
-                <a href="/" class="btn btn-outline-primary">
-                    <i class="bi bi-arrow-left"></i> Quay lại Trang chủ
-                </a>
+            <button type="button" class="btn-close" @onclick="() => alertMessage = null" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Content Card -->
+    <div class="card border rounded-3 bg-white shadow-sm overflow-hidden">
+        <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-list-ul me-2 text-primary"></i>Danh sách chủ đề
+            </h6>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">
+                @topics.Count chủ đề
+            </span>
+        </div>
+
+        @if (isLoading)
+        {
+            <div class="p-5 text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Đang tải...</span>
+                </div>
+                <div class="text-muted">Đang tải danh sách chủ đề...</div>
+            </div>
+        }
+        else if (!topics.Any())
+        {
+            <div class="p-5 text-center">
+                <div class="display-6 text-muted mb-3">
+                    <i class="bi bi-folder-x"></i>
+                </div>
+                <h5 class="fw-bold text-dark">Chưa có chủ đề nào</h5>
+                <p class="text-muted mx-auto mb-4" style="max-width: 420px;">
+                    Hãy bắt đầu bằng cách tạo chủ đề đầu tiên để tổ chức và phân loại các từ vựng học tập của bạn!
+                </p>
+                <button class="btn btn-outline-primary rounded-pill px-4" @onclick="OpenAddModal">
+                    <i class="bi bi-plus-lg me-1"></i> Tạo chủ đề ngay
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4" style="width: 60px;">#</th>
+                            <th style="min-width: 180px;">Tên chủ đề</th>
+                            <th style="min-width: 250px;">Mô tả</th>
+                            <th class="text-center" style="width: 120px;">Số từ</th>
+                            <th style="width: 140px;">Ngày tạo</th>
+                            <th class="text-end pe-4" style="width: 150px;">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < topics.Count; i++)
+                        {
+                            var topic = topics[i];
+                            var index = i + 1;
+                            var wordCount = topic.Words?.Count ?? 0;
+                            <tr>
+                                <td class="ps-4 text-muted fw-semibold">@index</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="p-2 rounded bg-primary-subtle text-primary d-inline-flex">
+                                            <i class="bi bi-folder-fill"></i>
+                                        </div>
+                                        <span class="fw-bold text-dark">@topic.Name</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-secondary">
+                                        @(string.IsNullOrWhiteSpace(topic.Description) ? "—" : topic.Description)
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <a href="/words?topicId=@topic.Id" class="badge rounded-pill text-decoration-none @(wordCount > 0 ? "bg-primary-subtle text-primary border border-primary-subtle" : "bg-light text-secondary border") px-3 py-1">
+                                        <i class="bi bi-journal-text me-1"></i> @wordCount từ
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="text-muted small">
+                                        <i class="bi bi-calendar3 me-1"></i>
+                                        @topic.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" title="Sửa chủ đề" @onclick="() => OpenEditModal(topic)">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger" title="Xóa chủ đề" @onclick="() => OpenDeleteModal(topic)">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal Thêm / Sửa Topic -->
+@if (isFormModalVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(15, 23, 42, 0.5); backdrop-filter: blur(2px);">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle bg-primary-subtle p-2 text-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i class="bi @(isEditing ? "bi-pencil-fill" : "bi-folder-plus") fs-5"></i>
+                        </div>
+                        <h5 class="modal-title fw-bold text-dark mb-0">
+                            @(isEditing ? "Chỉnh sửa chủ đề" : "Thêm chủ đề mới")
+                        </h5>
+                    </div>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseFormModal" disabled="@isSubmitting"></button>
+                </div>
+                
+                <div class="modal-body px-4 py-3">
+                    @if (!string.IsNullOrEmpty(formErrorMessage))
+                    {
+                        <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3 d-flex align-items-center">
+                            <i class="bi bi-exclamation-circle-fill me-2 fs-6"></i>
+                            <div>@formErrorMessage</div>
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-dark small mb-1">
+                            Tên chủ đề <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control @(nameValidationClass)" 
+                               placeholder="Ví dụ: Công nghệ, Du lịch, IELTS..." 
+                               maxlength="100" 
+                               @bind="formModel.Name" 
+                               @bind:event="oninput" 
+                               disabled="@isSubmitting" />
+                        <div class="form-text small">Tối đa 100 ký tự. Không được trùng với chủ đề khác.</div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold text-dark small mb-1">Mô tả (tùy chọn)</label>
+                        <textarea class="form-control" 
+                                  rows="3" 
+                                  placeholder="Mô tả nội dung, mục tiêu của chủ đề này..." 
+                                  maxlength="250" 
+                                  @bind="formModel.Description" 
+                                  disabled="@isSubmitting"></textarea>
+                        <div class="form-text small">Tối đa 250 ký tự.</div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light bg-opacity-50 border-top-0 px-4 pb-4 pt-2">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" @onclick="CloseFormModal" disabled="@isSubmitting">
+                        <i class="bi bi-x me-1"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm" @onclick="SaveTopicAsync" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            <span>Đang lưu...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-check-lg me-1"></i>
+                            <span>@(isEditing ? "Cập nhật" : "Tạo chủ đề")</span>
+                        }
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
+
+<!-- Modal Xác nhận Xóa Topic -->
+<ConfirmDeleteModal IsVisible="@isDeleteModalVisible"
+                    Title="Xác nhận xóa chủ đề"
+                    Message="@deleteWarningMessage"
+                    ConfirmButtonText="Xóa chủ đề"
+                    IsProcessing="@isDeleting"
+                    OnConfirm="ConfirmDeleteTopicAsync"
+                    OnCancel="() => isDeleteModalVisible = false" />
+
+@code {
+    private List<Topic> topics = new();
+    private bool isLoading = true;
+
+    // Alert state
+    private string? alertMessage;
+    private string alertClass = "alert-success";
+    private string alertIcon = "bi-check-circle-fill";
+
+    // Form Modal state
+    private bool isFormModalVisible = false;
+    private bool isEditing = false;
+    private bool isSubmitting = false;
+    private string? formErrorMessage;
+    private string nameValidationClass = "";
+    private TopicFormModel formModel = new();
+
+    // Delete Modal state
+    private bool isDeleteModalVisible = false;
+    private bool isDeleting = false;
+    private Topic? topicToDelete;
+    private string deleteWarningMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTopicsAsync();
+    }
+
+    private async Task LoadTopicsAsync()
+    {
+        isLoading = true;
+        try
+        {
+            topics = await VocabularyService.GetAllTopicsAsync();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Lỗi tải danh sách chủ đề: {ex.Message}", isSuccess: false);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OpenAddModal()
+    {
+        isEditing = false;
+        formErrorMessage = null;
+        nameValidationClass = "";
+        formModel = new TopicFormModel();
+        isFormModalVisible = true;
+    }
+
+    private void OpenEditModal(Topic topic)
+    {
+        isEditing = true;
+        formErrorMessage = null;
+        nameValidationClass = "";
+        formModel = new TopicFormModel
+        {
+            Id = topic.Id,
+            Name = topic.Name,
+            Description = topic.Description
+        };
+        isFormModalVisible = true;
+    }
+
+    private void CloseFormModal()
+    {
+        if (!isSubmitting)
+        {
+            isFormModalVisible = false;
+            formErrorMessage = null;
+        }
+    }
+
+    private async Task SaveTopicAsync()
+    {
+        var trimmedName = formModel.Name?.Trim() ?? string.Empty;
+
+        // Client-side validations
+        if (string.IsNullOrWhiteSpace(trimmedName))
+        {
+            formErrorMessage = "Tên chủ đề không được để trống.";
+            nameValidationClass = "is-invalid";
+            return;
+        }
+
+        if (trimmedName.Length > 100)
+        {
+            formErrorMessage = "Tên chủ đề tối đa 100 ký tự.";
+            nameValidationClass = "is-invalid";
+            return;
+        }
+
+        isSubmitting = true;
+        formErrorMessage = null;
+        nameValidationClass = "";
+
+        try
+        {
+            // Kiểm tra trùng tên
+            int? excludeId = isEditing ? formModel.Id : null;
+            bool exists = await VocabularyService.TopicNameExistsAsync(trimmedName, excludeId);
+            if (exists)
+            {
+                formErrorMessage = $"Chủ đề có tên '{trimmedName}' đã tồn tại. Vui lòng chọn tên khác.";
+                nameValidationClass = "is-invalid";
+                isSubmitting = false;
+                return;
+            }
+
+            if (isEditing)
+            {
+                var topic = new Topic
+                {
+                    Id = formModel.Id,
+                    Name = trimmedName,
+                    Description = formModel.Description?.Trim()
+                };
+                await VocabularyService.UpdateTopicAsync(topic);
+                ShowAlert($"Đã cập nhật chủ đề '{trimmedName}' thành công!", isSuccess: true);
+            }
+            else
+            {
+                var topic = new Topic
+                {
+                    Name = trimmedName,
+                    Description = formModel.Description?.Trim()
+                };
+                await VocabularyService.CreateTopicAsync(topic);
+                ShowAlert($"Đã thêm chủ đề mới '{trimmedName}' thành công!", isSuccess: true);
+            }
+
+            isFormModalVisible = false;
+            await LoadTopicsAsync();
+        }
+        catch (Exception ex)
+        {
+            formErrorMessage = $"Lỗi khi lưu chủ đề: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void OpenDeleteModal(Topic topic)
+    {
+        topicToDelete = topic;
+        var wordCount = topic.Words?.Count ?? 0;
+
+        if (wordCount > 0)
+        {
+            deleteWarningMessage = $"⚠️ Cảnh báo: Chủ đề '{topic.Name}' đang có {wordCount} từ vựng. Xóa chủ đề này sẽ ĐỒNG THỜI XÓA VĨNH VIỄN toàn bộ {wordCount} từ vựng liên quan!";
+        }
+        else
+        {
+            deleteWarningMessage = $"Bạn có chắc chắn muốn xóa chủ đề '{topic.Name}' không? Thao tác này không thể hoàn tác.";
+        }
+
+        isDeleteModalVisible = true;
+    }
+
+    private async Task ConfirmDeleteTopicAsync()
+    {
+        if (topicToDelete == null) return;
+
+        isDeleting = true;
+        try
+        {
+            var name = topicToDelete.Name;
+            await VocabularyService.DeleteTopicAsync(topicToDelete.Id);
+            isDeleteModalVisible = false;
+            topicToDelete = null;
+            ShowAlert($"Đã xóa chủ đề '{name}' thành công!", isSuccess: true);
+            await LoadTopicsAsync();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Lỗi khi xóa chủ đề: {ex.Message}", isSuccess: false);
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+
+    private void ShowAlert(string message, bool isSuccess)
+    {
+        alertMessage = message;
+        if (isSuccess)
+        {
+            alertClass = "alert-success border-success-subtle text-success-emphasis";
+            alertIcon = "bi-check-circle-fill text-success";
+        }
+        else
+        {
+            alertClass = "alert-danger border-danger-subtle text-danger-emphasis";
+            alertIcon = "bi-exclamation-triangle-fill text-danger";
+        }
+    }
+
+    public class TopicFormModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+    }
+}

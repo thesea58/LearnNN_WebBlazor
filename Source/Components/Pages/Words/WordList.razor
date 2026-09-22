@@ -1,29 +1,613 @@
 @page "/words"
+@rendermode InteractiveServer
+@inject IVocabularyService VocabularyService
+@inject NavigationManager NavigationManager
+@implements IDisposable
 
-<PageTitle>Danh sách từ vựng - LearnNN</PageTitle>
+<PageTitle>Danh sách từ vựng - LearnNN 📝</PageTitle>
 
 <div class="container-fluid p-0">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
         <div>
-            <h2 class="fw-bold mb-1">📝 Danh sách từ vựng</h2>
-            <p class="text-muted mb-0">Quản lý và ôn tập các từ vựng đã lưu trong hệ thống</p>
+            <h2 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-journal-text text-primary me-2"></i>Danh sách Từ vựng
+            </h2>
+            <p class="text-muted mb-0">
+                Quản lý, tra cứu và theo dõi mức độ ghi nhớ vốn từ của bạn
+            </p>
+        </div>
+        <button class="btn btn-primary rounded-pill px-4 py-2 shadow-sm d-flex align-items-center gap-2" @onclick="OpenAddModal">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Thêm từ mới</span>
+        </button>
+    </div>
+
+    <!-- Alert Notification -->
+    @if (!string.IsNullOrEmpty(alertMessage))
+    {
+        <div class="alert @alertClass alert-dismissible fade show rounded-3 shadow-sm border mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi @alertIcon fs-5 me-2"></i>
+                <div>@alertMessage</div>
+            </div>
+            <button type="button" class="btn-close" @onclick="() => alertMessage = null" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Filter & Search Toolbar -->
+    <div class="card border rounded-3 bg-white shadow-sm p-3 mb-4">
+        <div class="row g-2 align-items-center">
+            <!-- Search Box with Debounce & Clear Button -->
+            <div class="col-12 col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" 
+                           class="form-control border-start-0 border-end-0 ps-0" 
+                           placeholder="Tìm theo từ vựng hoặc nghĩa..." 
+                           value="@searchTerm" 
+                           @oninput="OnSearchInputChanged" />
+                    @if (!string.IsNullOrWhiteSpace(searchTerm))
+                    {
+                        <button class="btn btn-white border border-start-0 text-muted" type="button" @onclick="ClearSearch" title="Xóa tìm kiếm">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Topic Filter -->
+            <div class="col-6 col-md-3">
+                <select class="form-select" @onchange="OnTopicFilterChanged" value="@(selectedTopicId?.ToString() ?? "0")">
+                    <option value="0">📁 Tất cả chủ đề</option>
+                    @foreach (var topic in topics)
+                    {
+                        <option value="@topic.Id">@topic.Name</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Mastered Status Filter -->
+            <div class="col-6 col-md-3">
+                <select class="form-select" @onchange="OnMasteredFilterChanged" value="@((int)selectedMasteredFilter)">
+                    <option value="0">🏷️ Tất cả trạng thái</option>
+                    <option value="1">⏳ Chưa thuộc</option>
+                    <option value="2">✅ Đã thuộc</option>
+                </select>
+            </div>
+
+            <!-- Reset Filters Button -->
+            <div class="col-12 col-md-1 text-md-end">
+                @if (HasActiveFilters)
+                {
+                    <button class="btn btn-outline-secondary w-100 px-2" @onclick="ResetFilters" title="Đặt lại tất cả bộ lọc">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                }
+            </div>
         </div>
     </div>
 
-    <div class="card border p-5 text-center bg-white rounded-3 shadow-sm">
-        <div class="py-4">
-            <div class="display-4 mb-3 text-primary">
-                <i class="bi bi-tools"></i>
+    <!-- Main Table Card -->
+    <div class="card border rounded-3 bg-white shadow-sm overflow-hidden mb-4">
+        <div class="card-header bg-white border-bottom py-3 px-4 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <h6 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-table me-2 text-primary"></i>Kho từ vựng
+                </h6>
+                @if (!isLoading)
+                {
+                    <span class="badge bg-light text-secondary border rounded-pill">
+                        @GetDisplayCountText()
+                    </span>
+                }
             </div>
-            <h4 class="fw-bold">Chức năng đang được phát triển</h4>
-            <p class="text-muted mx-auto" style="max-width: 500px;">
-                Màn hình danh sách từ vựng với tính năng tìm kiếm, lọc theo chủ đề, phân trang và toggle trạng thái thuộc từ sẽ được triển khai trong <strong>Task 06 – Word List</strong>.
-            </p>
-            <div class="mt-4">
-                <a href="/" class="btn btn-outline-primary">
-                    <i class="bi bi-arrow-left"></i> Quay lại Trang chủ
-                </a>
-            </div>
+
+            @if (totalPages > 1)
+            {
+                <span class="text-muted small">
+                    Trang <strong>@currentPage</strong> / <strong>@totalPages</strong>
+                </span>
+            }
         </div>
+
+        @if (isLoading)
+        {
+            <div class="p-5 text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Đang tải dữ liệu...</span>
+                </div>
+                <div class="text-muted">Đang tải danh sách từ vựng...</div>
+            </div>
+        }
+        else if (!words.Any())
+        {
+            <div class="p-5 text-center">
+                @if (HasActiveFilters)
+                {
+                    <div class="display-6 text-muted mb-3">
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Không tìm thấy từ vựng nào</h5>
+                    <p class="text-muted mx-auto mb-3" style="max-width: 450px;">
+                        Không có từ vựng nào khớp với điều kiện tìm kiếm hoặc bộ lọc hiện tại của bạn.
+                    </p>
+                    <button class="btn btn-outline-primary rounded-pill px-4" @onclick="ResetFilters">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Xóa bộ lọc
+                    </button>
+                }
+                else
+                {
+                    <div class="display-6 text-muted mb-3">
+                        <i class="bi bi-inbox"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Chưa có từ vựng nào</h5>
+                    <p class="text-muted mx-auto mb-3" style="max-width: 450px;">
+                        Kho từ vựng đang trống. Hãy thêm từ vựng đầu tiên để bắt đầu hành trình học tập!
+                    </p>
+                    <button class="btn btn-primary rounded-pill px-4 shadow-sm" @onclick="OpenAddModal">
+                        <i class="bi bi-plus-circle-fill me-1"></i> Thêm từ đầu tiên
+                    </button>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4" style="width: 55px;">#</th>
+                            <th style="min-width: 170px;">Từ vựng</th>
+                            <th style="width: 130px;">Phiên âm</th>
+                            <th style="width: 110px;">Từ loại</th>
+                            <th style="min-width: 220px;">Nghĩa</th>
+                            <th style="min-width: 220px;">Ví dụ</th>
+                            <th style="min-width: 140px;">Chủ đề</th>
+                            <th class="text-center" style="width: 140px;">Trạng thái</th>
+                            <th class="text-end pe-4" style="width: 110px;">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < words.Count; i++)
+                        {
+                            var word = words[i];
+                            var stt = (currentPage - 1) * pageSize + i + 1;
+                            <tr>
+                                <td class="ps-4 text-muted fw-semibold">@stt</td>
+                                <td>
+                                    <div class="fw-bold text-primary fs-6">
+                                        @word.Term
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(word.Phonetic))
+                                    {
+                                        <span class="font-monospace text-muted fst-italic small">
+                                            @word.Phonetic
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(word.PartOfSpeech))
+                                    {
+                                        <span class="badge @GetPartOfSpeechBadgeClass(word.PartOfSpeech) rounded-pill small">
+                                            @word.PartOfSpeech
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="text-dark" title="@word.Meaning">
+                                        @Truncate(word.Meaning, 80)
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(word.ExampleSentence))
+                                    {
+                                        <div class="small text-secondary" title="@($"{word.ExampleSentence}\n→ {word.ExampleTranslation}")">
+                                            <em>@Truncate(word.ExampleSentence, 60)</em>
+                                            @if (!string.IsNullOrWhiteSpace(word.ExampleTranslation))
+                                            {
+                                                <div class="text-muted fst-normal" style="font-size: 0.75rem;">
+                                                    @Truncate(word.ExampleTranslation, 50)
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-secondary border">
+                                        <i class="bi bi-folder me-1 text-primary"></i>
+                                        @(word.Topic?.Name ?? "Chung")
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm border-0 p-0" 
+                                            @onclick="() => ToggleMasteredAsync(word)" 
+                                            title="Bấm để đổi trạng thái" 
+                                            disabled="@isToggling">
+                                        @if (word.IsMastered)
+                                        {
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 cursor-pointer">
+                                                <i class="bi bi-check-circle-fill me-1"></i> Đã thuộc
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-1 cursor-pointer">
+                                                <i class="bi bi-circle me-1"></i> Chưa thuộc
+                                            </span>
+                                        }
+                                    </button>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" title="Sửa từ vựng" @onclick="() => OpenEditModal(word)">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger" title="Xóa từ vựng" @onclick="() => OpenDeleteModal(word)">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Bar -->
+            @if (totalPages > 1)
+            {
+                <div class="card-footer bg-white border-top py-3 px-4 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+                    <span class="text-muted small">
+                        Hiển thị <strong>@(((currentPage - 1) * pageSize) + 1)</strong> - <strong>@(Math.Min(currentPage * pageSize, totalCount))</strong> trong số <strong>@totalCount</strong> từ
+                    </span>
+
+                    <nav aria-label="Phân trang từ vựng">
+                        <ul class="pagination pagination-sm mb-0">
+                            <!-- Previous button -->
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => GoToPage(currentPage - 1)" aria-label="Trang trước">
+                                    <i class="bi bi-chevron-left"></i>
+                                </button>
+                            </li>
+
+                            <!-- Page numbers -->
+                            @for (int p = 1; p <= totalPages; p++)
+                            {
+                                var targetPage = p;
+                                <!-- Show limited pagination buttons if many pages -->
+                                @if (p == 1 || p == totalPages || (p >= currentPage - 2 && p <= currentPage + 2))
+                                {
+                                    <li class="page-item @(p == currentPage ? "active" : "")">
+                                        <button class="page-link" @onclick="() => GoToPage(targetPage)">
+                                            @p
+                                        </button>
+                                    </li>
+                                }
+                                else if (p == currentPage - 3 || p == currentPage + 3)
+                                {
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                }
+                            }
+
+                            <!-- Next button -->
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <button class="page-link" @onclick="() => GoToPage(currentPage + 1)" aria-label="Trang sau">
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
+        }
     </div>
 </div>
+
+<!-- Modal Thêm / Sửa từ vựng -->
+<WordFormModal IsVisible="@isWordModalVisible"
+               EditWord="@selectedWordForEdit"
+               Topics="@topics"
+               OnSaved="OnWordSaved"
+               OnCancelled="() => isWordModalVisible = false" />
+
+<!-- Modal Xác nhận Xóa từ vựng -->
+<ConfirmDeleteModal IsVisible="@isDeleteModalVisible"
+                    Title="Xác nhận xóa từ vựng"
+                    Message="@deleteWarningMessage"
+                    ConfirmButtonText="Xóa từ"
+                    IsProcessing="@isDeleting"
+                    OnConfirm="ConfirmDeleteWordAsync"
+                    OnCancel="() => isDeleteModalVisible = false" />
+
+@code {
+    [SupplyParameterFromQuery] public int? TopicId { get; set; }
+
+    private List<Word> words = new();
+    private List<Topic> topics = new();
+    private bool isLoading = true;
+    private bool isToggling = false;
+
+    // Filters & Pagination
+    private string searchTerm = string.Empty;
+    private int? selectedTopicId;
+    private MasteredFilter selectedMasteredFilter = MasteredFilter.All;
+    private int currentPage = 1;
+    private int pageSize = 20;
+    private int totalCount = 0;
+    private int totalPages = 1;
+
+    // Debounce timer for search input
+    private System.Timers.Timer? debounceTimer;
+
+    // Alert notification
+    private string? alertMessage;
+    private string alertClass = "alert-success";
+    private string alertIcon = "bi-check-circle-fill";
+
+    // Modals
+    private bool isWordModalVisible = false;
+    private Word? selectedWordForEdit;
+
+    private bool isDeleteModalVisible = false;
+    private bool isDeleting = false;
+    private Word? wordToDelete;
+    private string deleteWarningMessage = string.Empty;
+
+    private bool HasActiveFilters => !string.IsNullOrWhiteSpace(searchTerm) || (selectedTopicId.HasValue && selectedTopicId.Value > 0) || selectedMasteredFilter != MasteredFilter.All;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Setup 300ms debounce timer for search input
+        debounceTimer = new System.Timers.Timer(300);
+        debounceTimer.AutoReset = false;
+        debounceTimer.Elapsed += async (sender, args) =>
+        {
+            await InvokeAsync(async () =>
+            {
+                currentPage = 1;
+                await LoadWordsAsync();
+                StateHasChanged();
+            });
+        };
+
+        if (TopicId.HasValue && TopicId.Value > 0)
+        {
+            selectedTopicId = TopicId.Value;
+        }
+
+        await LoadTopicsAsync();
+        await LoadWordsAsync();
+    }
+
+    private async Task LoadTopicsAsync()
+    {
+        try
+        {
+            topics = await VocabularyService.GetAllTopicsAsync();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Lỗi tải danh mục chủ đề: {ex.Message}", isSuccess: false);
+        }
+    }
+
+    private async Task LoadWordsAsync()
+    {
+        isLoading = true;
+        try
+        {
+            var filter = new WordFilterModel
+            {
+                SearchTerm = searchTerm,
+                TopicId = selectedTopicId > 0 ? selectedTopicId : null,
+                MasteredFilter = selectedMasteredFilter,
+                Page = currentPage,
+                PageSize = pageSize
+            };
+
+            totalCount = await VocabularyService.GetWordCountAsync(filter);
+            totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+            if (totalPages == 0) totalPages = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            words = await VocabularyService.GetWordsAsync(filter);
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Lỗi khi tải danh sách từ vựng: {ex.Message}", isSuccess: false);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OnSearchInputChanged(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? string.Empty;
+        debounceTimer?.Stop();
+        debounceTimer?.Start();
+    }
+
+    private async Task ClearSearch()
+    {
+        searchTerm = string.Empty;
+        currentPage = 1;
+        await LoadWordsAsync();
+    }
+
+    private async Task OnTopicFilterChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int val))
+        {
+            selectedTopicId = val > 0 ? val : null;
+            currentPage = 1;
+            await LoadWordsAsync();
+        }
+    }
+
+    private async Task OnMasteredFilterChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int val))
+        {
+            selectedMasteredFilter = (MasteredFilter)val;
+            currentPage = 1;
+            await LoadWordsAsync();
+        }
+    }
+
+    private async Task ResetFilters()
+    {
+        searchTerm = string.Empty;
+        selectedTopicId = null;
+        selectedMasteredFilter = MasteredFilter.All;
+        currentPage = 1;
+        await LoadWordsAsync();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        if (page < 1 || page > totalPages || page == currentPage) return;
+        currentPage = page;
+        await LoadWordsAsync();
+    }
+
+    private async Task ToggleMasteredAsync(Word word)
+    {
+        if (isToggling) return;
+        isToggling = true;
+
+        // Optimistic UI update
+        word.IsMastered = !word.IsMastered;
+
+        try
+        {
+            await VocabularyService.ToggleMasteredAsync(word.Id);
+        }
+        catch (Exception ex)
+        {
+            // Revert on failure
+            word.IsMastered = !word.IsMastered;
+            ShowAlert($"Lỗi cập nhật trạng thái: {ex.Message}", isSuccess: false);
+        }
+        finally
+        {
+            isToggling = false;
+        }
+    }
+
+    private void OpenAddModal()
+    {
+        selectedWordForEdit = null;
+        isWordModalVisible = true;
+    }
+
+    private void OpenEditModal(Word word)
+    {
+        selectedWordForEdit = word;
+        isWordModalVisible = true;
+    }
+
+    private async Task OnWordSaved()
+    {
+        isWordModalVisible = false;
+        ShowAlert(selectedWordForEdit == null ? "Đã thêm từ vựng mới thành công!" : "Đã cập nhật từ vựng thành công!", isSuccess: true);
+        await LoadWordsAsync();
+    }
+
+    private void OpenDeleteModal(Word word)
+    {
+        wordToDelete = word;
+        deleteWarningMessage = $"Bạn có chắc chắn muốn xóa từ '{word.Term}' không? Hành động này không thể hoàn tác.";
+        isDeleteModalVisible = true;
+    }
+
+    private async Task ConfirmDeleteWordAsync()
+    {
+        if (wordToDelete == null) return;
+        isDeleting = true;
+
+        try
+        {
+            var term = wordToDelete.Term;
+            await VocabularyService.DeleteWordAsync(wordToDelete.Id);
+            isDeleteModalVisible = false;
+            wordToDelete = null;
+            ShowAlert($"Đã xóa từ '{term}' thành công!", isSuccess: true);
+            await LoadWordsAsync();
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Lỗi khi xóa từ vựng: {ex.Message}", isSuccess: false);
+        }
+        finally
+        {
+            isDeleting = false;
+        }
+    }
+
+    private void ShowAlert(string message, bool isSuccess)
+    {
+        alertMessage = message;
+        if (isSuccess)
+        {
+            alertClass = "alert-success border-success-subtle text-success-emphasis";
+            alertIcon = "bi-check-circle-fill text-success";
+        }
+        else
+        {
+            alertClass = "alert-danger border-danger-subtle text-danger-emphasis";
+            alertIcon = "bi-exclamation-triangle-fill text-danger";
+        }
+    }
+
+    private string GetDisplayCountText()
+    {
+        if (totalCount == 0) return "0 từ";
+        return $"Hiển thị {words.Count} / {totalCount} từ";
+    }
+
+    private string GetPartOfSpeechBadgeClass(string? pos)
+    {
+        return (pos?.ToLower().Trim()) switch
+        {
+            "noun" or "danh từ" => "bg-primary-subtle text-primary border border-primary-subtle",
+            "verb" or "động từ" => "bg-success-subtle text-success border border-success-subtle",
+            "adjective" or "adj" or "tính từ" => "bg-warning-subtle text-warning-emphasis border border-warning-subtle",
+            "adverb" or "adv" or "trạng từ" => "bg-info-subtle text-info-emphasis border border-info-subtle",
+            "phrase" or "cụm từ" => "bg-purple-subtle text-purple border border-purple-subtle",
+            _ => "bg-secondary-subtle text-secondary border border-secondary-subtle"
+        };
+    }
+
+    private static string Truncate(string? value, int maxLength)
+    {
+        if (string.IsNullOrEmpty(value)) return string.Empty;
+        return value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...";
+    }
+
+    public void Dispose()
+    {
+        debounceTimer?.Stop();
+        debounceTimer?.Dispose();
+    }
+}

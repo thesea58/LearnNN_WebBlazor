@@ -1,0 +1,242 @@
+@namespace LearnNN_WebBlazor.Components.Pages.Words
+@inject IVocabularyService VocabularyService
+
+@if (IsVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(15, 23, 42, 0.5); backdrop-filter: blur(2px);">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle bg-primary-subtle p-2 text-primary d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                            <i class="bi @(EditWord == null ? "bi-plus-circle-fill" : "bi-pencil-fill") fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold text-dark mb-0">
+                                @(EditWord == null ? "➕ Thêm từ mới" : $"✏️ Sửa từ: {EditWord.Term}")
+                            </h5>
+                            <small class="text-muted">
+                                @(EditWord == null ? "Thêm từ vựng mới vào kho lưu trữ của bạn" : "Chỉnh sửa nội dung và thông tin từ vựng")
+                            </small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="HandleCancel" disabled="@isSubmitting"></button>
+                </div>
+
+                <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+
+                    <div class="modal-body px-4 py-3">
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3 d-flex align-items-center">
+                                <i class="bi bi-exclamation-circle-fill me-2 fs-6"></i>
+                                <div>@errorMessage</div>
+                            </div>
+                        }
+
+                        <div class="row g-3">
+                            <!-- Term & Topic -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-dark small mb-1">
+                                    Từ / Cụm từ <span class="text-danger">*</span>
+                                </label>
+                                <InputText class="form-control" placeholder="Ví dụ: persistent, resilience..." @bind-Value="model.Term" disabled="@isSubmitting" />
+                                <ValidationMessage For="@(() => model.Term)" class="text-danger small mt-1" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-dark small mb-1">
+                                    Chủ đề <span class="text-danger">*</span>
+                                </label>
+                                <InputSelect class="form-select" @bind-Value="model.TopicId" disabled="@isSubmitting">
+                                    <option value="0">-- Chọn chủ đề --</option>
+                                    @foreach (var topic in Topics)
+                                    {
+                                        <option value="@topic.Id">@topic.Name</option>
+                                    }
+                                </InputSelect>
+                                @if (model.TopicId <= 0 && isAttemptedSubmit)
+                                {
+                                    <div class="text-danger small mt-1">Vui lòng chọn một chủ đề cho từ vựng.</div>
+                                }
+                            </div>
+
+                            <!-- Phonetic & Part of Speech -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-dark small mb-1">
+                                    Phiên âm IPA
+                                </label>
+                                <InputText class="form-control font-monospace" placeholder="/pəˈsɪs.tənt/" @bind-Value="model.Phonetic" disabled="@isSubmitting" />
+                                <ValidationMessage For="@(() => model.Phonetic)" class="text-danger small mt-1" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-dark small mb-1">
+                                    Từ loại
+                                </label>
+                                <InputSelect class="form-select" @bind-Value="model.PartOfSpeech" disabled="@isSubmitting">
+                                    <option value="">-- Chọn từ loại --</option>
+                                    <option value="noun">Danh từ (noun)</option>
+                                    <option value="verb">Động từ (verb)</option>
+                                    <option value="adjective">Tính từ (adjective)</option>
+                                    <option value="adverb">Trạng từ (adverb)</option>
+                                    <option value="phrase">Cụm từ / Thành ngữ (phrase)</option>
+                                    <option value="other">Khác</option>
+                                </InputSelect>
+                            </div>
+
+                            <!-- Meaning -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold text-dark small mb-1">
+                                    Nghĩa của từ <span class="text-danger">*</span>
+                                </label>
+                                <InputTextArea class="form-control" rows="2" placeholder="Nghĩa tiếng Việt, diễn giải ý nghĩa..." @bind-Value="model.Meaning" disabled="@isSubmitting" />
+                                <ValidationMessage For="@(() => model.Meaning)" class="text-danger small mt-1" />
+                            </div>
+
+                            <!-- Example Sentence & Translation -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-dark small mb-1">
+                                    Câu ví dụ tiếng Anh
+                                </label>
+                                <InputTextArea class="form-control" rows="2" placeholder="Ví dụ: She was persistent in pursuing her dreams." @bind-Value="model.ExampleSentence" disabled="@isSubmitting" />
+                                <ValidationMessage For="@(() => model.ExampleSentence)" class="text-danger small mt-1" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-dark small mb-1">
+                                    Bản dịch câu ví dụ
+                                </label>
+                                <InputTextArea class="form-control" rows="2" placeholder="Ví dụ: Cô ấy đã kiên trì theo đuổi ước mơ của mình." @bind-Value="model.ExampleTranslation" disabled="@isSubmitting" />
+                                <ValidationMessage For="@(() => model.ExampleTranslation)" class="text-danger small mt-1" />
+                            </div>
+
+                            <!-- IsMastered toggle -->
+                            <div class="col-12">
+                                <div class="form-check form-switch pt-1">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="isMasteredSwitch" @bind="model.IsMastered" disabled="@isSubmitting" />
+                                    <label class="form-check-label fw-semibold text-dark small" for="isMasteredSwitch">
+                                        Đánh dấu đã thuộc từ này
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light bg-opacity-50 border-top-0 px-4 pb-4 pt-2">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" @onclick="HandleCancel" disabled="@isSubmitting">
+                            <i class="bi bi-x me-1"></i> Hủy
+                        </button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                <span>Đang lưu...</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-check-lg me-1"></i>
+                                <span>@(EditWord == null ? "Lưu từ vựng" : "Cập nhật thay đổi")</span>
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Word? EditWord { get; set; }
+    [Parameter] public List<Topic> Topics { get; set; } = new();
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
+    [Parameter] public EventCallback OnCancelled { get; set; }
+
+    private Word model = new();
+    private bool isSubmitting = false;
+    private bool isAttemptedSubmit = false;
+    private string? errorMessage;
+
+    protected override void OnParametersSet()
+    {
+        if (IsVisible)
+        {
+            errorMessage = null;
+            isAttemptedSubmit = false;
+            if (EditWord != null)
+            {
+                // Clone existing word for editing
+                model = new Word
+                {
+                    Id = EditWord.Id,
+                    TopicId = EditWord.TopicId,
+                    Term = EditWord.Term,
+                    Phonetic = EditWord.Phonetic,
+                    PartOfSpeech = EditWord.PartOfSpeech,
+                    Meaning = EditWord.Meaning,
+                    ExampleSentence = EditWord.ExampleSentence,
+                    ExampleTranslation = EditWord.ExampleTranslation,
+                    IsMastered = EditWord.IsMastered,
+                    CreatedAt = EditWord.CreatedAt
+                };
+            }
+            else
+            {
+                // New word initialization
+                model = new Word
+                {
+                    TopicId = Topics.FirstOrDefault()?.Id ?? 0,
+                    IsMastered = false
+                };
+            }
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        isAttemptedSubmit = true;
+        if (model.TopicId <= 0)
+        {
+            errorMessage = "Vui lòng chọn một chủ đề cho từ vựng.";
+            return;
+        }
+
+        isSubmitting = true;
+        errorMessage = null;
+
+        try
+        {
+            if (EditWord == null)
+            {
+                await VocabularyService.CreateWordAsync(model);
+            }
+            else
+            {
+                await VocabularyService.UpdateWordAsync(model);
+            }
+
+            if (OnSaved.HasDelegate)
+            {
+                await OnSaved.InvokeAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi khi lưu từ vựng: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private async Task HandleCancel()
+    {
+        if (!isSubmitting && OnCancelled.HasDelegate)
+        {
+            await OnCancelled.InvokeAsync();
+        }
+    }
+}

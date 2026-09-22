@@ -1,0 +1,68 @@
+@namespace LearnNN_WebBlazor.Components.Shared
+
+@if (IsVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(15, 23, 42, 0.5); backdrop-filter: blur(2px);">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-danger bg-opacity-10 border-bottom-0 pb-0 pt-4 px-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-danger bg-opacity-10 p-2 text-danger d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                        </div>
+                        <h5 class="modal-title fw-bold text-dark mb-0">@Title</h5>
+                    </div>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="HandleCancel" disabled="@IsProcessing"></button>
+                </div>
+                <div class="modal-body px-4 py-3">
+                    <p class="text-secondary mb-0 fs-6">
+                        @Message
+                    </p>
+                </div>
+                <div class="modal-footer bg-light bg-opacity-50 border-top-0 px-4 pb-4 pt-2">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" @onclick="HandleCancel" disabled="@IsProcessing">
+                        <i class="bi bi-x me-1"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-danger rounded-pill px-3" @onclick="HandleConfirm" disabled="@IsProcessing">
+                        @if (IsProcessing)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            <span>Đang xóa...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-trash3 me-1"></i>
+                            <span>@(string.IsNullOrWhiteSpace(ConfirmButtonText) ? "Xóa" : ConfirmButtonText)</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string Title { get; set; } = "Xác nhận xóa";
+    [Parameter] public string Message { get; set; } = "Bạn có chắc chắn muốn xóa mục này không? Thao tác này không thể hoàn tác.";
+    [Parameter] public string ConfirmButtonText { get; set; } = "Xóa";
+    [Parameter] public bool IsVisible { get; set; } = false;
+    [Parameter] public bool IsProcessing { get; set; } = false;
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private async Task HandleConfirm()
+    {
+        if (!IsProcessing && OnConfirm.HasDelegate)
+        {
+            await OnConfirm.InvokeAsync();
+        }
+    }
+
+    private async Task HandleCancel()
+    {
+        if (!IsProcessing && OnCancel.HasDelegate)
+        {
+            await OnCancel.InvokeAsync();
+        }
+    }
+}

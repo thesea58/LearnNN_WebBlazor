@@ -180,3 +180,16 @@ a:hover {
     border-radius: var(--radius-md);
     margin: 1rem 0;
 }
+
+/* Custom badge colors & helpers */
+.bg-purple-subtle {
+    background-color: #f3e8ff !important;
+}
+
+.text-purple {
+    color: #9333ea !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}

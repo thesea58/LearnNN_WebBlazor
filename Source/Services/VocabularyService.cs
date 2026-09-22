@@ -20,6 +20,7 @@ public class VocabularyService : IVocabularyService
     {
         await using var db = await _factory.CreateDbContextAsync();
         return await db.Topics
+            .Include(t => t.Words)
             .OrderBy(t => t.Name)
             .ToListAsync();
     }

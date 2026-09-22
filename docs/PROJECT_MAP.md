@@ -75,10 +75,12 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │   │   ├── 📄 Error.razor              #    Trang lỗi
 │   │   │   ├── 📄 NotFound.razor           #    Trang 404
 │   │   │   ├── 📁 Topics/                  #    Pages quản lý chủ đề
-│   │   │   │   └── 📄 TopicManage.razor    #    Trang quản lý chủ đề (stub Task 05)
+│   │   │   │   └── 📄 TopicManage.razor    #    Trang quản lý chủ đề (CRUD, validation, xóa cascade)
 │   │   │   └── 📁 Words/                   #    Pages quản lý từ vựng
-│   │   │       └── 📄 WordList.razor       #    Trang danh sách từ vựng (stub Task 06)
-│   │   └── 📁 Shared/                      #    Shared/reusable UI components (chưa có file)
+│   │   │       ├── 📄 WordList.razor       #    Trang danh sách từ vựng (bảng, tìm kiếm, lọc, phân trang, toggle)
+│   │   │       └── 📄 WordFormModal.razor  #    Modal form thêm/sửa từ vựng với validation
+│   │   └── 📁 Shared/                      #    Shared/reusable UI components
+│   │       └── 📄 ConfirmDeleteModal.razor #    Modal xác nhận xóa tái sử dụng cho các trang
 │   │
 │   ├── 📁 Migrations/                      # 🔄 EF Core Migration files (auto-generated)
 │   │   ├── 📄 20260922..._InitialCreate.Designer.cs
@@ -210,3 +212,4 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-09-22 | Khởi tạo PROJECT_MAP.md | `docs/PROJECT_MAP.md` | Tạo bản đồ kiến trúc chuẩn mực cho dự án, làm tài liệu tham chiếu bắt buộc cho mọi AI Agent |
 | 2026-09-22 | Tinh gọn PROJECT_MAP.md | `docs/PROJECT_MAP.md` | Lược bỏ bảng Quy tắc Vàng, Quy trình chuẩn và Phụ lục Stack/Architecture để file gọn nhẹ, tập trung phần lõi tra cứu |
 | 2026-09-22 | Task 04 – Layout & Navigation | `Source/Components/Layout/MainLayout.razor`, `Source/Components/Layout/NavMenu.razor`, `Source/Components/Pages/Home.razor`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/wwwroot/app.css`, `Source/Components/App.razor`, `Source/Components/_Imports.razor` | Thiết kế MainLayout responsive (desktop/mobile), NavMenu với branding và icon, Home Dashboard thống kê từ IVocabularyService, CSS tùy chỉnh hiện đại |
+| 2026-09-22 | Task 05 & 06 – Topic Management & Word List | `Source/Components/Pages/Topics/TopicManage.razor`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Words/WordFormModal.razor`, `Source/Components/Shared/ConfirmDeleteModal.razor`, `Source/Services/VocabularyService.cs`, `Source/Components/_Imports.razor`, `Source/wwwroot/app.css` | Triển khai hoàn chỉnh tính năng quản lý chủ đề (/topics) và danh sách từ vựng (/words) với debounce search, bộ lọc, toggle IsMastered, phân trang server-side, modal thêm/sửa và modal xác nhận xóa dùng chung |
