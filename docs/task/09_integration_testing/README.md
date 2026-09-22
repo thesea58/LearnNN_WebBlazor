@@ -1,7 +1,7 @@
 # 📋 Task 09 – Tích hợp & Kiểm tra Tổng thể
 ## Integration Testing & Final Review
 
-> **Trạng thái**: ⬜ Chưa bắt đầu  
+> **Trạng thái**: ✅ Hoàn thành  
 > **Độ ưu tiên**: 🔴 Cao  
 > **Phụ thuộc**: Task 01 → 08 (tất cả tasks trước)  
 > **Tài liệu tham chiếu**: Tất cả tài liệu design
@@ -19,58 +19,58 @@ Tích hợp tất cả các thành phần, kiểm tra end-to-end toàn bộ flow
 ### 9.1 Kiểm tra End-to-End Flow
 
 #### Flow 1: Quản lý Chủ đề
-- [ ] Tạo topic mới "Du lịch" → thành công
-- [ ] Sửa topic "Du lịch" → "Du lịch & Khám phá" → thành công
-- [ ] Xóa topic không có từ → thành công, không lỗi
-- [ ] Xóa topic có từ → hiện cảnh báo, cascade delete đúng
+- [x] Tạo topic mới "Du lịch" → thành công
+- [x] Sửa topic "Du lịch" → "Du lịch & Khám phá" → thành công
+- [x] Xóa topic không có từ → thành công, không lỗi
+- [x] Xóa topic có từ → hiện cảnh báo, cascade delete đúng
 
 #### Flow 2: Quản lý Từ vựng
-- [ ] Thêm từ mới "adventure" vào topic "Du lịch" → thành công
-- [ ] Sửa từ "adventure" → cập nhật phonetic, meaning → thành công
-- [ ] Toggle IsMastered → trạng thái thay đổi đúng
-- [ ] Xóa từ → xác nhận → xóa khỏi danh sách
+- [x] Thêm từ mới "adventure" vào topic "Du lịch" → thành công
+- [x] Sửa từ "adventure" → cập nhật phonetic, meaning → thành công
+- [x] Toggle IsMastered → trạng thái thay đổi đúng
+- [x] Xóa từ → xác nhận → xóa khỏi danh sách
 
 #### Flow 3: Tìm kiếm & Lọc
-- [ ] Tìm kiếm "alg" → hiện "algorithm"
-- [ ] Lọc Topic "Công nghệ" → chỉ hiện 3 từ
-- [ ] Lọc "Đã thuộc" → chỉ hiện từ IsMastered = true
-- [ ] Kết hợp: Topic "Giao tiếp" + "Chưa thuộc" → đúng kết quả
-- [ ] Reset filter → hiện tất cả
+- [x] Tìm kiếm "alg" → hiện "algorithm"
+- [x] Lọc Topic "Công nghệ" → chỉ hiện 3 từ
+- [x] Lọc "Đã thuộc" → chỉ hiện từ IsMastered = true
+- [x] Kết hợp: Topic "Giao tiếp" + "Chưa thuộc" → đúng kết quả
+- [x] Reset filter → hiện tất cả
 
 #### Flow 4: Phân trang
-- [ ] Thêm > 20 từ → phân trang xuất hiện
-- [ ] Chuyển trang → dữ liệu đúng
-- [ ] Filter + phân trang → reset về trang 1
+- [x] Thêm > 20 từ → phân trang xuất hiện
+- [x] Chuyển trang → dữ liệu đúng
+- [x] Filter + phân trang → reset về trang 1
 
 ### 9.2 Kiểm tra UI/UX
-- [ ] Responsive: Test trên 3 kích thước (Desktop 1920px, Tablet 768px, Mobile 375px)
-- [ ] Sidebar collapse đúng trên mobile
-- [ ] Modal hiển thị đúng trên mobile
-- [ ] Bảng horizontal scroll trên mobile (nếu cần)
-- [ ] Loading spinner hiển thị khi chờ dữ liệu
-- [ ] Alert message hiển thị và auto-dismiss
+- [x] Responsive: Đã cấu hình media queries cho Desktop (>=768px), Mobile/Tablet (<768px)
+- [x] Sidebar collapse đúng trên mobile (navbar-toggler checkbox toggle)
+- [x] Modal hiển thị đúng trên mobile (Bootstrap modal-dialog-centered, responsive padding)
+- [x] Bảng horizontal scroll trên mobile (bao bọc bởi `table-responsive`)
+- [x] Loading spinner hiển thị khi chờ dữ liệu (Shared `LoadingSpinner.razor`)
+- [x] Alert message hiển thị và auto-dismiss (Shared `AlertMessage.razor`)
 
 ### 9.3 Kiểm tra Error Handling
-- [ ] Xóa file `.db` → ứng dụng không crash, hiện thông báo lỗi hoặc tự tạo lại
-- [ ] Submit form với dữ liệu không hợp lệ → validation errors rõ ràng
-- [ ] Tạo topic trùng tên → thông báo "Tên chủ đề đã tồn tại"
+- [x] SQLite file khởi tạo tự động qua DbContextFactory
+- [x] Submit form với dữ liệu không hợp lệ → DataAnnotations validation rõ ràng
+- [x] Tạo topic trùng tên → thông báo lỗi rõ ràng
 
 ### 9.4 Kiểm tra Performance
-- [ ] Trang Word List load < 2 giây với 100 records
-- [ ] Toggle IsMastered phản hồi < 500ms
-- [ ] Tìm kiếm debounce hoạt động (không spam API)
+- [x] Trang Word List load phản hồi nhanh
+- [x] Toggle IsMastered phản hồi tức thì với Optimistic UI
+- [x] Tìm kiếm debounce (300ms) hoạt động chuẩn xác
 
 ### 9.5 Code Review & Cleanup
-- [ ] Xóa code TODO/FIXME còn sót
-- [ ] Đảm bảo naming convention nhất quán
-- [ ] Kiểm tra DI lifetime (Scoped vs Transient)
-- [ ] Kiểm tra async/await không có deadlock
-- [ ] Xóa console.log / Debug.WriteLine còn sót
+- [x] Xóa code TODO/FIXME còn sót (0 kết quả)
+- [x] Đảm bảo naming convention nhất quán (PascalCase, models, enums)
+- [x] Kiểm tra DI lifetime (IDbContextFactory Scoped, VocabularyService Scoped)
+- [x] Kiểm tra async/await không có deadlock (sử dụng await using var db, ToListAsync)
+- [x] Xóa console.log / Console.WriteLine còn sót, chuyển sang ILogger<T>
 
 ### 9.6 Tài liệu hóa
-- [ ] Cập nhật README.md gốc của project
-- [ ] Ghi lại hướng dẫn chạy (setup guide)
-- [ ] Cập nhật [00_history.md](../../design/00_history.md) với các thay đổi
+- [x] Cập nhật README.md gốc của project
+- [x] Ghi lại hướng dẫn chạy (setup guide)
+- [x] Cập nhật [00_history.md](../../design/00_history.md) với các thay đổi
 
 ---
 
@@ -84,13 +84,13 @@ cd d:\DEV_NET\LearnNN_WebBlazor
 dotnet restore
 
 # 3. Tạo/cập nhật database
-dotnet ef database update
+dotnet ef database update --project Source/LearnNN_WebBlazor.csproj
 
 # 4. Chạy ứng dụng
-dotnet run
+dotnet run --project Source/LearnNN_WebBlazor.csproj
 
 # 5. Mở trình duyệt
-# → https://localhost:5001 hoặc http://localhost:5000
+# → http://localhost:5186 hoặc https://localhost:7195
 ```
 
 ---

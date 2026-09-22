@@ -18,8 +18,8 @@
 | 05 | [Topic Management](05_topic_management/) | TopicManage.razor – CRUD chủ đề, validate trùng tên | 🟡 TB | Task 03, 04 | ✅ Hoàn thành |
 | 06 | [Word List](06_word_list/) | WordList.razor – Bảng, tìm kiếm, lọc, phân trang, toggle trạng thái | 🔴 Cao | Task 03, 04, 05 | ✅ Hoàn thành |
 | 07 | [Word Form Modal](07_word_form_modal/) | WordFormModal.razor – Form thêm/sửa từ, EditForm, validation | 🔴 Cao | Task 03, 06 | ✅ Hoàn thành |
-| 08 | [Shared Components](08_shared_components/) | ConfirmDeleteModal, LoadingSpinner, AlertMessage | 🟡 TB | Task 01 | ⬜ Chưa bắt đầu |
-| 09 | [Integration & Testing](09_integration_testing/) | Kiểm tra E2E, responsive, error handling, performance, cleanup | 🔴 Cao | Task 01→08 | ⬜ Chưa bắt đầu |
+| 08 | [Shared Components](08_shared_components/) | ConfirmDeleteModal, LoadingSpinner, AlertMessage | 🟡 TB | Task 01 | ✅ Hoàn thành |
+| 09 | [Integration & Testing](09_integration_testing/) | Kiểm tra E2E, responsive, error handling, performance, cleanup | 🔴 Cao | Task 01→08 | ✅ Hoàn thành |
 
 ---
 

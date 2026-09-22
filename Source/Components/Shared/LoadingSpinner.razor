@@ -1,0 +1,46 @@
+@namespace LearnNN_WebBlazor.Components.Shared
+
+@if (IsVisible)
+{
+    <div class="d-flex flex-column align-items-center justify-content-center py-5 loading-spinner-container">
+        <div class="spinner-border text-primary @SizeClass mb-3" role="status" style="@CustomSpinnerStyle">
+            <span class="visually-hidden">Đang tải...</span>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Message))
+        {
+            <div class="text-secondary fw-medium small">
+                @Message
+            </div>
+        }
+    </div>
+}
+
+@code {
+    /// <summary>
+    /// Thông báo kèm theo dưới vòng xoay loading.
+    /// </summary>
+    [Parameter] public string? Message { get; set; } = "Đang tải dữ liệu...";
+
+    /// <summary>
+    /// Trạng thái hiển thị (true: hiện, false: ẩn).
+    /// </summary>
+    [Parameter] public bool IsVisible { get; set; } = true;
+
+    /// <summary>
+    /// Kích thước spinner ("sm", "md", "lg").
+    /// </summary>
+    [Parameter] public string? Size { get; set; } = "md";
+
+    private string SizeClass => (Size?.ToLower()) switch
+    {
+        "sm" => "spinner-border-sm",
+        _ => ""
+    };
+
+    private string CustomSpinnerStyle => (Size?.ToLower()) switch
+    {
+        "sm" => "width: 1.25rem; height: 1.25rem; border-width: 0.15rem;",
+        "lg" => "width: 3.5rem; height: 3.5rem; border-width: 0.3rem;",
+        _ => "width: 2.5rem; height: 2.5rem; border-width: 0.25rem;"
+    };
+}

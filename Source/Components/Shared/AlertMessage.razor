@@ -1,0 +1,116 @@
+@namespace LearnNN_WebBlazor.Components.Shared
+@using LearnNN_WebBlazor.Models
+@implements IDisposable
+
+@if (IsVisible && !string.IsNullOrWhiteSpace(Message))
+{
+    <div class="alert @AlertClass alert-dismissible fade show rounded-3 shadow-sm border mb-4 d-flex align-items-center justify-content-between" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi @AlertIcon fs-5"></i>
+            <div class="fw-medium">@Message</div>
+        </div>
+        <button type="button" class="btn-close" aria-label="Close" @onclick="DismissAsync"></button>
+    </div>
+}
+
+@code {
+    /// <summary>
+    /// Nội dung thông báo hiển thị.
+    /// </summary>
+    [Parameter] public string? Message { get; set; }
+
+    /// <summary>
+    /// Kiểu thông báo (Success, Warning, Error, Info).
+    /// </summary>
+    [Parameter] public AlertType Type { get; set; } = AlertType.Success;
+
+    /// <summary>
+    /// Trạng thái hiển thị thông báo.
+    /// </summary>
+    [Parameter] public bool IsVisible { get; set; }
+
+    /// <summary>
+    /// Tự động đóng thông báo sau một khoảng thời gian.
+    /// </summary>
+    [Parameter] public bool AutoDismiss { get; set; } = true;
+
+    /// <summary>
+    /// Số giây trước khi tự động đóng (mặc định: 4 giây).
+    /// </summary>
+    [Parameter] public int AutoDismissSeconds { get; set; } = 4;
+
+    /// <summary>
+    /// Callback khi thông báo bị đóng (thủ công hoặc tự động).
+    /// </summary>
+    [Parameter] public EventCallback OnDismiss { get; set; }
+
+    private CancellationTokenSource? _dismissCts;
+    private bool _previousVisible = false;
+    private string? _previousMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Khi thông báo mới xuất hiện hoặc thay đổi nội dung
+        if (IsVisible && !string.IsNullOrWhiteSpace(Message) && (!_previousVisible || _previousMessage != Message))
+        {
+            _previousVisible = true;
+            _previousMessage = Message;
+
+            if (AutoDismiss && AutoDismissSeconds > 0)
+            {
+                _dismissCts?.Cancel();
+                _dismissCts?.Dispose();
+                _dismissCts = new CancellationTokenSource();
+
+                try
+                {
+                    await Task.Delay(AutoDismissSeconds * 1000, _dismissCts.Token);
+                    await DismissAsync();
+                }
+                catch (TaskCanceledException)
+                {
+                    // Hủy delay khi dismiss thủ công hoặc đổi thông báo
+                }
+            }
+        }
+        else if (!IsVisible)
+        {
+            _previousVisible = false;
+            _previousMessage = null;
+            _dismissCts?.Cancel();
+        }
+    }
+
+    private async Task DismissAsync()
+    {
+        _dismissCts?.Cancel();
+        if (OnDismiss.HasDelegate)
+        {
+            await OnDismiss.InvokeAsync();
+        }
+    }
+
+    private string AlertClass => Type switch
+    {
+        AlertType.Success => "alert-success border-success-subtle text-success-emphasis bg-success-subtle",
+        AlertType.Warning => "alert-warning border-warning-subtle text-warning-emphasis bg-warning-subtle",
+        AlertType.Error => "alert-danger border-danger-subtle text-danger-emphasis bg-danger-subtle",
+        AlertType.Info => "alert-info border-info-subtle text-info-emphasis bg-info-subtle",
+        _ => "alert-info border-info-subtle text-info-emphasis bg-info-subtle"
+    };
+
+    private string AlertIcon => Type switch
+    {
+        AlertType.Success => "bi-check-circle-fill text-success",
+        AlertType.Warning => "bi-exclamation-triangle-fill text-warning",
+        AlertType.Error => "bi-x-circle-fill text-danger",
+        AlertType.Info => "bi-info-circle-fill text-info",
+        _ => "bi-info-circle-fill text-info"
+    };
+
+    public void Dispose()
+    {
+        _dismissCts?.Cancel();
+        _dismissCts?.Dispose();
+    }
+}

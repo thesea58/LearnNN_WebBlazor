@@ -50,6 +50,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │       └── 📄 Word.cs                  #    Entity: Từ vựng
 │   │
 │   ├── 📁 Models/                          # 📦 ViewModels / DTOs
+│   │   ├── 📄 AlertType.cs                 #    Enum: Kiểu thông báo (Success, Warning, Error, Info)
 │   │   └── 📄 WordFilterModel.cs           #    Filter model cho Word (search, paging)
 │   │
 │   ├── 📁 Services/                        # ⚡ Business Logic Layer
@@ -80,7 +81,9 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │   │       ├── 📄 WordList.razor       #    Trang danh sách từ vựng (bảng, tìm kiếm, lọc, phân trang, toggle)
 │   │   │       └── 📄 WordFormModal.razor  #    Modal form thêm/sửa từ vựng với validation
 │   │   └── 📁 Shared/                      #    Shared/reusable UI components
-│   │       └── 📄 ConfirmDeleteModal.razor #    Modal xác nhận xóa tái sử dụng cho các trang
+│   │       ├── 📄 AlertMessage.razor       #    Component thông báo kết quả (auto-dismiss)
+│   │       ├── 📄 ConfirmDeleteModal.razor #    Modal xác nhận xóa tái sử dụng cho các trang
+│   │       └── 📄 LoadingSpinner.razor     #    Component loading spinner tái sử dụng
 │   │
 │   ├── 📁 Migrations/                      # 🔄 EF Core Migration files (auto-generated)
 │   │   ├── 📄 20260922..._InitialCreate.Designer.cs
@@ -96,6 +99,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       └── 📁 lib/                         #    Third-party client libraries
 │           └── 📁 bootstrap/              #    Bootstrap 5
 │
+├── 📄 README.md                            # Tài liệu tổng quan dự án & hướng dẫn chạy
 ├── 📄 .gitignore                           # Git ignore rules
 └── 📁 .git/                                # Git repository data
 ```
@@ -213,3 +217,4 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-09-22 | Tinh gọn PROJECT_MAP.md | `docs/PROJECT_MAP.md` | Lược bỏ bảng Quy tắc Vàng, Quy trình chuẩn và Phụ lục Stack/Architecture để file gọn nhẹ, tập trung phần lõi tra cứu |
 | 2026-09-22 | Task 04 – Layout & Navigation | `Source/Components/Layout/MainLayout.razor`, `Source/Components/Layout/NavMenu.razor`, `Source/Components/Pages/Home.razor`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/wwwroot/app.css`, `Source/Components/App.razor`, `Source/Components/_Imports.razor` | Thiết kế MainLayout responsive (desktop/mobile), NavMenu với branding và icon, Home Dashboard thống kê từ IVocabularyService, CSS tùy chỉnh hiện đại |
 | 2026-09-22 | Task 05 & 06 – Topic Management & Word List | `Source/Components/Pages/Topics/TopicManage.razor`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Words/WordFormModal.razor`, `Source/Components/Shared/ConfirmDeleteModal.razor`, `Source/Services/VocabularyService.cs`, `Source/Components/_Imports.razor`, `Source/wwwroot/app.css` | Triển khai hoàn chỉnh tính năng quản lý chủ đề (/topics) và danh sách từ vựng (/words) với debounce search, bộ lọc, toggle IsMastered, phân trang server-side, modal thêm/sửa và modal xác nhận xóa dùng chung |
+| 2026-09-22 | Task 08 & 09 – Shared Components, Integration & Testing | `Source/Models/AlertType.cs`, `Source/Components/Shared/LoadingSpinner.razor`, `Source/Components/Shared/AlertMessage.razor`, `Source/Components/Shared/ConfirmDeleteModal.razor`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Home.razor`, `README.md` | Hoàn thiện bộ Shared Components (AlertMessage, LoadingSpinner, ConfirmDeleteModal backdrop), tích hợp vào các trang, kiểm thử E2E HTTP endpoints, dọn dẹp debug logging và tài liệu hóa toàn diện |

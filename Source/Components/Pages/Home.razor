@@ -1,6 +1,7 @@
 @page "/"
 @rendermode InteractiveServer
 @inject IVocabularyService VocabularyService
+@inject ILogger<Home> Logger
 
 <PageTitle>Trang chủ - LearnNN 📘</PageTitle>
 
@@ -30,12 +31,7 @@
 
     @if (isLoading)
     {
-        <div class="d-flex justify-content-center align-items-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Đang tải dữ liệu...</span>
-            </div>
-            <span class="ms-3 text-muted">Đang tải dữ liệu học tập...</span>
-        </div>
+        <LoadingSpinner IsVisible="@isLoading" Message="Đang tải dữ liệu học tập..." />
     }
     else
     {
@@ -306,7 +302,7 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading dashboard: {ex.Message}");
+            Logger.LogError(ex, "Error loading dashboard");
         }
         finally
         {
