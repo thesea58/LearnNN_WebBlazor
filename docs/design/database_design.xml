@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ============================================================
+  LearnNN Vocabulary Management App
+  Database Design Document – XML Format
+  Version: 1.0
+  Date: 2026-09-22
+  Author: LearnNN Team
+  ============================================================
+-->
+<DatabaseDesign
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  version="1.0"
+  application="LearnNN Vocabulary Management App"
+  database="LearnNN_VocabDB"
+  dbms="Microsoft SQL Server"
+  targetVersion="SQL Server 2019 / LocalDB 2022"
+  orm="Entity Framework Core 9"
+  framework=".NET 10 Blazor Web App">
+
+  <!-- ══════════════════════════════════════════════════════════
+       METADATA
+  ══════════════════════════════════════════════════════════ -->
+  <Metadata>
+    <CreatedAt>2026-09-22T21:00:00+07:00</CreatedAt>
+    <LastModified>2026-09-22T21:00:00+07:00</LastModified>
+    <Description>
+      Cơ sở dữ liệu quản lý bộ từ vựng tiếng Anh gồm 2 bảng chính:
+      Topics (Chủ đề) và Words (Từ vựng) với quan hệ 1-N.
+    </Description>
+  </Metadata>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TABLES
+  ══════════════════════════════════════════════════════════ -->
+  <Tables>
+
+    <!-- ─────────────────────────────────────────── TABLE: Topics -->
+    <Table name="Topics" schema="dbo" efEntity="Topic" efDbSet="Topics">
+      <Description>Bảng lưu trữ chủ đề / danh mục từ vựng</Description>
+
+      <Columns>
+        <Column name="Id" dataType="INT" nullable="false"
+                isIdentity="true" identitySeed="1" identityIncrement="1"
+                isPrimaryKey="true"
+                efProperty="Id" efType="int"
+                description="Khóa chính tự tăng" />
+
+        <Column name="Name" dataType="NVARCHAR" maxLength="100" nullable="false"
+                isUnique="true"
+                efProperty="Name" efType="string"
+                validation="Required, MaxLength(100)"
+                description="Tên chủ đề, ví dụ: Công nghệ, IELTS, Giao tiếp" />
+
+        <Column name="Description" dataType="NVARCHAR" maxLength="250" nullable="true"
+                efProperty="Description" efType="string?"
+                validation="MaxLength(250)"
+                description="Mô tả ngắn về chủ đề" />
+
+        <Column name="CreatedAt" dataType="DATETIME2" precision="7" nullable="false"
+                defaultValue="GETUTCDATE()"
+                efProperty="CreatedAt" efType="DateTime"
+                description="Thời điểm tạo record (UTC)" />
+
+        <Column name="UpdatedAt" dataType="DATETIME2" precision="7" nullable="true"
+                efProperty="UpdatedAt" efType="DateTime?"
+                description="Thời điểm cập nhật cuối (UTC), NULL nếu chưa update" />
+      </Columns>
+
+      <PrimaryKey name="PK_Topics">
+        <KeyColumn>Id</KeyColumn>
+      </PrimaryKey>
+
+      <Indexes>
+        <Index name="IX_Topics_Name" type="NONCLUSTERED" isUnique="true">
+          <IndexColumn>Name</IndexColumn>
+        </Index>
+      </Indexes>
+
+      <NavigationProperties>
+        <NavigationProperty name="Words" relatedEntity="Word"
+                            relationship="OneToMany" cardinality="0..*"
+                            description="Danh sách từ vựng thuộc chủ đề này" />
+      </NavigationProperties>
+    </Table>
+
+    <!-- ──────────────────────────────────────────── TABLE: Words -->
+    <Table name="Words" schema="dbo" efEntity="Word" efDbSet="Words">
+      <Description>Bảng lưu trữ từ vựng tiếng Anh</Description>
+
+      <Columns>
+        <Column name="Id" dataType="INT" nullable="false"
+                isIdentity="true" identitySeed="1" identityIncrement="1"
+                isPrimaryKey="true"
+                efProperty="Id" efType="int"
+                description="Khóa chính tự tăng" />
+
+        <Column name="TopicId" dataType="INT" nullable="false"
+                isForeignKey="true" referencedTable="Topics" referencedColumn="Id"
+                efProperty="TopicId" efType="int"
+                description="Khóa ngoại liên kết đến bảng Topics" />
+
+        <Column name="Term" dataType="NVARCHAR" maxLength="100" nullable="false"
+                efProperty="Term" efType="string"
+                validation="Required, MaxLength(100)"
+                description="Từ hoặc cụm từ tiếng Anh cần học" />
+
+        <Column name="Phonetic" dataType="NVARCHAR" maxLength="100" nullable="true"
+                efProperty="Phonetic" efType="string?"
+                validation="MaxLength(100)"
+                description="Phiên âm IPA, ví dụ: /ˈæp.əl/" />
+
+        <Column name="PartOfSpeech" dataType="NVARCHAR" maxLength="50" nullable="true"
+                efProperty="PartOfSpeech" efType="string?"
+                validation="MaxLength(50)"
+                description="Từ loại: noun, verb, adjective, adverb, phrase..."
+                allowedValues="noun,verb,adjective,adverb,phrase,conjunction,preposition,interjection" />
+
+        <Column name="Meaning" dataType="NVARCHAR" maxLength="500" nullable="false"
+                efProperty="Meaning" efType="string"
+                validation="Required, MaxLength(500)"
+                description="Nghĩa tiếng Việt hoặc định nghĩa của từ" />
+
+        <Column name="ExampleSentence" dataType="NVARCHAR" maxLength="500" nullable="true"
+                efProperty="ExampleSentence" efType="string?"
+                validation="MaxLength(500)"
+                description="Câu ví dụ bằng tiếng Anh" />
+
+        <Column name="ExampleTranslation" dataType="NVARCHAR" maxLength="500" nullable="true"
+                efProperty="ExampleTranslation" efType="string?"
+                validation="MaxLength(500)"
+                description="Bản dịch câu ví dụ sang tiếng Việt" />
+
+        <Column name="IsMastered" dataType="BIT" nullable="false"
+                defaultValue="0"
+                efProperty="IsMastered" efType="bool"
+                description="Trạng thái học: false = Chưa thuộc, true = Đã thuộc" />
+
+        <Column name="CreatedAt" dataType="DATETIME2" precision="7" nullable="false"
+                defaultValue="GETUTCDATE()"
+                efProperty="CreatedAt" efType="DateTime"
+                description="Thời điểm tạo record (UTC)" />
+
+        <Column name="UpdatedAt" dataType="DATETIME2" precision="7" nullable="true"
+                efProperty="UpdatedAt" efType="DateTime?"
+                description="Thời điểm cập nhật cuối (UTC)" />
+      </Columns>
+
+      <PrimaryKey name="PK_Words">
+        <KeyColumn>Id</KeyColumn>
+      </PrimaryKey>
+
+      <ForeignKeys>
+        <ForeignKey name="FK_Words_Topics"
+                    referencedTable="Topics"
+                    deleteRule="CASCADE"
+                    updateRule="NO_ACTION">
+          <ForeignKeyColumn local="TopicId" referenced="Id" />
+        </ForeignKey>
+      </ForeignKeys>
+
+      <Indexes>
+        <Index name="IX_Words_TopicId" type="NONCLUSTERED" isUnique="false">
+          <IndexColumn>TopicId</IndexColumn>
+        </Index>
+        <Index name="IX_Words_Term" type="NONCLUSTERED" isUnique="false">
+          <IndexColumn>Term</IndexColumn>
+        </Index>
+        <Index name="IX_Words_IsMastered" type="NONCLUSTERED" isUnique="false">
+          <IndexColumn>IsMastered</IndexColumn>
+        </Index>
+      </Indexes>
+
+      <NavigationProperties>
+        <NavigationProperty name="Topic" relatedEntity="Topic"
+                            relationship="ManyToOne" cardinality="1"
+                            description="Chủ đề mà từ vựng này thuộc về" />
+      </NavigationProperties>
+    </Table>
+
+  </Tables>
+
+  <!-- ══════════════════════════════════════════════════════════
+       RELATIONSHIPS
+  ══════════════════════════════════════════════════════════ -->
+  <Relationships>
+    <Relationship name="Topic_Words"
+                  type="OneToMany"
+                  principalTable="Topics"
+                  dependentTable="Words">
+      <PrincipalKey>Id</PrincipalKey>
+      <ForeignKey>TopicId</ForeignKey>
+      <OnDelete>CASCADE</OnDelete>
+      <OnUpdate>NO_ACTION</OnUpdate>
+      <EfConfiguration>
+        HasOne(w => w.Topic).WithMany(t => t.Words).HasForeignKey(w => w.TopicId).OnDelete(DeleteBehavior.Cascade)
+      </EfConfiguration>
+      <Description>
+        Một Topic có thể có nhiều Words. Xóa Topic sẽ cascade xóa tất cả Words liên quan.
+      </Description>
+    </Relationship>
+  </Relationships>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SEED DATA
+  ══════════════════════════════════════════════════════════ -->
+  <SeedData>
+    <TableSeedData tableName="Topics">
+      <Row id="1" name="Công nghệ"      description="Từ vựng về công nghệ thông tin, lập trình, phần mềm" />
+      <Row id="2" name="Giao tiếp"      description="Từ vựng giao tiếp hàng ngày, xã giao, văn phòng"    />
+      <Row id="3" name="IELTS Academic" description="Từ vựng học thuật dùng trong kỳ thi IELTS"          />
+    </TableSeedData>
+
+    <TableSeedData tableName="Words">
+      <Row id="1" topicId="1" term="algorithm"
+           phonetic="/ˈæl.ɡə.rɪ.ðəm/" partOfSpeech="noun"
+           meaning="Thuật toán – tập hợp các bước xử lý để giải quyết bài toán"
+           exampleSentence="The sorting algorithm runs in O(n log n) time."
+           exampleTranslation="Thuật toán sắp xếp này chạy trong thời gian O(n log n)."
+           isMastered="false" />
+
+      <Row id="2" topicId="1" term="framework"
+           phonetic="/ˈfreɪm.wɜːk/" partOfSpeech="noun"
+           meaning="Khung phần mềm – bộ thư viện/công cụ hỗ trợ xây dựng ứng dụng"
+           exampleSentence=".NET is a powerful framework for building web applications."
+           exampleTranslation=".NET là một framework mạnh mẽ để xây dựng ứng dụng web."
+           isMastered="true" />
+
+      <Row id="3" topicId="1" term="repository"
+           phonetic="/rɪˈpɒz.ɪ.tər.i/" partOfSpeech="noun"
+           meaning="Kho lưu trữ mã nguồn"
+           exampleSentence="Please push your code to the Git repository."
+           exampleTranslation="Hãy đẩy code của bạn lên kho Git."
+           isMastered="false" />
+
+      <Row id="4" topicId="2" term="apologize"
+           phonetic="/əˈpɒl.ə.dʒaɪz/" partOfSpeech="verb"
+           meaning="Xin lỗi, tạ lỗi"
+           exampleSentence="I apologize for the delay in responding."
+           exampleTranslation="Tôi xin lỗi vì đã trả lời trễ."
+           isMastered="false" />
+
+      <Row id="5" topicId="2" term="clarify"
+           phonetic="/ˈklær.ɪ.faɪ/" partOfSpeech="verb"
+           meaning="Làm rõ, giải thích rõ hơn"
+           exampleSentence="Could you clarify what you mean by that?"
+           exampleTranslation="Bạn có thể làm rõ ý bạn muốn nói không?"
+           isMastered="true" />
+
+      <Row id="6" topicId="3" term="substantial"
+           phonetic="/səbˈstæn.ʃəl/" partOfSpeech="adjective"
+           meaning="Đáng kể, quan trọng, lớn về quy mô"
+           exampleSentence="There has been a substantial increase in online learning."
+           exampleTranslation="Đã có sự gia tăng đáng kể trong việc học trực tuyến."
+           isMastered="false" />
+
+      <Row id="7" topicId="3" term="nonetheless"
+           phonetic="/ˌnʌn.ðəˈles/" partOfSpeech="adverb"
+           meaning="Tuy nhiên, dẫu vậy, mặc dù thế"
+           exampleSentence="The task was difficult; nonetheless, she completed it."
+           exampleTranslation="Nhiệm vụ rất khó; dẫu vậy, cô ấy đã hoàn thành nó."
+           isMastered="false" />
+    </TableSeedData>
+  </SeedData>
+
+  <!-- ══════════════════════════════════════════════════════════
+       FUTURE EXPANSION (V2+)
+  ══════════════════════════════════════════════════════════ -->
+  <FutureExpansion>
+    <PlannedTable name="Users" version="2.0"
+                  description="Bảng người dùng cho tính năng Authentication" />
+    <PlannedTable name="LearningProgress" version="2.0"
+                  description="Lưu tiến độ học của từng user theo từng Word" />
+    <PlannedTable name="QuizSessions" version="2.0"
+                  description="Lưu lịch sử các phiên quiz/flashcard" />
+    <PlannedTable name="WordAudio" version="3.0"
+                  description="Lưu đường dẫn audio file phiên âm" />
+  </FutureExpansion>
+
+</DatabaseDesign>
