@@ -1,5 +1,6 @@
 using LearnNN_WebBlazor.Components;
 using LearnNN_WebBlazor.Data;
+using LearnNN_WebBlazor.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,9 @@ builder.Services.AddRazorComponents()
 // Database Context Factory (required for Blazor Server concurrency safety)
 builder.Services.AddDbContextFactory<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Business Services
+builder.Services.AddScoped<IVocabularyService, VocabularyService>();
 
 var app = builder.Build();
 

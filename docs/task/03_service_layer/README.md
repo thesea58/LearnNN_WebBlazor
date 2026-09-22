@@ -1,7 +1,7 @@
 # 📋 Task 03 – Service Layer (Business Logic)
 ## IVocabularyService & VocabularyService
 
-> **Trạng thái**: ⬜ Chưa bắt đầu  
+> **Trạng thái**: ✅ Hoàn thành  
 > **Độ ưu tiên**: 🔴 Cao  
 > **Phụ thuộc**: Task 02 (Database & Entities)  
 > **Tài liệu tham chiếu**: [03_architecture.md](../../design/03_architecture.md)
@@ -17,16 +17,16 @@ Xây dựng tầng Service chứa toàn bộ business logic, CRUD operations cho
 ## Danh sách công việc
 
 ### 3.1 Tạo Filter/ViewModel Models
-- [ ] Tạo `Models/WordFilterModel.cs`:
+- [x] Tạo `Models/WordFilterModel.cs`:
   - `SearchTerm` (string?) – tìm kiếm theo Term hoặc Meaning
   - `TopicId` (int?) – lọc theo chủ đề
   - `MasteredFilter` (enum: All / NotMastered / Mastered)
   - `Page` (int, default: 1)
   - `PageSize` (int, default: 20)
-- [ ] Tạo enum `MasteredFilter` (All = 0, NotMastered = 1, Mastered = 2)
+- [x] Tạo enum `MasteredFilter` (All = 0, NotMastered = 1, Mastered = 2)
 
 ### 3.2 Tạo Interface IVocabularyService
-- [ ] Tạo `Services/IVocabularyService.cs` với các method:
+- [x] Tạo `Services/IVocabularyService.cs` với các method:
   ```
   // TOPIC
   GetAllTopicsAsync()
@@ -47,7 +47,7 @@ Xây dựng tầng Service chứa toàn bộ business logic, CRUD operations cho
   ```
 
 ### 3.3 Triển khai VocabularyService
-- [ ] Tạo `Services/VocabularyService.cs`:
+- [x] Tạo `Services/VocabularyService.cs`:
   - Inject `IDbContextFactory<AppDbContext>`
   - Mỗi method tạo DbContext riêng: `await using var db = await _factory.CreateDbContextAsync()`
   - **GetWordsAsync**: Build dynamic IQueryable với filter → search → sort → pagination
@@ -57,12 +57,12 @@ Xây dựng tầng Service chứa toàn bộ business logic, CRUD operations cho
   - Include `Topic` navigation khi lấy danh sách Word
 
 ### 3.4 Đăng ký DI trong Program.cs
-- [ ] Thêm: `builder.Services.AddScoped<IVocabularyService, VocabularyService>()`
+- [x] Thêm: `builder.Services.AddScoped<IVocabularyService, VocabularyService>()`
 
 ### 3.5 Kiểm tra
-- [ ] Build thành công
-- [ ] Không có warning về async methods
-- [ ] Tất cả method trả về đúng kiểu dữ liệu
+- [x] Build thành công
+- [x] Không có warning về async methods
+- [x] Tất cả method trả về đúng kiểu dữ liệu
 
 ---
 
