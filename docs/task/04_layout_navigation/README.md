@@ -1,7 +1,7 @@
 # 📋 Task 04 – Layout & Navigation
 ## MainLayout, NavMenu, Trang chủ
 
-> **Trạng thái**: ⬜ Chưa bắt đầu  
+> **Trạng thái**: ✅ Hoàn thành  
 > **Độ ưu tiên**: 🟡 Trung bình  
 > **Phụ thuộc**: Task 01 (Project Setup)  
 > **Tài liệu tham chiếu**: [03_architecture.md](../../design/03_architecture.md)
@@ -17,37 +17,37 @@ Tùy chỉnh layout chính của ứng dụng: sidebar navigation, header, foote
 ## Danh sách công việc
 
 ### 4.1 Cập nhật MainLayout.razor
-- [ ] Sidebar navigation với branding "LearnNN 📘"
-- [ ] Responsive layout (collapse sidebar trên mobile)
-- [ ] Footer với thông tin phiên bản
+- [x] Sidebar navigation với branding "LearnNN 📘"
+- [x] Responsive layout (collapse sidebar trên mobile)
+- [x] Footer với thông tin phiên bản
 
 ### 4.2 Cập nhật NavMenu.razor
-- [ ] Menu items với icon:
+- [x] Menu items với icon:
   - 🏠 Trang chủ → `/`
   - 📝 Từ vựng → `/words`
   - 📁 Chủ đề → `/topics`
-- [ ] Highlight menu item đang active
-- [ ] Collapse menu trên mobile
+- [x] Highlight menu item đang active
+- [x] Collapse menu trên mobile
 
 ### 4.3 Tạo Home.razor (Dashboard)
-- [ ] Route: `/`
-- [ ] Hiển thị thông tin tổng quan:
+- [x] Route: `/`
+- [x] Hiển thị thông tin tổng quan:
   - Tổng số từ vựng
   - Số từ đã thuộc / chưa thuộc
   - Số chủ đề
-- [ ] Card layout với Bootstrap 5
-- [ ] Nút shortcut: "Thêm từ mới", "Xem danh sách"
+- [x] Card layout với Bootstrap 5
+- [x] Nút shortcut: "Thêm từ mới", "Xem danh sách"
 
 ### 4.4 Cập nhật CSS
-- [ ] Tùy chỉnh `wwwroot/app.css`:
+- [x] Tùy chỉnh `wwwroot/app.css`:
   - Color scheme phù hợp ứng dụng học tập
   - Typography sạch sẽ, dễ đọc
   - Hover effects cho buttons và menu items
 
 ### 4.5 Kiểm tra
-- [ ] Layout hiển thị đúng trên desktop và mobile
-- [ ] Navigation hoạt động, routing chính xác
-- [ ] Home page hiển thị dữ liệu từ Service
+- [x] Layout hiển thị đúng trên desktop và mobile
+- [x] Navigation hoạt động, routing chính xác
+- [x] Home page hiển thị dữ liệu từ Service
 
 ---
 

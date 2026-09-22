@@ -1,7 +1,317 @@
-﻿@page "/"
+@page "/"
+@rendermode InteractiveServer
+@inject IVocabularyService VocabularyService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Trang chủ - LearnNN 📘</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container-fluid p-0">
+    <!-- Welcome Banner -->
+    <div class="card border-0 mb-4 rounded-4 text-white shadow-sm overflow-hidden" 
+         style="background: linear-gradient(135deg, #312e81 0%, #4338ca 50%, #6366f1 100%);">
+        <div class="card-body p-4 p-lg-5 position-relative">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-2 mb-3 fw-normal">
+                        <i class="bi bi-stars text-warning me-1"></i> Mục tiêu hôm nay
+                    </span>
+                    <h1 class="display-6 fw-bold mb-2">Chào mừng bạn trở lại với LearnNN! 👋</h1>
+                    <p class="text-white-50 fs-6 mb-4 mb-lg-0" style="max-width: 620px;">
+                        Trau dồi vốn từ vựng mỗi ngày để làm chủ tiếng Anh. Theo dõi tiến độ học, ghi nhớ từ mới và ôn luyện theo từng chủ đề dễ dàng.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end d-none d-lg-block">
+                    <div class="display-1 text-white opacity-25">
+                        <i class="bi bi-mortarboard"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-Welcome to your new app.
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center align-items-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Đang tải dữ liệu...</span>
+            </div>
+            <span class="ms-3 text-muted">Đang tải dữ liệu học tập...</span>
+        </div>
+    }
+    else
+    {
+        <!-- Statistics Grid -->
+        <div class="row g-3 mb-4">
+            <!-- Total Words -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="card-stat">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-muted small fw-semibold text-uppercase">Tổng số từ vựng</span>
+                        <div class="stat-icon" style="background-color: var(--primary-subtle); color: var(--primary);">
+                            <i class="bi bi-journal-bookmark-fill"></i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h2 class="fw-bold mb-0 text-dark">@totalWords</h2>
+                        <span class="text-muted small">từ đã lưu</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mastered Words -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="card-stat">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-muted small fw-semibold text-uppercase">Đã thuộc</span>
+                        <div class="stat-icon" style="background-color: var(--success-subtle); color: var(--success);">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h2 class="fw-bold mb-0 text-success">@masteredWords</h2>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small">
+                            @masteredPercentage%
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Words -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="card-stat">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-muted small fw-semibold text-uppercase">Đang học / Chưa thuộc</span>
+                        <div class="stat-icon" style="background-color: var(--warning-subtle); color: var(--warning);">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h2 class="fw-bold mb-0 text-warning">@notMasteredWords</h2>
+                        <span class="text-muted small">cần ôn tập</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Topics -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="card-stat">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-muted small fw-semibold text-uppercase">Số chủ đề</span>
+                        <div class="stat-icon" style="background-color: var(--info-subtle); color: var(--info);">
+                            <i class="bi bi-folder2-open"></i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h2 class="fw-bold mb-0 text-info">@topicCount</h2>
+                        <span class="text-muted small">chủ đề tạo lập</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mastery Progress Bar Card -->
+        <div class="card border rounded-3 p-4 mb-4 bg-white shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark">
+                        <i class="bi bi-trophy text-warning me-2"></i>Tiến độ làm chủ vốn từ
+                    </h6>
+                    <small class="text-muted">Bạn đã nắm vững @masteredWords trên tổng số @totalWords từ vựng</small>
+                </div>
+                <span class="fw-bold fs-5 text-success">@masteredPercentage%</span>
+            </div>
+            <div class="progress-container mt-2">
+                <div class="progress-bar-gradient h-100" style="width: @(masteredPercentage)%"></div>
+            </div>
+        </div>
+
+        <!-- Quick Shortcuts -->
+        <h5 class="fw-bold mb-3 text-dark">
+            <i class="bi bi-lightning-charge-fill text-warning me-2"></i>Lối tắt thao tác
+        </h5>
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <a href="/words" class="shortcut-card">
+                    <div class="stat-icon flex-shrink-0" style="background-color: var(--primary-subtle); color: var(--primary);">
+                        <i class="bi bi-plus-circle-fill"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold shortcut-title">Thêm từ mới</div>
+                        <small class="text-muted">Lưu thêm từ vựng, phiên âm & ví dụ mới</small>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <a href="/words" class="shortcut-card">
+                    <div class="stat-icon flex-shrink-0" style="background-color: var(--success-subtle); color: var(--success);">
+                        <i class="bi bi-card-checklist"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold shortcut-title">Xem danh sách từ</div>
+                        <small class="text-muted">Tra cứu, ôn luyện và kiểm tra từ vựng</small>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <a href="/topics" class="shortcut-card">
+                    <div class="stat-icon flex-shrink-0" style="background-color: var(--info-subtle); color: var(--info);">
+                        <i class="bi bi-collection-fill"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold shortcut-title">Quản lý chủ đề</div>
+                        <small class="text-muted">Tạo mới và sắp xếp các nhóm từ theo chủ đề</small>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Words Preview Section -->
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card border rounded-3 bg-white shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold mb-0 text-dark">
+                            <i class="bi bi-clock-history me-2 text-primary"></i>Từ vựng gần đây
+                        </h6>
+                        <a href="/words" class="small text-primary fw-semibold">
+                            Xem tất cả <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (recentWords == null || !recentWords.Any())
+                        {
+                            <div class="p-4 text-center text-muted">
+                                <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                                Chưa có từ vựng nào trong hệ thống.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-3">Từ vựng</th>
+                                            <th>Phiên âm</th>
+                                            <th>Ý nghĩa</th>
+                                            <th>Chủ đề</th>
+                                            <th class="text-center pe-3">Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var word in recentWords)
+                                        {
+                                            <tr>
+                                                <td class="ps-3 fw-bold text-primary">@word.Term</td>
+                                                <td class="text-muted font-monospace small">@(word.Phonetic ?? "-")</td>
+                                                <td>@word.Meaning</td>
+                                                <td>
+                                                    <span class="badge bg-light text-secondary border">
+                                                        @(word.Topic?.Name ?? "Chung")
+                                                    </span>
+                                                </td>
+                                                <td class="text-center pe-3">
+                                                    @if (word.IsMastered)
+                                                    {
+                                                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                                            <i class="bi bi-check-circle me-1"></i> Đã thuộc
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                                                            <i class="bi bi-hourglass me-1"></i> Đang học
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border rounded-3 bg-white shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold mb-0 text-dark">
+                            <i class="bi bi-folder-fill me-2 text-warning"></i>Chủ đề học tập
+                        </h6>
+                        <a href="/topics" class="small text-primary fw-semibold">
+                            Quản lý <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="card-body p-3">
+                        @if (topicsList == null || !topicsList.Any())
+                        {
+                            <div class="p-3 text-center text-muted">
+                                Chưa có chủ đề nào.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var topic in topicsList)
+                                {
+                                    <div class="list-group-item d-flex justify-content-between align-items-center px-2 py-2 border-0 border-bottom">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="bi bi-bookmark text-primary"></i>
+                                            <span class="fw-semibold text-dark">@topic.Name</span>
+                                        </div>
+                                        <span class="badge bg-light text-dark border rounded-pill">
+                                            @(topic.Words?.Count ?? 0) từ
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private int totalWords = 0;
+    private int masteredWords = 0;
+    private int notMasteredWords = 0;
+    private int topicCount = 0;
+    private int masteredPercentage = 0;
+    private List<Topic> topicsList = new();
+    private List<Word> recentWords = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            topicsList = await VocabularyService.GetAllTopicsAsync();
+            topicCount = topicsList.Count;
+
+            totalWords = await VocabularyService.GetWordCountAsync(new WordFilterModel { MasteredFilter = MasteredFilter.All });
+            masteredWords = await VocabularyService.GetWordCountAsync(new WordFilterModel { MasteredFilter = MasteredFilter.Mastered });
+            notMasteredWords = await VocabularyService.GetWordCountAsync(new WordFilterModel { MasteredFilter = MasteredFilter.NotMastered });
+
+            if (totalWords > 0)
+            {
+                masteredPercentage = (int)Math.Round((double)masteredWords / totalWords * 100);
+            }
+
+            recentWords = await VocabularyService.GetWordsAsync(new WordFilterModel { Page = 1, PageSize = 5 });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading dashboard: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
+

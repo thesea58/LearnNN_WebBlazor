@@ -1,23 +1,44 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+    <main class="d-flex flex-column min-vh-100">
+        <header class="top-row px-4 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-semibold">
+                    <i class="bi bi-mortarboard-fill me-1"></i> Không gian học tập
+                </span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-muted small d-none d-sm-inline">
+                    <i class="bi bi-calendar-event me-1"></i> @DateTime.Now.ToString("dd/MM/yyyy")
+                </span>
+            </div>
+        </header>
 
-        <article class="content px-4">
+        <article class="content px-3 px-md-4 py-3 flex-grow-1">
             @Body
         </article>
+
+        <footer class="app-footer text-muted border-top px-4 py-3 text-center text-md-start">
+            <div class="container-fluid p-0 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                <span class="small">
+                    <strong>LearnNN</strong> &copy; @DateTime.Now.Year • Ứng dụng Quản lý Từ vựng tiếng Anh
+                </span>
+                <span class="small badge bg-white text-secondary border">
+                    Phiên bản 1.0.0
+                </span>
+            </div>
+        </footer>
     </main>
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
+    Đã có lỗi xảy ra.
+    <a href="." class="reload">Tải lại</a>
     <span class="dismiss">🗙</span>
 </div>
+

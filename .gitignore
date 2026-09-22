@@ -119,6 +119,8 @@ $RECYCLE.BIN/
 *.orig
 *.rej
 *.pid
+*.db-shm
+*.db-wal
 
 # Node (nếu dùng npm/yarn cho JS tools)
 node_modules/

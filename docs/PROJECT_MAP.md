@@ -30,7 +30,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📁 01_project_setup/            #    ✅ Task 01 – Project Setup
 │       ├── 📁 02_database_entities/        #    ✅ Task 02 – Database & Entities
 │       ├── 📁 03_service_layer/            #    ✅ Task 03 – Service Layer
-│       ├── 📁 04_layout_navigation/        #    ⬜ Task 04 – Layout & Navigation
+│       ├── 📁 04_layout_navigation/        #    ✅ Task 04 – Layout & Navigation
 │       ├── 📁 05_topic_management/         #    ⬜ Task 05 – Topic Management
 │       ├── 📁 06_word_list/                #    ⬜ Task 06 – Word List
 │       ├── 📁 07_word_form_modal/          #    ⬜ Task 07 – Word Form Modal
@@ -74,8 +74,10 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │   │   ├── 📄 Weather.razor            #    Demo weather (template mặc định)
 │   │   │   ├── 📄 Error.razor              #    Trang lỗi
 │   │   │   ├── 📄 NotFound.razor           #    Trang 404
-│   │   │   ├── 📁 Topics/                  #    Pages quản lý chủ đề (chưa có file)
-│   │   │   └── 📁 Words/                   #    Pages quản lý từ vựng (chưa có file)
+│   │   │   ├── 📁 Topics/                  #    Pages quản lý chủ đề
+│   │   │   │   └── 📄 TopicManage.razor    #    Trang quản lý chủ đề (stub Task 05)
+│   │   │   └── 📁 Words/                   #    Pages quản lý từ vựng
+│   │   │       └── 📄 WordList.razor       #    Trang danh sách từ vựng (stub Task 06)
 │   │   └── 📁 Shared/                      #    Shared/reusable UI components (chưa có file)
 │   │
 │   ├── 📁 Migrations/                      # 🔄 EF Core Migration files (auto-generated)
@@ -207,3 +209,4 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-09-22 | Task 03 – Service Layer | `Source/Services/IVocabularyService.cs`, `Source/Services/VocabularyService.cs`, `Source/Models/WordFilterModel.cs` | Tạo Business Logic Layer với CRUD Topics/Words, filter, paging |
 | 2026-09-22 | Khởi tạo PROJECT_MAP.md | `docs/PROJECT_MAP.md` | Tạo bản đồ kiến trúc chuẩn mực cho dự án, làm tài liệu tham chiếu bắt buộc cho mọi AI Agent |
 | 2026-09-22 | Tinh gọn PROJECT_MAP.md | `docs/PROJECT_MAP.md` | Lược bỏ bảng Quy tắc Vàng, Quy trình chuẩn và Phụ lục Stack/Architecture để file gọn nhẹ, tập trung phần lõi tra cứu |
+| 2026-09-22 | Task 04 – Layout & Navigation | `Source/Components/Layout/MainLayout.razor`, `Source/Components/Layout/NavMenu.razor`, `Source/Components/Pages/Home.razor`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/wwwroot/app.css`, `Source/Components/App.razor`, `Source/Components/_Imports.razor` | Thiết kế MainLayout responsive (desktop/mobile), NavMenu với branding và icon, Home Dashboard thống kê từ IVocabularyService, CSS tùy chỉnh hiện đại |

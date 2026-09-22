@@ -1,30 +1,37 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">LearnNN_WebBlazor</a>
+<div class="top-row ps-3 pe-3 navbar navbar-dark">
+    <div class="container-fluid d-flex align-items-center justify-content-between p-0">
+        <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="">
+            <span class="brand-icon">📘</span>
+            <span class="brand-text fw-bold">LearnNN</span>
+        </a>
     </div>
 </div>
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
+    <nav class="nav flex-column p-2">
+        <div class="nav-item">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <i class="bi bi-house-door me-2" aria-hidden="true"></i>
+                <span>Trang chủ</span>
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+        <div class="nav-item">
+            <NavLink class="nav-link" href="words">
+                <i class="bi bi-journal-text me-2" aria-hidden="true"></i>
+                <span>Từ vựng</span>
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+        <div class="nav-item">
+            <NavLink class="nav-link" href="topics">
+                <i class="bi bi-folder2-open me-2" aria-hidden="true"></i>
+                <span>Chủ đề</span>
             </NavLink>
         </div>
     </nav>
 </div>
+
 
