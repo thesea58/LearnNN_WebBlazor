@@ -1,0 +1,148 @@
+##############################################
+# .gitignore - ASP.NET Core Blazor Project
+# Stack: .NET 8+, Blazor (Server/WebAssembly)
+##############################################
+
+# ===========================
+# .NET Build Outputs
+# ===========================
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+
+# ===========================
+# NuGet Packages
+# ===========================
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+# Restore marker files
+*.lock.json
+!packages.lock.json
+
+# ===========================
+# Visual Studio / Rider IDE
+# ===========================
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+.idea/
+*.DotSettings.user
+
+# ===========================
+# MSBuild / Publish Artifacts
+# ===========================
+[Pp]ublish/
+publish/
+PublishProfiles/
+*.pubxml
+*.pubxml.user
+
+# ===========================
+# Blazor / WASM Specific
+# ===========================
+# Blazor WebAssembly publish output
+wwwroot/_framework/
+
+# ===========================
+# ASP.NET Core Runtime
+# ===========================
+# Development certificates
+*.pfx
+*.p12
+
+# Secrets & config overrides (NEVER commit these)
+appsettings.*.local.json
+secrets.json
+.env
+.env.*
+!.env.example
+
+# ===========================
+# Test Results & Coverage
+# ===========================
+TestResults/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+*.opencover.xml
+[Cc]overage*/
+
+# ===========================
+# Entity Framework Core
+# ===========================
+# EF migration bundles (generated)
+efbundle
+efbundle.exe
+
+# ===========================
+# Docker
+# ===========================
+# Ignore local override compose files
+docker-compose.override.yml
+.dockerignore
+
+# ===========================
+# OS / System Files
+# ===========================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+.nfs*
+
+# ===========================
+# Temporary & Misc
+# ===========================
+*.tmp
+*.temp
+*.bak
+*.swp
+*.orig
+*.rej
+*.pid
+
+# Node (nếu dùng npm/yarn cho JS tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===========================
+# Certificates & Keys (SECURITY)
+# ===========================
+*.pem
+*.key
+*.crt
+*.cer
+
+# ===========================
+# Build System
+# ===========================
+# Cake
+.cake/
+tools/
+
+# ===========================
+# AI / Editor Generated
+# ===========================
+.aider*
+.cursor/

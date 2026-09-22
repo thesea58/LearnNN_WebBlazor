@@ -1,7 +1,7 @@
 # 📋 Task 01 – Khởi tạo Project & Cài đặt Packages
 ## Project Setup & NuGet Configuration
 
-> **Trạng thái**: ⬜ Chưa bắt đầu  
+> **Trạng thái**: ✅ Hoàn thành  
 > **Độ ưu tiên**: 🔴 Cao (Bắt buộc làm đầu tiên)  
 > **Phụ thuộc**: Không  
 > **Tài liệu tham chiếu**: [03_architecture.md](../../design/03_architecture.md)
