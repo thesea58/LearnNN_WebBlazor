@@ -10,11 +10,11 @@
 -->
 <DatabaseDesign
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  version="1.0"
+  version="1.1"
   application="LearnNN Vocabulary Management App"
-  database="LearnNN_VocabDB"
-  dbms="Microsoft SQL Server"
-  targetVersion="SQL Server 2019 / LocalDB 2022"
+  database="LearnNN_VocabDB.db"
+  dbms="SQLite"
+  targetVersion="SQLite 3.x (file-based)"
   orm="Entity Framework Core 9"
   framework=".NET 10 Blazor Web App">
 
@@ -46,23 +46,23 @@
                 efProperty="Id" efType="int"
                 description="Khóa chính tự tăng" />
 
-        <Column name="Name" dataType="NVARCHAR" maxLength="100" nullable="false"
+        <Column name="Name" dataType="TEXT" maxLength="100" nullable="false"
                 isUnique="true"
                 efProperty="Name" efType="string"
                 validation="Required, MaxLength(100)"
                 description="Tên chủ đề, ví dụ: Công nghệ, IELTS, Giao tiếp" />
 
-        <Column name="Description" dataType="NVARCHAR" maxLength="250" nullable="true"
+        <Column name="Description" dataType="TEXT" maxLength="250" nullable="true"
                 efProperty="Description" efType="string?"
                 validation="MaxLength(250)"
                 description="Mô tả ngắn về chủ đề" />
 
-        <Column name="CreatedAt" dataType="DATETIME2" precision="7" nullable="false"
-                defaultValue="GETUTCDATE()"
+        <Column name="CreatedAt" dataType="TEXT" precision="7" nullable="false"
+                defaultValue="datetime('now')"
                 efProperty="CreatedAt" efType="DateTime"
                 description="Thời điểm tạo record (UTC)" />
 
-        <Column name="UpdatedAt" dataType="DATETIME2" precision="7" nullable="true"
+        <Column name="UpdatedAt" dataType="TEXT" precision="7" nullable="true"
                 efProperty="UpdatedAt" efType="DateTime?"
                 description="Thời điểm cập nhật cuối (UTC), NULL nếu chưa update" />
       </Columns>
@@ -89,59 +89,59 @@
       <Description>Bảng lưu trữ từ vựng tiếng Anh</Description>
 
       <Columns>
-        <Column name="Id" dataType="INT" nullable="false"
-                isIdentity="true" identitySeed="1" identityIncrement="1"
+        <Column name="Id" dataType="INTEGER" nullable="false"
+                isIdentity="true"
                 isPrimaryKey="true"
                 efProperty="Id" efType="int"
                 description="Khóa chính tự tăng" />
 
-        <Column name="TopicId" dataType="INT" nullable="false"
+        <Column name="TopicId" dataType="INTEGER" nullable="false"
                 isForeignKey="true" referencedTable="Topics" referencedColumn="Id"
                 efProperty="TopicId" efType="int"
                 description="Khóa ngoại liên kết đến bảng Topics" />
 
-        <Column name="Term" dataType="NVARCHAR" maxLength="100" nullable="false"
+        <Column name="Term" dataType="TEXT" maxLength="100" nullable="false"
                 efProperty="Term" efType="string"
                 validation="Required, MaxLength(100)"
                 description="Từ hoặc cụm từ tiếng Anh cần học" />
 
-        <Column name="Phonetic" dataType="NVARCHAR" maxLength="100" nullable="true"
+        <Column name="Phonetic" dataType="TEXT" maxLength="100" nullable="true"
                 efProperty="Phonetic" efType="string?"
                 validation="MaxLength(100)"
                 description="Phiên âm IPA, ví dụ: /ˈæp.əl/" />
 
-        <Column name="PartOfSpeech" dataType="NVARCHAR" maxLength="50" nullable="true"
+        <Column name="PartOfSpeech" dataType="TEXT" maxLength="50" nullable="true"
                 efProperty="PartOfSpeech" efType="string?"
                 validation="MaxLength(50)"
                 description="Từ loại: noun, verb, adjective, adverb, phrase..."
                 allowedValues="noun,verb,adjective,adverb,phrase,conjunction,preposition,interjection" />
 
-        <Column name="Meaning" dataType="NVARCHAR" maxLength="500" nullable="false"
+        <Column name="Meaning" dataType="TEXT" maxLength="500" nullable="false"
                 efProperty="Meaning" efType="string"
                 validation="Required, MaxLength(500)"
                 description="Nghĩa tiếng Việt hoặc định nghĩa của từ" />
 
-        <Column name="ExampleSentence" dataType="NVARCHAR" maxLength="500" nullable="true"
+        <Column name="ExampleSentence" dataType="TEXT" maxLength="500" nullable="true"
                 efProperty="ExampleSentence" efType="string?"
                 validation="MaxLength(500)"
                 description="Câu ví dụ bằng tiếng Anh" />
 
-        <Column name="ExampleTranslation" dataType="NVARCHAR" maxLength="500" nullable="true"
+        <Column name="ExampleTranslation" dataType="TEXT" maxLength="500" nullable="true"
                 efProperty="ExampleTranslation" efType="string?"
                 validation="MaxLength(500)"
                 description="Bản dịch câu ví dụ sang tiếng Việt" />
 
-        <Column name="IsMastered" dataType="BIT" nullable="false"
+        <Column name="IsMastered" dataType="INTEGER" nullable="false"
                 defaultValue="0"
                 efProperty="IsMastered" efType="bool"
                 description="Trạng thái học: false = Chưa thuộc, true = Đã thuộc" />
 
-        <Column name="CreatedAt" dataType="DATETIME2" precision="7" nullable="false"
-                defaultValue="GETUTCDATE()"
+        <Column name="CreatedAt" dataType="TEXT" precision="7" nullable="false"
+                defaultValue="datetime('now')"
                 efProperty="CreatedAt" efType="DateTime"
                 description="Thời điểm tạo record (UTC)" />
 
-        <Column name="UpdatedAt" dataType="DATETIME2" precision="7" nullable="true"
+        <Column name="UpdatedAt" dataType="TEXT" precision="7" nullable="true"
                 efProperty="UpdatedAt" efType="DateTime?"
                 description="Thời điểm cập nhật cuối (UTC)" />
       </Columns>

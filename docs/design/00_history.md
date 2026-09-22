@@ -14,6 +14,7 @@
 | 2 | 2026-09-22 | 1.0 | [02_database_design.md](02_database_design.md) | 🆕 Tạo mới | Thiết kế DB: ERD 2 bảng (Topics, Words), DDL SQL, EF Core entities, Seed Data 3 topics + 7 words | LearnNN Team |
 | 3 | 2026-09-22 | 1.0 | [03_architecture.md](03_architecture.md) | 🆕 Tạo mới | Kiến trúc phân tầng, cấu trúc thư mục, IVocabularyService API, Program.cs config, routing map | LearnNN Team |
 | 4 | 2026-09-22 | 1.0 | [database_design.xml](database_design.xml) | 🆕 Tạo mới | XML schema đầy đủ: entities, columns, constraints, indexes, relationships, seed data, future expansion | LearnNN Team |
+| 5 | 2026-09-22 | 1.1 | Tất cả tài liệu | ✏️ Cập nhật | Chuyển database từ SQL Server sang **SQLite** (file-based): DDL, connection string, NuGet packages, default values, EF Core config | LearnNN Team |
 
 ---
 

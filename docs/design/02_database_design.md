@@ -3,7 +3,7 @@
 
 > **Phiên bản**: 1.0  
 > **Ngày tạo**: 2026-09-22  
-> **Database**: Microsoft SQL Server (LocalDB / Express)  
+> **Database**: SQLite (file-based, không cần cài server)  
 > **ORM**: EF Core 9 – Code First
 
 ---
@@ -80,71 +80,55 @@
 ```sql
 -- ============================================================
 -- LearnNN Vocabulary App – Database Schema
--- Target: SQL Server 2019+ / LocalDB
+-- Target: SQLite 3.x (file-based)
 -- Generated: 2026-09-22
 -- ============================================================
-
-CREATE DATABASE [LearnNN_VocabDB];
-GO
-
-USE [LearnNN_VocabDB];
-GO
 
 -- ============================================================
 -- TABLE: Topics
 -- ============================================================
-CREATE TABLE [dbo].[Topics] (
-    [Id]          INT           IDENTITY(1,1)  NOT NULL,
-    [Name]        NVARCHAR(100)                NOT NULL,
-    [Description] NVARCHAR(250)                    NULL,
-    [CreatedAt]   DATETIME2(7)                 NOT NULL  DEFAULT GETUTCDATE(),
-    [UpdatedAt]   DATETIME2(7)                     NULL,
-
-    CONSTRAINT [PK_Topics] PRIMARY KEY CLUSTERED ([Id] ASC)
+CREATE TABLE IF NOT EXISTS [Topics] (
+    [Id]          INTEGER      PRIMARY KEY AUTOINCREMENT,
+    [Name]        TEXT         NOT NULL,
+    [Description] TEXT,
+    [CreatedAt]   TEXT         NOT NULL  DEFAULT (datetime('now')),
+    [UpdatedAt]   TEXT
 );
-GO
 
 -- Unique index on Topic Name
-CREATE UNIQUE NONCLUSTERED INDEX [IX_Topics_Name]
-    ON [dbo].[Topics] ([Name] ASC);
-GO
+CREATE UNIQUE INDEX IF NOT EXISTS [IX_Topics_Name]
+    ON [Topics] ([Name]);
 
 -- ============================================================
 -- TABLE: Words
 -- ============================================================
-CREATE TABLE [dbo].[Words] (
-    [Id]                 INT           IDENTITY(1,1)  NOT NULL,
-    [TopicId]            INT                          NOT NULL,
-    [Term]               NVARCHAR(100)                NOT NULL,
-    [Phonetic]           NVARCHAR(100)                    NULL,
-    [PartOfSpeech]       NVARCHAR(50)                     NULL,
-    [Meaning]            NVARCHAR(500)                NOT NULL,
-    [ExampleSentence]    NVARCHAR(500)                    NULL,
-    [ExampleTranslation] NVARCHAR(500)                    NULL,
-    [IsMastered]         BIT                          NOT NULL  DEFAULT 0,
-    [CreatedAt]          DATETIME2(7)                 NOT NULL  DEFAULT GETUTCDATE(),
-    [UpdatedAt]          DATETIME2(7)                     NULL,
+CREATE TABLE IF NOT EXISTS [Words] (
+    [Id]                 INTEGER      PRIMARY KEY AUTOINCREMENT,
+    [TopicId]            INTEGER      NOT NULL,
+    [Term]               TEXT         NOT NULL,
+    [Phonetic]           TEXT,
+    [PartOfSpeech]       TEXT,
+    [Meaning]            TEXT         NOT NULL,
+    [ExampleSentence]    TEXT,
+    [ExampleTranslation] TEXT,
+    [IsMastered]         INTEGER      NOT NULL  DEFAULT 0,
+    [CreatedAt]          TEXT         NOT NULL  DEFAULT (datetime('now')),
+    [UpdatedAt]          TEXT,
 
-    CONSTRAINT [PK_Words]       PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_Words_Topics] FOREIGN KEY ([TopicId])
-        REFERENCES [dbo].[Topics] ([Id])
+    FOREIGN KEY ([TopicId]) REFERENCES [Topics] ([Id])
         ON DELETE CASCADE
         ON UPDATE NO ACTION
 );
-GO
 
 -- Indexes on Words
-CREATE NONCLUSTERED INDEX [IX_Words_TopicId]
-    ON [dbo].[Words] ([TopicId] ASC);
-GO
+CREATE INDEX IF NOT EXISTS [IX_Words_TopicId]
+    ON [Words] ([TopicId]);
 
-CREATE NONCLUSTERED INDEX [IX_Words_Term]
-    ON [dbo].[Words] ([Term] ASC);
-GO
+CREATE INDEX IF NOT EXISTS [IX_Words_Term]
+    ON [Words] ([Term]);
 
-CREATE NONCLUSTERED INDEX [IX_Words_IsMastered]
-    ON [dbo].[Words] ([IsMastered] ASC);
-GO
+CREATE INDEX IF NOT EXISTS [IX_Words_IsMastered]
+    ON [Words] ([IsMastered]);
 ```
 
 ---
@@ -153,64 +137,62 @@ GO
 
 ```sql
 -- ============================================================
--- SEED DATA
+-- SEED DATA (SQLite)
 -- ============================================================
 
 -- Topics
-INSERT INTO [dbo].[Topics] ([Name], [Description], [CreatedAt]) VALUES
-(N'Công nghệ',    N'Từ vựng về công nghệ thông tin, lập trình, phần mềm', GETUTCDATE()),
-(N'Giao tiếp',   N'Từ vựng giao tiếp hàng ngày, xã giao, văn phòng',    GETUTCDATE()),
-(N'IELTS Academic', N'Từ vựng học thuật dùng trong kỳ thi IELTS',        GETUTCDATE());
-GO
+INSERT INTO [Topics] ([Name], [Description], [CreatedAt]) VALUES
+('Công nghệ',      'Từ vựng về công nghệ thông tin, lập trình, phần mềm', datetime('now')),
+('Giao tiếp',      'Từ vựng giao tiếp hàng ngày, xã giao, văn phòng',    datetime('now')),
+('IELTS Academic', 'Từ vựng học thuật dùng trong kỳ thi IELTS',           datetime('now'));
 
 -- Words – Topic: Công nghệ (Id=1)
-INSERT INTO [dbo].[Words]
+INSERT INTO [Words]
     ([TopicId],[Term],[Phonetic],[PartOfSpeech],[Meaning],[ExampleSentence],[ExampleTranslation],[IsMastered],[CreatedAt])
 VALUES
-(1, N'algorithm',   N'/ˈæl.ɡə.rɪ.ðəm/', N'noun',
-    N'Thuật toán – tập hợp các bước xử lý để giải quyết bài toán',
-    N'The sorting algorithm runs in O(n log n) time.',
-    N'Thuật toán sắp xếp này chạy trong thời gian O(n log n).',
-    0, GETUTCDATE()),
+(1, 'algorithm',   '/ˈæl.ɡə.rɪ.ðəm/', 'noun',
+    'Thuật toán – tập hợp các bước xử lý để giải quyết bài toán',
+    'The sorting algorithm runs in O(n log n) time.',
+    'Thuật toán sắp xếp này chạy trong thời gian O(n log n).',
+    0, datetime('now')),
 
-(1, N'framework',   N'/ˈfreɪm.wɜːk/', N'noun',
-    N'Khung phần mềm – bộ thư viện/công cụ hỗ trợ xây dựng ứng dụng',
-    N'.NET is a powerful framework for building web applications.',
-    N'.NET là một framework mạnh mẽ để xây dựng ứng dụng web.',
-    1, GETUTCDATE()),
+(1, 'framework',   '/ˈfreɪm.wɜːk/', 'noun',
+    'Khung phần mềm – bộ thư viện/công cụ hỗ trợ xây dựng ứng dụng',
+    '.NET is a powerful framework for building web applications.',
+    '.NET là một framework mạnh mẽ để xây dựng ứng dụng web.',
+    1, datetime('now')),
 
-(1, N'repository',  N'/rɪˈpɒz.ɪ.tər.i/', N'noun',
-    N'Kho lưu trữ mã nguồn',
-    N'Please push your code to the Git repository.',
-    N'Hãy đẩy code của bạn lên kho Git.',
-    0, GETUTCDATE()),
+(1, 'repository',  '/rɪˈpɒz.ɪ.tər.i/', 'noun',
+    'Kho lưu trữ mã nguồn',
+    'Please push your code to the Git repository.',
+    'Hãy đẩy code của bạn lên kho Git.',
+    0, datetime('now')),
 
 -- Words – Topic: Giao tiếp (Id=2)
-(2, N'apologize',   N'/əˈpɒl.ə.dʒaɪz/', N'verb',
-    N'Xin lỗi, tạ lỗi',
-    N'I apologize for the delay in responding.',
-    N'Tôi xin lỗi vì đã trả lời trễ.',
-    0, GETUTCDATE()),
+(2, 'apologize',   '/əˈpɒl.ə.dʒaɪz/', 'verb',
+    'Xin lỗi, tạ lỗi',
+    'I apologize for the delay in responding.',
+    'Tôi xin lỗi vì đã trả lời trễ.',
+    0, datetime('now')),
 
-(2, N'clarify',     N'/ˈklær.ɪ.faɪ/', N'verb',
-    N'Làm rõ, giải thích rõ hơn',
-    N'Could you clarify what you mean by that?',
-    N'Bạn có thể làm rõ ý bạn muốn nói không?',
-    1, GETUTCDATE()),
+(2, 'clarify',     '/ˈklær.ɪ.faɪ/', 'verb',
+    'Làm rõ, giải thích rõ hơn',
+    'Could you clarify what you mean by that?',
+    'Bạn có thể làm rõ ý bạn muốn nói không?',
+    1, datetime('now')),
 
 -- Words – Topic: IELTS Academic (Id=3)
-(3, N'substantial', N'/səbˈstæn.ʃəl/', N'adjective',
-    N'Đáng kể, quan trọng, lớn về quy mô',
-    N'There has been a substantial increase in online learning.',
-    N'Đã có sự gia tăng đáng kể trong việc học trực tuyến.',
-    0, GETUTCDATE()),
+(3, 'substantial', '/səbˈstæn.ʃəl/', 'adjective',
+    'Đáng kể, quan trọng, lớn về quy mô',
+    'There has been a substantial increase in online learning.',
+    'Đã có sự gia tăng đáng kể trong việc học trực tuyến.',
+    0, datetime('now')),
 
-(3, N'nonetheless', N'/ˌnʌn.ðəˈles/', N'adverb',
-    N'Tuy nhiên, dẫu vậy, mặc dù thế',
-    N'The task was difficult; nonetheless, she completed it.',
-    N'Nhiệm vụ rất khó; dẫu vậy, cô ấy đã hoàn thành nó.',
-    0, GETUTCDATE());
-GO
+(3, 'nonetheless', '/ˌnʌn.ðəˈles/', 'adverb',
+    'Tuy nhiên, dẫu vậy, mặc dù thế',
+    'The task was difficult; nonetheless, she completed it.',
+    'Nhiệm vụ rất khó; dẫu vậy, cô ấy đã hoàn thành nó.',
+    0, datetime('now'));
 ```
 
 ---
@@ -317,7 +299,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Topic>(entity =>
         {
             entity.HasIndex(t => t.Name).IsUnique();
-            entity.Property(t => t.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            entity.Property(t => t.CreatedAt).HasDefaultValueSql("datetime('now')");
         });
 
         // Word configuration
@@ -327,7 +309,7 @@ public class AppDbContext : DbContext
             entity.HasIndex(w => w.Term);
             entity.HasIndex(w => w.IsMastered);
             entity.Property(w => w.IsMastered).HasDefaultValue(false);
-            entity.Property(w => w.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            entity.Property(w => w.CreatedAt).HasDefaultValueSql("datetime('now')");
 
             entity.HasOne(w => w.Topic)
                   .WithMany(t => t.Words)
@@ -369,6 +351,9 @@ public class AppDbContext : DbContext
 
 > [!NOTE]
 > **Cascade Delete**: Đã cấu hình `ON DELETE CASCADE` – xóa Topic sẽ xóa toàn bộ Word liên quan. Cân nhắc hiển thị cảnh báo trước khi xóa Topic có Word.
+
+> [!NOTE]
+> **SQLite Limitations**: SQLite dùng `TEXT` cho datetime (không có kiểu DATETIME2). EF Core tự xử lý mapping. Khi scale lên production, cân nhắc chuyển sang PostgreSQL hoặc SQL Server.
 
 > [!TIP]
 > **DateTime UTC**: Tất cả datetime lưu theo UTC. Convert sang local time (UTC+7) khi hiển thị trên UI để đúng múi giờ Việt Nam.
