@@ -1,7 +1,7 @@
 # 📋 Task 02 – Thiết kế Database & Entity Classes
 ## Database, Entities, DbContext & Migration
 
-> **Trạng thái**: ⬜ Chưa bắt đầu  
+> **Trạng thái**: ✅ Hoàn thành  
 > **Độ ưu tiên**: 🔴 Cao  
 > **Phụ thuộc**: Task 01 (Project Setup)  
 > **Tài liệu tham chiếu**: [02_database_design.md](../../design/02_database_design.md), [database_design.xml](../../design/database_design.xml)
@@ -17,17 +17,17 @@ Tạo các Entity classes (Topic, Word), cấu hình AppDbContext với Fluent A
 ## Danh sách công việc
 
 ### 2.1 Tạo Entity Classes
-- [ ] Tạo `Data/Entities/Topic.cs`:
+- [x] Tạo `Data/Entities/Topic.cs`:
   - Thuộc tính: Id, Name (Required, MaxLength 100), Description (MaxLength 250), CreatedAt, UpdatedAt
   - Navigation: `ICollection<Word> Words`
   - Data Annotations cho validation
-- [ ] Tạo `Data/Entities/Word.cs`:
+- [x] Tạo `Data/Entities/Word.cs`:
   - Thuộc tính: Id, TopicId (FK), Term, Phonetic, PartOfSpeech, Meaning, ExampleSentence, ExampleTranslation, IsMastered, CreatedAt, UpdatedAt
   - Navigation: `Topic Topic`
   - Data Annotations cho validation
 
 ### 2.2 Tạo AppDbContext
-- [ ] Tạo `Data/AppDbContext.cs`:
+- [x] Tạo `Data/AppDbContext.cs`:
   - Kế thừa `DbContext`
   - Khai báo `DbSet<Topic>` và `DbSet<Word>`
   - Cấu hình Fluent API trong `OnModelCreating`:
@@ -37,30 +37,30 @@ Tạo các Entity classes (Topic, Word), cấu hình AppDbContext với Fluent A
     - Relationship: Topic (1) → Word (N) với Cascade Delete
 
 ### 2.3 Seed Data
-- [ ] Thêm 3 Topics mẫu: "Công nghệ", "Giao tiếp", "IELTS Academic"
-- [ ] Thêm 7 Words mẫu phân bổ vào 3 topics
-- [ ] Đảm bảo seed data có đủ trường dữ liệu (phonetic, example, translation...)
+- [x] Thêm 3 Topics mẫu: "Công nghệ", "Giao tiếp", "IELTS Academic"
+- [x] Thêm 7 Words mẫu phân bổ vào 3 topics
+- [x] Đảm bảo seed data có đủ trường dữ liệu (phonetic, example, translation...)
 
 ### 2.4 Đăng ký DbContext trong Program.cs
-- [ ] Sử dụng `AddDbContextFactory<AppDbContext>` (KHÔNG dùng `AddDbContext`)
-- [ ] Cấu hình `UseSqlite(connectionString)`
+- [x] Sử dụng `AddDbContextFactory<AppDbContext>` (KHÔNG dùng `AddDbContext`)
+- [x] Cấu hình `UseSqlite(connectionString)`
 
 ### 2.5 Tạo Migration & Database
-- [ ] Chạy migration:
+- [x] Chạy migration:
   ```bash
   dotnet ef migrations add InitialCreate
   ```
-- [ ] Cập nhật database:
+- [x] Cập nhật database:
   ```bash
   dotnet ef database update
   ```
-- [ ] (Tùy chọn) Thêm auto-migrate trong `Program.cs`
+- [x] (Tùy chọn) Thêm auto-migrate trong `Program.cs`
 
 ### 2.6 Kiểm tra
-- [ ] File `LearnNN_VocabDB.db` đã tạo trong thư mục project
-- [ ] Bảng `Topics` và `Words` có đúng schema
-- [ ] Seed data đã được insert
-- [ ] Quan hệ FK hoạt động đúng (cascade delete)
+- [x] File `LearnNN_VocabDB.db` đã tạo trong thư mục project
+- [x] Bảng `Topics` và `Words` có đúng schema
+- [x] Seed data đã được insert
+- [x] Quan hệ FK hoạt động đúng (cascade delete)
 
 ---
 
