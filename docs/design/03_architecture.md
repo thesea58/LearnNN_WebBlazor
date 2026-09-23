@@ -34,51 +34,9 @@
 
 ## 2. Cấu trúc thư mục dự án
 
-```
-LearnNN_WebBlazor/
-├── 📄 LearnNN_WebBlazor.csproj          # Project file (.NET 10)
-├── 📄 Program.cs                         # DI registration, middleware
-├── 📄 appsettings.json                   # Connection string, logging
-├── 📄 appsettings.Development.json
-│
-├── 📁 Data/
-│   ├── 📄 AppDbContext.cs               # DbContext + Fluent API + Seed
-│   └── 📁 Entities/
-│       ├── 📄 Topic.cs                  # Topic entity + DataAnnotations
-│       └── 📄 Word.cs                   # Word entity + DataAnnotations
-│
-├── 📁 Services/
-│   ├── 📄 IVocabularyService.cs         # Interface (contract)
-│   └── 📄 VocabularyService.cs          # Implementation
-│
-├── 📁 Models/                           # ViewModels / DTOs (tách entity khỏi UI)
-│   ├── 📄 WordFilterModel.cs            # Filter state cho WordList
-│   └── 📄 WordFormModel.cs              # Form model cho Add/Edit
-│
-├── 📁 Components/
-│   ├── 📄 App.razor
-│   ├── 📄 Routes.razor
-│   ├── 📁 Layout/
-│   │   ├── 📄 MainLayout.razor
-│   │   └── 📄 NavMenu.razor
-│   ├── 📁 Pages/
-│   │   ├── 📁 Words/
-│   │   │   ├── 📄 WordList.razor        # Danh sách + filter + search
-│   │   │   └── 📄 WordFormModal.razor   # Form thêm/sửa từ (modal)
-│   │   ├── 📁 Topics/
-│   │   │   └── 📄 TopicManage.razor     # CRUD Topics
-│   │   └── 📄 Home.razor               # Dashboard / trang chủ
-│   └── 📁 Shared/
-│       ├── 📄 ConfirmDeleteModal.razor  # Modal xác nhận xóa
-│       ├── 📄 LoadingSpinner.razor      # Loading indicator
-│       └── 📄 AlertMessage.razor        # Toast/Alert notification
-│
-├── 📁 Migrations/                       # EF Core migration files (auto-generated)
-│
-└── 📁 wwwroot/
-    ├── 📄 app.css                       # Custom styles
-    └── 📁 lib/bootstrap/                # Bootstrap 5
-```
+👉 **Xem chi tiết cây thư mục dự án tại bản đồ kiến trúc (Single Source of Truth):** [PROJECT_MAP.md](../PROJECT_MAP.md)
+
+*(Để tránh việc phải cập nhật cấu trúc thư mục ở nhiều nơi, chúng ta áp dụng nguyên tắc Single Source of Truth: toàn bộ cây thư mục và quy định tổ chức file chỉ được quản lý duy nhất tại `PROJECT_MAP.md`. Các tài liệu khác chỉ cần reference đến file đó).*
 
 ---
 
