@@ -8,7 +8,7 @@
 
 ## Mục 1: 🌳 Cây thư mục hiện tại (Directory Tree)
 
-> Cập nhật lần cuối: 2026-09-22
+> Cập nhật lần cuối: 2026-09-24
 
 ```
 LearnNN_WebBlazor/                          # 🏠 Repository root
@@ -101,6 +101,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       └── 📁 lib/                         #    Third-party client libraries
 │           └── 📁 bootstrap/              #    Bootstrap 5
 │
+├── 📄 LearnNN_WebBlazor.slnx               # Solution file định dạng XML (.NET 10 / Visual Studio 2022+)
 ├── 📄 README.md                            # Tài liệu tổng quan dự án & hướng dẫn chạy
 ├── 📄 .gitignore                           # Git ignore rules
 └── 📁 .git/                                # Git repository data
@@ -114,7 +115,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 
 | Thư mục | Trách nhiệm (Single Responsibility) | ✅ ĐƯỢC để ở đây | ❌ TUYỆT ĐỐI KHÔNG để ở đây |
 |---------|--------------------------------------|-------------------|------------------------------|
-| `/` (root) | Chứa cấu hình repository-level | `.gitignore`, `README.md`, `LICENSE`, `.editorconfig` | Source code, thư viện, tài liệu chi tiết |
+| `/` (root) | Chứa cấu hình repository-level | `.gitignore`, `README.md`, `LICENSE`, `.editorconfig`, `LearnNN_WebBlazor.slnx` | Source code, thư viện, tài liệu chi tiết |
 | `.agents/` | Cấu hình AI Agent | Rules (.md), Skills, Plugins | Source code, tài liệu dự án |
 | `docs/` | Tài liệu dự án | Tài liệu thiết kế, task management, `PROJECT_MAP.md` | Source code, file cấu hình ứng dụng |
 | `Source/` | Mã nguồn ứng dụng Blazor | Toàn bộ C#/.razor source code | Tài liệu, scripts DevOps, file không liên quan |
@@ -222,4 +223,6 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-09-22 | Task 08 & 09 – Shared Components, Integration & Testing | `Source/Models/AlertType.cs`, `Source/Components/Shared/LoadingSpinner.razor`, `Source/Components/Shared/AlertMessage.razor`, `Source/Components/Shared/ConfirmDeleteModal.razor`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Home.razor`, `README.md` | Hoàn thiện bộ Shared Components (AlertMessage, LoadingSpinner, ConfirmDeleteModal backdrop), tích hợp vào các trang, kiểm thử E2E HTTP endpoints, dọn dẹp debug logging và tài liệu hóa toàn diện |
 | 2026-09-23 | Task 10 – Code Commenting Convention | `[NEW] .agents/rules/code-commenting.md`, `Source/Data/Entities/Topic.cs`, `Source/Data/Entities/Word.cs`, `Source/Data/AppDbContext.cs`, `Source/Models/AlertType.cs`, `Source/Models/WordFilterModel.cs`, `Source/Services/IVocabularyService.cs`, `Source/Services/VocabularyService.cs`, `Source/Components/Shared/AlertMessage.razor`, `Source/Components/Shared/ConfirmDeleteModal.razor`, `Source/Components/Shared/LoadingSpinner.razor`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Words/WordFormModal.razor`, `Source/Program.cs` | Tạo rule comment code thống nhất (EN, 5W1H, XML Docs, section dividers, #region) và áp dụng cho toàn bộ codebase. Thêm file rule `.agents/rules/code-commenting.md` |
 | 2026-09-24 | Cập nhật Rule #region | `.agents/rules/code-commenting.md`, `Source/Services/VocabularyService.cs`, `Source/Services/IVocabularyService.cs`, `Source/Program.cs`, `Source/Data/AppDbContext.cs`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/Components/Pages/Words/WordList.razor`, `docs/design/03_architecture.md` | Cập nhật quy ước phân vùng chức năng trong code C# sang dùng `#region ... #endregion` thay thế cho comment phân đoạn `// ───` |
+| 2026-09-24 | Khởi tạo Solution file (.slnx) | `LearnNN_WebBlazor.slnx` | Tạo solution file XML (.slnx) cho repo và add project `Source/LearnNN_WebBlazor.csproj` vào solution |
+
 

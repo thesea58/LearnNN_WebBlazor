@@ -2,7 +2,7 @@
 ## Quản lý Tiến độ Công việc
 
 > **Dự án**: LearnNN – Vocabulary Management App  
-> **Tổng số Tasks**: 10  
+> **Tổng số Tasks**: 11  
 > **Ngày tạo**: 2026-09-22
 
 ---
@@ -21,6 +21,7 @@
 | 08 | [Shared Components](08_shared_components/) | ConfirmDeleteModal, LoadingSpinner, AlertMessage | 🟡 TB | Task 01 | ✅ Hoàn thành |
 | 09 | [Integration & Testing](09_integration_testing/) | Kiểm tra E2E, responsive, error handling, performance, cleanup | 🔴 Cao | Task 01→08 | ✅ Hoàn thành |
 | 10 | Code Commenting Convention | Tạo rule comment code thống nhất (EN, 5W1H, XML Docs, #region phân vùng chức năng) và áp dụng toàn bộ codebase | 🟡 TB | Task 01→09 | ✅ Hoàn thành |
+| 11 | Solution File Setup | Tạo file solution định dạng XML (`LearnNN_WebBlazor.slnx`) và add project `Source/LearnNN_WebBlazor.csproj` | 🟢 Thấp | Task 01 | ✅ Hoàn thành |
 
 ---
 
