@@ -20,7 +20,7 @@ public class VocabularyService : IVocabularyService
         _factory = factory;
     }
 
-    // ─── TOPICS ──────────────────────────────────────────
+    #region Topics
 
     /// <inheritdoc />
     public async Task<List<Topic>> GetAllTopicsAsync()
@@ -98,7 +98,9 @@ public class VocabularyService : IVocabularyService
         return await query.AnyAsync();
     }
 
-    // ─── WORDS ───────────────────────────────────────────
+    #endregion
+
+    #region Words
 
     /// <inheritdoc />
     public async Task<List<Word>> GetWordsAsync(WordFilterModel filter)
@@ -201,7 +203,9 @@ public class VocabularyService : IVocabularyService
         }
     }
 
-    // ─── PRIVATE HELPERS ─────────────────────────────────
+    #endregion
+
+    #region Private Helpers
 
     /// <summary>
     /// Builds a composable IQueryable applying search, topic, and mastery filters from the given model.
@@ -232,4 +236,5 @@ public class VocabularyService : IVocabularyService
 
         return query;
     }
+    #endregion
 }

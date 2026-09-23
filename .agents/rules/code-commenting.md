@@ -47,7 +47,17 @@ public class VocabularyService : IVocabularyService { }
 | **"Why, not What"** | Only comment when code is not self-explanatory. Prioritize reasoning/context over describing code |
 | **Concise** | Max 1-2 lines per comment. If more is needed → refactor code or use `<summary>` |
 | **No redundancy** | Never repeat variable/method names. ❌ `// Get all topics` before `GetAllTopicsAsync()` |
-| **Section dividers** | Use `// ─── SECTION NAME ──────` for logical groups within a file |
+| **Section dividers / Function partitioning** | In C# code, use `#region [Section Name]` and `#endregion` to partition functional groups (e.g., `#region Topics`, `#region Private Helpers`). Do NOT use `// ───` comment dividers. |
+
+```csharp
+#region Topics
+public async Task<List<Topic>> GetAllTopicsAsync() { ... }
+#endregion
+
+#region Private Helpers
+private static IQueryable<Word> BuildWordFilterQuery(...) { ... }
+#endregion
+```
 
 ---
 

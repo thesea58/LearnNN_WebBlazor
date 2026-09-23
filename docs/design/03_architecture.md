@@ -47,15 +47,16 @@ namespace LearnNN.Services;
 
 public interface IVocabularyService
 {
-    // ─── TOPICS ──────────────────────────────────────────
+    #region Topics
     Task<List<Topic>> GetAllTopicsAsync();
     Task<Topic?> GetTopicByIdAsync(int id);
     Task<Topic> CreateTopicAsync(Topic topic);
     Task<Topic> UpdateTopicAsync(Topic topic);
     Task DeleteTopicAsync(int id);
     Task<bool> TopicNameExistsAsync(string name, int? excludeId = null);
+    #endregion
 
-    // ─── WORDS ───────────────────────────────────────────
+    #region Words
     Task<List<Word>> GetWordsAsync(WordFilterModel filter);
     Task<int> GetWordCountAsync(WordFilterModel filter);
     Task<Word?> GetWordByIdAsync(int id);
@@ -63,6 +64,7 @@ public interface IVocabularyService
     Task<Word> UpdateWordAsync(Word word);
     Task DeleteWordAsync(int id);
     Task ToggleMasteredAsync(int wordId);
+    #endregion
 }
 ```
 
@@ -101,11 +103,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ─── BLAZOR ──────────────────────────────────────────────────
+#region Blazor
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+#endregion
 
-// ─── DATABASE ────────────────────────────────────────────────
+#region Database
 // QUAN TRỌNG: Dùng AddDbContextFactory (không phải AddDbContext)
 // để tránh concurrency issues trong Blazor Server
 builder.Services.AddDbContextFactory<AppDbContext>(options =>
@@ -113,21 +116,24 @@ builder.Services.AddDbContextFactory<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")
     )
 );
+#endregion
 
-// ─── SERVICES ────────────────────────────────────────────────
+#region Services
 builder.Services.AddScoped<IVocabularyService, VocabularyService>();
+#endregion
 
 var app = builder.Build();
 
-// ─── AUTO MIGRATE ON STARTUP ─────────────────────────────────
+#region Auto Migrate On Startup
 using (var scope = app.Services.CreateScope())
 {
     var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
     await using var db = await factory.CreateDbContextAsync();
     await db.Database.MigrateAsync();  // Tự động apply migration
 }
+#endregion
 
-// ─── MIDDLEWARE ───────────────────────────────────────────────
+#region Middleware
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
@@ -137,6 +143,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
+#endregion
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

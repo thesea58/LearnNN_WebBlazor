@@ -22,14 +22,15 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // ─── Topic Configuration ──────────────────────────────
+        #region Topic Configuration
         modelBuilder.Entity<Topic>(entity =>
         {
             entity.HasIndex(t => t.Name).IsUnique();
             entity.Property(t => t.CreatedAt).HasDefaultValueSql("datetime('now')");
         });
+        #endregion
 
-        // ─── Word Configuration ───────────────────────────────
+        #region Word Configuration
         modelBuilder.Entity<Word>(entity =>
         {
             entity.HasIndex(w => w.TopicId);
@@ -44,6 +45,7 @@ public class AppDbContext : DbContext
                   .HasForeignKey(w => w.TopicId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
+        #endregion
 
         SeedData(modelBuilder);
     }

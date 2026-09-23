@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ─── Service Registration ───────────────────────────────
+#region Service Registration
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -18,7 +18,9 @@ builder.Services.AddScoped<IVocabularyService, VocabularyService>();
 
 var app = builder.Build();
 
-// ─── Database Initialization ────────────────────────────
+#endregion
+
+#region Database Initialization
 
 // Auto-apply pending migrations on startup (dev convenience; use CI/CD scripts in production)
 using (var scope = app.Services.CreateScope())
@@ -28,7 +30,9 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
 }
 
-// ─── HTTP Pipeline ──────────────────────────────────────
+#endregion
+
+#region HTTP Pipeline
 
 if (!app.Environment.IsDevelopment())
 {
@@ -43,5 +47,6 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+#endregion
 
 app.Run();

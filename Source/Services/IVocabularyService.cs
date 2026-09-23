@@ -9,7 +9,7 @@ namespace LearnNN_WebBlazor.Services;
 /// </summary>
 public interface IVocabularyService
 {
-    // ─── TOPICS ──────────────────────────────────────────
+    #region Topics
 
     /// <summary>
     /// Retrieves all topics ordered by name, including their associated words.
@@ -52,7 +52,9 @@ public interface IVocabularyService
     /// <returns><c>true</c> if a duplicate name exists; otherwise <c>false</c>.</returns>
     Task<bool> TopicNameExistsAsync(string name, int? excludeId = null);
 
-    // ─── WORDS ───────────────────────────────────────────
+    #endregion
+
+    #region Words
 
     /// <summary>
     /// Retrieves a paginated list of words matching the given filter criteria.
@@ -99,4 +101,5 @@ public interface IVocabularyService
     /// </summary>
     /// <param name="wordId">The word identifier to toggle.</param>
     Task ToggleMasteredAsync(int wordId);
+    #endregion
 }

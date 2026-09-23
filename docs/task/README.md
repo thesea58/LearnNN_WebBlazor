@@ -20,7 +20,7 @@
 | 07 | [Word Form Modal](07_word_form_modal/) | WordFormModal.razor – Form thêm/sửa từ, EditForm, validation | 🔴 Cao | Task 03, 06 | ✅ Hoàn thành |
 | 08 | [Shared Components](08_shared_components/) | ConfirmDeleteModal, LoadingSpinner, AlertMessage | 🟡 TB | Task 01 | ✅ Hoàn thành |
 | 09 | [Integration & Testing](09_integration_testing/) | Kiểm tra E2E, responsive, error handling, performance, cleanup | 🔴 Cao | Task 01→08 | ✅ Hoàn thành |
-| 10 | Code Commenting Convention | Tạo rule comment code thống nhất (EN, 5W1H, XML Docs) và áp dụng toàn bộ codebase | 🟡 TB | Task 01→09 | ✅ Hoàn thành |
+| 10 | Code Commenting Convention | Tạo rule comment code thống nhất (EN, 5W1H, XML Docs, #region phân vùng chức năng) và áp dụng toàn bộ codebase | 🟡 TB | Task 01→09 | ✅ Hoàn thành |
 
 ---
 
