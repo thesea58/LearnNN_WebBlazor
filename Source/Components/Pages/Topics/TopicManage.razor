@@ -5,7 +5,7 @@
 <PageTitle>Quản lý chủ đề - LearnNN 📁</PageTitle>
 
 <div class="container-fluid p-0">
-    <!-- Header -->
+    <!-- #region: Page Header -->
     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
         <div>
             <h2 class="fw-bold mb-1 text-dark">
@@ -18,15 +18,16 @@
             <span>Thêm chủ đề mới</span>
         </button>
     </div>
+    <!-- #endregion: Page Header -->
 
-    <!-- Alert Message Component -->
+    <!-- #region: Alert Notification -->
     <AlertMessage Message="@alertMessage"
                   Type="@alertType"
                   IsVisible="@(!string.IsNullOrEmpty(alertMessage))"
                   OnDismiss="() => alertMessage = null" />
+    <!-- #endregion: Alert Notification -->
 
-
-    <!-- Content Card -->
+    <!-- #region: Topic List Table -->
     <div class="card border rounded-3 bg-white shadow-sm overflow-hidden">
         <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
             <h6 class="fw-bold mb-0 text-dark">
@@ -119,9 +120,10 @@
             </div>
         }
     </div>
+    <!-- #endregion: Topic List Table -->
 </div>
 
-<!-- Modal Thêm / Sửa Topic -->
+<!-- #region: Add/Edit Topic Modal -->
 @if (isFormModalVisible)
 {
     <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(15, 23, 42, 0.5); backdrop-filter: blur(2px);">
@@ -195,8 +197,9 @@
         </div>
     </div>
 }
+<!-- #endregion: Add/Edit Topic Modal -->
 
-<!-- Modal Xác nhận Xóa Topic -->
+<!-- #region: Confirm Delete Modal -->
 <ConfirmDeleteModal IsVisible="@isDeleteModalVisible"
                     Title="Xác nhận xóa chủ đề"
                     Message="@deleteWarningMessage"
@@ -204,16 +207,18 @@
                     IsProcessing="@isDeleting"
                     OnConfirm="ConfirmDeleteTopicAsync"
                     OnCancel="() => isDeleteModalVisible = false" />
+<!-- #endregion: Confirm Delete Modal -->
 
 @code {
+    // ─── State ──────────────────────────────────────────
     private List<Topic> topics = new();
     private bool isLoading = true;
 
-    // Alert state
+    // ─── Alert ──────────────────────────────────────────
     private string? alertMessage;
     private AlertType alertType = AlertType.Success;
 
-    // Form Modal state
+    // ─── Form Modal ─────────────────────────────────────
     private bool isFormModalVisible = false;
     private bool isEditing = false;
     private bool isSubmitting = false;
@@ -221,7 +226,7 @@
     private string nameValidationClass = "";
     private TopicFormModel formModel = new();
 
-    // Delete Modal state
+    // ─── Delete Modal ───────────────────────────────────
     private bool isDeleteModalVisible = false;
     private bool isDeleting = false;
     private Topic? topicToDelete;
@@ -232,6 +237,9 @@
         await LoadTopicsAsync();
     }
 
+    /// <summary>
+    /// Fetches all topics from the service and updates the table.
+    /// </summary>
     private async Task LoadTopicsAsync()
     {
         isLoading = true;
@@ -281,11 +289,14 @@
         }
     }
 
+    /// <summary>
+    /// Validates input and persists the topic (create or update).
+    /// </summary>
     private async Task SaveTopicAsync()
     {
         var trimmedName = formModel.Name?.Trim() ?? string.Empty;
 
-        // Client-side validations
+        // A. Client-side validation
         if (string.IsNullOrWhiteSpace(trimmedName))
         {
             formErrorMessage = "Tên chủ đề không được để trống.";
@@ -306,7 +317,7 @@
 
         try
         {
-            // Kiểm tra trùng tên
+            // B. Check for duplicate name (excluding current entity during edit)
             int? excludeId = isEditing ? formModel.Id : null;
             bool exists = await VocabularyService.TopicNameExistsAsync(trimmedName, excludeId);
             if (exists)
@@ -317,6 +328,7 @@
                 return;
             }
 
+            // C. Persist changes
             if (isEditing)
             {
                 var topic = new Topic
@@ -352,6 +364,9 @@
         }
     }
 
+    /// <summary>
+    /// Prepares the delete confirmation modal with a cascade warning if the topic has words.
+    /// </summary>
     private void OpenDeleteModal(Topic topic)
     {
         topicToDelete = topic;
@@ -399,6 +414,10 @@
         alertType = isSuccess ? AlertType.Success : AlertType.Error;
     }
 
+    /// <summary>
+    /// Internal form model for topic add/edit modal, decoupled from the entity to avoid tracking issues.
+    /// <para>VN: Model form nội bộ cho modal thêm/sửa chủ đề, tách biệt khỏi entity để tránh lỗi EF tracking.</para>
+    /// </summary>
     public class TopicFormModel
     {
         public int Id { get; set; }

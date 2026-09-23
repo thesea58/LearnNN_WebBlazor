@@ -5,20 +5,22 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ─── Service Registration ───────────────────────────────
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Database Context Factory (required for Blazor Server concurrency safety)
+// DbContextFactory instead of AddDbContext for Blazor Server concurrency safety
 builder.Services.AddDbContextFactory<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Business Services
 builder.Services.AddScoped<IVocabularyService, VocabularyService>();
 
 var app = builder.Build();
 
-// Ensure database is created and migrations are applied on startup
+// ─── Database Initialization ────────────────────────────
+
+// Auto-apply pending migrations on startup (dev convenience; use CI/CD scripts in production)
 using (var scope = app.Services.CreateScope())
 {
     var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
@@ -26,11 +28,11 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
 }
 
-// Configure the HTTP request pipeline.
+// ─── HTTP Pipeline ──────────────────────────────────────
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);

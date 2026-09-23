@@ -42,12 +42,39 @@
 }
 
 @code {
+    /// <summary>
+    /// The modal dialog title displayed in the header.
+    /// </summary>
     [Parameter] public string Title { get; set; } = "Xác nhận xóa";
+
+    /// <summary>
+    /// Warning or confirmation message shown in the modal body.
+    /// </summary>
     [Parameter] public string Message { get; set; } = "Bạn có chắc chắn muốn xóa mục này không? Thao tác này không thể hoàn tác.";
+
+    /// <summary>
+    /// Text for the destructive action button. Defaults to "Xóa".
+    /// </summary>
     [Parameter] public string ConfirmButtonText { get; set; } = "Xóa";
+
+    /// <summary>
+    /// Controls whether the modal is currently displayed.
+    /// </summary>
     [Parameter] public bool IsVisible { get; set; } = false;
+
+    /// <summary>
+    /// When true, disables buttons and shows a spinner during the delete operation.
+    /// </summary>
     [Parameter] public bool IsProcessing { get; set; } = false;
+
+    /// <summary>
+    /// Callback invoked when the user confirms the deletion.
+    /// </summary>
     [Parameter] public EventCallback OnConfirm { get; set; }
+
+    /// <summary>
+    /// Callback invoked when the user cancels or closes the modal.
+    /// </summary>
     [Parameter] public EventCallback OnCancel { get; set; }
 
     private async Task HandleConfirm()

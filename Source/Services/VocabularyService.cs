@@ -5,6 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LearnNN_WebBlazor.Services;
 
+/// <summary>
+/// Implements vocabulary management business logic using EF Core with DbContextFactory
+/// for Blazor Server concurrency safety.
+/// <para>VN: Triển khai logic nghiệp vụ quản lý từ vựng sử dụng EF Core với DbContextFactory
+/// để đảm bảo an toàn đồng thời trên Blazor Server.</para>
+/// </summary>
 public class VocabularyService : IVocabularyService
 {
     private readonly IDbContextFactory<AppDbContext> _factory;
@@ -16,6 +22,7 @@ public class VocabularyService : IVocabularyService
 
     // ─── TOPICS ──────────────────────────────────────────
 
+    /// <inheritdoc />
     public async Task<List<Topic>> GetAllTopicsAsync()
     {
         await using var db = await _factory.CreateDbContextAsync();
@@ -25,6 +32,7 @@ public class VocabularyService : IVocabularyService
             .ToListAsync();
     }
 
+    /// <inheritdoc />
     public async Task<Topic?> GetTopicByIdAsync(int id)
     {
         await using var db = await _factory.CreateDbContextAsync();
@@ -33,6 +41,7 @@ public class VocabularyService : IVocabularyService
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
+    /// <inheritdoc />
     public async Task<Topic> CreateTopicAsync(Topic topic)
     {
         await using var db = await _factory.CreateDbContextAsync();
@@ -44,6 +53,7 @@ public class VocabularyService : IVocabularyService
         return topic;
     }
 
+    /// <inheritdoc />
     public async Task<Topic> UpdateTopicAsync(Topic topic)
     {
         await using var db = await _factory.CreateDbContextAsync();
@@ -61,6 +71,7 @@ public class VocabularyService : IVocabularyService
         return existing;
     }
 
+    /// <inheritdoc />
     public async Task DeleteTopicAsync(int id)
     {
         await using var db = await _factory.CreateDbContextAsync();
@@ -72,6 +83,7 @@ public class VocabularyService : IVocabularyService
         }
     }
 
+    /// <inheritdoc />
     public async Task<bool> TopicNameExistsAsync(string name, int? excludeId = null)
     {
         await using var db = await _factory.CreateDbContextAsync();
@@ -88,6 +100,7 @@ public class VocabularyService : IVocabularyService
 
     // ─── WORDS ───────────────────────────────────────────
 
+    /// <inheritdoc />
     public async Task<List<Word>> GetWordsAsync(WordFilterModel filter)
     {
         await using var db = await _factory.CreateDbContextAsync();
@@ -105,6 +118,7 @@ public class VocabularyService : IVocabularyService
             .ToListAsync();
     }
 
+    /// <inheritdoc />
     public async Task<int> GetWordCountAsync(WordFilterModel filter)
     {
         await using var db = await _factory.CreateDbContextAsync();
@@ -112,6 +126,7 @@ public class VocabularyService : IVocabularyService
         return await query.CountAsync();
     }
 
+    /// <inheritdoc />
     public async Task<Word?> GetWordByIdAsync(int id)
     {
         await using var db = await _factory.CreateDbContextAsync();
@@ -120,6 +135,7 @@ public class VocabularyService : IVocabularyService
             .FirstOrDefaultAsync(w => w.Id == id);
     }
 
+    /// <inheritdoc />
     public async Task<Word> CreateWordAsync(Word word)
     {
         await using var db = await _factory.CreateDbContextAsync();
@@ -129,10 +145,12 @@ public class VocabularyService : IVocabularyService
         db.Words.Add(word);
         await db.SaveChangesAsync();
 
+        // Reload topic navigation so the caller gets complete data
         await db.Entry(word).Reference(w => w.Topic).LoadAsync();
         return word;
     }
 
+    /// <inheritdoc />
     public async Task<Word> UpdateWordAsync(Word word)
     {
         await using var db = await _factory.CreateDbContextAsync();
@@ -153,10 +171,12 @@ public class VocabularyService : IVocabularyService
         existing.UpdatedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
+        // Reload topic navigation so the caller gets complete data
         await db.Entry(existing).Reference(w => w.Topic).LoadAsync();
         return existing;
     }
 
+    /// <inheritdoc />
     public async Task DeleteWordAsync(int id)
     {
         await using var db = await _factory.CreateDbContextAsync();
@@ -168,6 +188,7 @@ public class VocabularyService : IVocabularyService
         }
     }
 
+    /// <inheritdoc />
     public async Task ToggleMasteredAsync(int wordId)
     {
         await using var db = await _factory.CreateDbContextAsync();
@@ -182,6 +203,9 @@ public class VocabularyService : IVocabularyService
 
     // ─── PRIVATE HELPERS ─────────────────────────────────
 
+    /// <summary>
+    /// Builds a composable IQueryable applying search, topic, and mastery filters from the given model.
+    /// </summary>
     private static IQueryable<Word> BuildWordFilterQuery(AppDbContext db, WordFilterModel filter)
     {
         var query = db.Words.AsQueryable();

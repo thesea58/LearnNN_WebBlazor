@@ -6,6 +6,7 @@
     <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(15, 23, 42, 0.5); backdrop-filter: blur(2px);">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <!-- #region: Modal Header -->
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
                     <div class="d-flex align-items-center gap-2">
                         <div class="rounded-circle bg-primary-subtle p-2 text-primary d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
@@ -22,10 +23,12 @@
                     </div>
                     <button type="button" class="btn-close" aria-label="Close" @onclick="HandleCancel" disabled="@isSubmitting"></button>
                 </div>
+                <!-- #endregion: Modal Header -->
 
                 <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
                     <DataAnnotationsValidator />
 
+                    <!-- #region: Form Fields -->
                     <div class="modal-body px-4 py-3">
                         @if (!string.IsNullOrEmpty(errorMessage))
                         {
@@ -36,7 +39,6 @@
                         }
 
                         <div class="row g-3">
-                            <!-- Term & Topic -->
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-dark small mb-1">
                                     Từ / Cụm từ <span class="text-danger">*</span>
@@ -62,7 +64,6 @@
                                 }
                             </div>
 
-                            <!-- Phonetic & Part of Speech -->
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-dark small mb-1">
                                     Phiên âm IPA
@@ -86,7 +87,6 @@
                                 </InputSelect>
                             </div>
 
-                            <!-- Meaning -->
                             <div class="col-12">
                                 <label class="form-label fw-semibold text-dark small mb-1">
                                     Nghĩa của từ <span class="text-danger">*</span>
@@ -95,7 +95,6 @@
                                 <ValidationMessage For="@(() => model.Meaning)" class="text-danger small mt-1" />
                             </div>
 
-                            <!-- Example Sentence & Translation -->
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-dark small mb-1">
                                     Câu ví dụ tiếng Anh
@@ -112,7 +111,6 @@
                                 <ValidationMessage For="@(() => model.ExampleTranslation)" class="text-danger small mt-1" />
                             </div>
 
-                            <!-- IsMastered toggle -->
                             <div class="col-12">
                                 <div class="form-check form-switch pt-1">
                                     <input class="form-check-input" type="checkbox" role="switch" id="isMasteredSwitch" @bind="model.IsMastered" disabled="@isSubmitting" />
@@ -123,7 +121,9 @@
                             </div>
                         </div>
                     </div>
+                    <!-- #endregion: Form Fields -->
 
+                    <!-- #region: Modal Footer -->
                     <div class="modal-footer bg-light bg-opacity-50 border-top-0 px-4 pb-4 pt-2">
                         <button type="button" class="btn btn-outline-secondary rounded-pill px-3" @onclick="HandleCancel" disabled="@isSubmitting">
                             <i class="bi bi-x me-1"></i> Hủy
@@ -141,6 +141,7 @@
                             }
                         </button>
                     </div>
+                    <!-- #endregion: Modal Footer -->
                 </EditForm>
             </div>
         </div>
@@ -148,10 +149,29 @@
 }
 
 @code {
+    /// <summary>
+    /// The word to edit; null when adding a new word.
+    /// </summary>
     [Parameter] public Word? EditWord { get; set; }
+
+    /// <summary>
+    /// Available topics for the topic dropdown selector.
+    /// </summary>
     [Parameter] public List<Topic> Topics { get; set; } = new();
+
+    /// <summary>
+    /// Controls whether the modal is currently displayed.
+    /// </summary>
     [Parameter] public bool IsVisible { get; set; }
+
+    /// <summary>
+    /// Callback invoked after a word is successfully created or updated.
+    /// </summary>
     [Parameter] public EventCallback OnSaved { get; set; }
+
+    /// <summary>
+    /// Callback invoked when the user cancels or closes the modal.
+    /// </summary>
     [Parameter] public EventCallback OnCancelled { get; set; }
 
     private Word model = new();
@@ -167,7 +187,7 @@
             isAttemptedSubmit = false;
             if (EditWord != null)
             {
-                // Clone existing word for editing
+                // Clone to avoid mutating the parent's reference during editing
                 model = new Word
                 {
                     Id = EditWord.Id,
@@ -184,7 +204,6 @@
             }
             else
             {
-                // New word initialization
                 model = new Word
                 {
                     TopicId = Topics.FirstOrDefault()?.Id ?? 0,
@@ -194,6 +213,9 @@
         }
     }
 
+    /// <summary>
+    /// Validates topic selection and persists the word (create or update).
+    /// </summary>
     private async Task HandleValidSubmit()
     {
         isAttemptedSubmit = true;

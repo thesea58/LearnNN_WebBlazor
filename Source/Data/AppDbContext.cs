@@ -3,6 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LearnNN_WebBlazor.Data;
 
+/// <summary>
+/// EF Core database context for the LearnNN application.
+/// Configures entity mappings, indexes, relationships, and seed data via Fluent API.
+/// <para>VN: DbContext của ứng dụng LearnNN, cấu hình ánh xạ entity, index, quan hệ và dữ liệu mẫu qua Fluent API.</para>
+/// </summary>
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
@@ -10,18 +15,21 @@ public class AppDbContext : DbContext
     public DbSet<Topic> Topics => Set<Topic>();
     public DbSet<Word> Words => Set<Word>();
 
+    /// <summary>
+    /// Configures entity schemas, indexes, default values, and relationships using Fluent API.
+    /// </summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Topic configuration
+        // ─── Topic Configuration ──────────────────────────────
         modelBuilder.Entity<Topic>(entity =>
         {
             entity.HasIndex(t => t.Name).IsUnique();
             entity.Property(t => t.CreatedAt).HasDefaultValueSql("datetime('now')");
         });
 
-        // Word configuration
+        // ─── Word Configuration ───────────────────────────────
         modelBuilder.Entity<Word>(entity =>
         {
             entity.HasIndex(w => w.TopicId);
@@ -30,16 +38,19 @@ public class AppDbContext : DbContext
             entity.Property(w => w.IsMastered).HasDefaultValue(false);
             entity.Property(w => w.CreatedAt).HasDefaultValueSql("datetime('now')");
 
+            // Cascade delete: removing a topic also removes all its words
             entity.HasOne(w => w.Topic)
                   .WithMany(t => t.Words)
                   .HasForeignKey(w => w.TopicId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // Seed Data
         SeedData(modelBuilder);
     }
 
+    /// <summary>
+    /// Populates the database with initial sample topics and words for development/demo purposes.
+    /// </summary>
     private static void SeedData(ModelBuilder modelBuilder)
     {
         var seedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);

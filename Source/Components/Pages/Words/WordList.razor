@@ -7,7 +7,7 @@
 <PageTitle>Danh sách từ vựng - LearnNN 📝</PageTitle>
 
 <div class="container-fluid p-0">
-    <!-- Header -->
+    <!-- #region: Page Header -->
     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
         <div>
             <h2 class="fw-bold mb-1 text-dark">
@@ -22,18 +22,18 @@
             <span>Thêm từ mới</span>
         </button>
     </div>
+    <!-- #endregion: Page Header -->
 
-    <!-- Alert Notification -->
+    <!-- #region: Alert Notification -->
     <AlertMessage Message="@alertMessage"
                   Type="@alertType"
                   IsVisible="@(!string.IsNullOrEmpty(alertMessage))"
                   OnDismiss="() => alertMessage = null" />
+    <!-- #endregion: Alert Notification -->
 
-
-    <!-- Filter & Search Toolbar -->
+    <!-- #region: Filter & Search Toolbar -->
     <div class="card border rounded-3 bg-white shadow-sm p-3 mb-4">
         <div class="row g-2 align-items-center">
-            <!-- Search Box with Debounce & Clear Button -->
             <div class="col-12 col-md-5">
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0 text-muted">
@@ -53,7 +53,6 @@
                 </div>
             </div>
 
-            <!-- Topic Filter -->
             <div class="col-6 col-md-3">
                 <select class="form-select" @onchange="OnTopicFilterChanged" value="@(selectedTopicId?.ToString() ?? "0")">
                     <option value="0">📁 Tất cả chủ đề</option>
@@ -64,7 +63,6 @@
                 </select>
             </div>
 
-            <!-- Mastered Status Filter -->
             <div class="col-6 col-md-3">
                 <select class="form-select" @onchange="OnMasteredFilterChanged" value="@((int)selectedMasteredFilter)">
                     <option value="0">🏷️ Tất cả trạng thái</option>
@@ -73,7 +71,6 @@
                 </select>
             </div>
 
-            <!-- Reset Filters Button -->
             <div class="col-12 col-md-1 text-md-end">
                 @if (HasActiveFilters)
                 {
@@ -84,8 +81,9 @@
             </div>
         </div>
     </div>
+    <!-- #endregion: Filter & Search Toolbar -->
 
-    <!-- Main Table Card -->
+    <!-- #region: Word List Table -->
     <div class="card border rounded-3 bg-white shadow-sm overflow-hidden mb-4">
         <div class="card-header bg-white border-bottom py-3 px-4 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
             <div class="d-flex align-items-center gap-2">
@@ -260,7 +258,7 @@
                 </table>
             </div>
 
-            <!-- Pagination Bar -->
+            <!-- #region: Pagination -->
             @if (totalPages > 1)
             {
                 <div class="card-footer bg-white border-top py-3 px-4 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
@@ -270,18 +268,15 @@
 
                     <nav aria-label="Phân trang từ vựng">
                         <ul class="pagination pagination-sm mb-0">
-                            <!-- Previous button -->
                             <li class="page-item @(currentPage == 1 ? "disabled" : "")">
                                 <button class="page-link" @onclick="() => GoToPage(currentPage - 1)" aria-label="Trang trước">
                                     <i class="bi bi-chevron-left"></i>
                                 </button>
                             </li>
 
-                            <!-- Page numbers -->
                             @for (int p = 1; p <= totalPages; p++)
                             {
                                 var targetPage = p;
-                                <!-- Show limited pagination buttons if many pages -->
                                 @if (p == 1 || p == totalPages || (p >= currentPage - 2 && p <= currentPage + 2))
                                 {
                                     <li class="page-item @(p == currentPage ? "active" : "")">
@@ -298,7 +293,6 @@
                                 }
                             }
 
-                            <!-- Next button -->
                             <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
                                 <button class="page-link" @onclick="() => GoToPage(currentPage + 1)" aria-label="Trang sau">
                                     <i class="bi bi-chevron-right"></i>
@@ -308,18 +302,21 @@
                     </nav>
                 </div>
             }
+            <!-- #endregion: Pagination -->
         }
     </div>
+    <!-- #endregion: Word List Table -->
 </div>
 
-<!-- Modal Thêm / Sửa từ vựng -->
+<!-- #region: Add/Edit Word Modal -->
 <WordFormModal IsVisible="@isWordModalVisible"
                EditWord="@selectedWordForEdit"
                Topics="@topics"
                OnSaved="OnWordSaved"
                OnCancelled="() => isWordModalVisible = false" />
+<!-- #endregion: Add/Edit Word Modal -->
 
-<!-- Modal Xác nhận Xóa từ vựng -->
+<!-- #region: Confirm Delete Modal -->
 <ConfirmDeleteModal IsVisible="@isDeleteModalVisible"
                     Title="Xác nhận xóa từ vựng"
                     Message="@deleteWarningMessage"
@@ -327,16 +324,18 @@
                     IsProcessing="@isDeleting"
                     OnConfirm="ConfirmDeleteWordAsync"
                     OnCancel="() => isDeleteModalVisible = false" />
+<!-- #endregion: Confirm Delete Modal -->
 
 @code {
     [SupplyParameterFromQuery] public int? TopicId { get; set; }
 
+    // ─── Data State ─────────────────────────────────────
     private List<Word> words = new();
     private List<Topic> topics = new();
     private bool isLoading = true;
     private bool isToggling = false;
 
-    // Filters & Pagination
+    // ─── Filters & Pagination ───────────────────────────
     private string searchTerm = string.Empty;
     private int? selectedTopicId;
     private MasteredFilter selectedMasteredFilter = MasteredFilter.All;
@@ -345,14 +344,14 @@
     private int totalCount = 0;
     private int totalPages = 1;
 
-    // Debounce timer for search input
+    // 300ms debounce timer to avoid excessive API calls during typing
     private System.Timers.Timer? debounceTimer;
 
-    // Alert notification
+    // ─── Alert ──────────────────────────────────────────
     private string? alertMessage;
     private AlertType alertType = AlertType.Success;
 
-    // Modals
+    // ─── Modals ─────────────────────────────────────────
     private bool isWordModalVisible = false;
     private Word? selectedWordForEdit;
 
@@ -365,7 +364,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Setup 300ms debounce timer for search input
+        // Setup debounce timer for search input to reduce server load
         debounceTimer = new System.Timers.Timer(300);
         debounceTimer.AutoReset = false;
         debounceTimer.Elapsed += async (sender, args) =>
@@ -378,6 +377,7 @@
             });
         };
 
+        // Apply topic filter from query string if navigated from Topics page
         if (TopicId.HasValue && TopicId.Value > 0)
         {
             selectedTopicId = TopicId.Value;
@@ -387,6 +387,9 @@
         await LoadWordsAsync();
     }
 
+    /// <summary>
+    /// Loads all topics for the filter dropdown.
+    /// </summary>
     private async Task LoadTopicsAsync()
     {
         try
@@ -399,6 +402,9 @@
         }
     }
 
+    /// <summary>
+    /// Fetches a paginated word list based on current filter state.
+    /// </summary>
     private async Task LoadWordsAsync()
     {
         isLoading = true;
@@ -480,12 +486,15 @@
         await LoadWordsAsync();
     }
 
+    /// <summary>
+    /// Toggles mastery status with optimistic UI update, reverting on failure.
+    /// </summary>
     private async Task ToggleMasteredAsync(Word word)
     {
         if (isToggling) return;
         isToggling = true;
 
-        // Optimistic UI update
+        // Optimistic UI: flip immediately for responsiveness
         word.IsMastered = !word.IsMastered;
 
         try
@@ -494,7 +503,7 @@
         }
         catch (Exception ex)
         {
-            // Revert on failure
+            // Revert on failure to keep UI consistent with server state
             word.IsMastered = !word.IsMastered;
             ShowAlert($"Lỗi cập nhật trạng thái: {ex.Message}", isSuccess: false);
         }
@@ -566,6 +575,9 @@
         return $"Hiển thị {words.Count} / {totalCount} từ";
     }
 
+    /// <summary>
+    /// Maps part-of-speech values to Bootstrap badge CSS classes for visual differentiation.
+    /// </summary>
     private string GetPartOfSpeechBadgeClass(string? pos)
     {
         return (pos?.ToLower().Trim()) switch

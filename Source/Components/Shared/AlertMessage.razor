@@ -15,32 +15,32 @@
 
 @code {
     /// <summary>
-    /// Nội dung thông báo hiển thị.
+    /// The notification text to display.
     /// </summary>
     [Parameter] public string? Message { get; set; }
 
     /// <summary>
-    /// Kiểu thông báo (Success, Warning, Error, Info).
+    /// Determines the visual style and icon (Success, Warning, Error, Info).
     /// </summary>
     [Parameter] public AlertType Type { get; set; } = AlertType.Success;
 
     /// <summary>
-    /// Trạng thái hiển thị thông báo.
+    /// Controls whether the alert is currently visible.
     /// </summary>
     [Parameter] public bool IsVisible { get; set; }
 
     /// <summary>
-    /// Tự động đóng thông báo sau một khoảng thời gian.
+    /// When true, the alert auto-dismisses after <see cref="AutoDismissSeconds"/>.
     /// </summary>
     [Parameter] public bool AutoDismiss { get; set; } = true;
 
     /// <summary>
-    /// Số giây trước khi tự động đóng (mặc định: 4 giây).
+    /// Seconds before auto-dismiss triggers. Defaults to 4.
     /// </summary>
     [Parameter] public int AutoDismissSeconds { get; set; } = 4;
 
     /// <summary>
-    /// Callback khi thông báo bị đóng (thủ công hoặc tự động).
+    /// Callback invoked when the alert is dismissed (manually or automatically).
     /// </summary>
     [Parameter] public EventCallback OnDismiss { get; set; }
 
@@ -50,7 +50,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        // Khi thông báo mới xuất hiện hoặc thay đổi nội dung
+        // Restart auto-dismiss timer when a new message appears or message content changes
         if (IsVisible && !string.IsNullOrWhiteSpace(Message) && (!_previousVisible || _previousMessage != Message))
         {
             _previousVisible = true;
@@ -69,7 +69,7 @@
                 }
                 catch (TaskCanceledException)
                 {
-                    // Hủy delay khi dismiss thủ công hoặc đổi thông báo
+                    // Expected when dismissed manually or message changes before timer expires
                 }
             }
         }

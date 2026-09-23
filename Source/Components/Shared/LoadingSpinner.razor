@@ -17,17 +17,17 @@
 
 @code {
     /// <summary>
-    /// Thông báo kèm theo dưới vòng xoay loading.
+    /// Text displayed below the spinner animation.
     /// </summary>
     [Parameter] public string? Message { get; set; } = "Đang tải dữ liệu...";
 
     /// <summary>
-    /// Trạng thái hiển thị (true: hiện, false: ẩn).
+    /// Controls spinner visibility.
     /// </summary>
     [Parameter] public bool IsVisible { get; set; } = true;
 
     /// <summary>
-    /// Kích thước spinner ("sm", "md", "lg").
+    /// Spinner size variant: "sm", "md" (default), or "lg".
     /// </summary>
     [Parameter] public string? Size { get; set; } = "md";
 

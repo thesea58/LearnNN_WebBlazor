@@ -3,6 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LearnNN_WebBlazor.Data.Entities;
 
+/// <summary>
+/// Represents a vocabulary word entry linked to a <see cref="Topic"/>,
+/// storing term, meaning, phonetics, examples, and mastery status.
+/// <para>VN: Đại diện cho một mục từ vựng thuộc một chủ đề, lưu trữ từ, nghĩa, phiên âm, ví dụ và trạng thái ghi nhớ.</para>
+/// </summary>
 [Table("Words")]
 public class Word
 {
@@ -39,6 +44,8 @@ public class Word
 
     public DateTime? UpdatedAt { get; set; }
 
-    // Navigation property
+    /// <summary>
+    /// Parent topic this word belongs to. Required navigation property.
+    /// </summary>
     public Topic Topic { get; set; } = null!;
 }
