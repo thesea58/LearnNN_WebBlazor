@@ -21,6 +21,16 @@
     <Routes />
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script>
+        window.downloadFileFromBase64 = function (fileName, base64Url) {
+            const a = document.createElement('a');
+            a.href = base64Url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        };
+    </script>
 </body>
 
 </html>

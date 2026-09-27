@@ -205,6 +205,114 @@ public class VocabularyService : IVocabularyService
 
     #endregion
 
+    #region Import/Export Data
+
+    /// <inheritdoc />
+    public async Task<byte[]> ExportWordsToCsvAsync()
+    {
+        await using var db = await _factory.CreateDbContextAsync();
+        var words = await db.Words.Include(w => w.Topic).ToListAsync();
+
+        var records = words.Select(w => new WordCsvRecord
+        {
+            TopicName = w.Topic.Name,
+            Term = w.Term,
+            Meaning = w.Meaning,
+            Phonetic = w.Phonetic,
+            PartOfSpeech = w.PartOfSpeech,
+            ExampleSentence = w.ExampleSentence,
+            ExampleTranslation = w.ExampleTranslation,
+            IsMastered = w.IsMastered
+        }).ToList();
+
+        using var memoryStream = new MemoryStream();
+        // Use UTF8 with BOM so Excel opens it correctly
+        using var streamWriter = new StreamWriter(memoryStream, new System.Text.UTF8Encoding(true));
+        using var csvWriter = new CsvHelper.CsvWriter(streamWriter, System.Globalization.CultureInfo.InvariantCulture);
+
+        await csvWriter.WriteRecordsAsync(records);
+        await streamWriter.FlushAsync();
+        return memoryStream.ToArray();
+    }
+
+    /// <inheritdoc />
+    public async Task<(int successCount, int errorCount)> ImportWordsFromCsvAsync(Stream fileStream)
+    {
+        int successCount = 0;
+        int errorCount = 0;
+
+        var config = new CsvHelper.Configuration.CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)
+        {
+            HeaderValidated = null,
+            MissingFieldFound = null,
+            BadDataFound = null
+        };
+
+        using var streamReader = new StreamReader(fileStream);
+        using var csvReader = new CsvHelper.CsvReader(streamReader, config);
+
+        await using var db = await _factory.CreateDbContextAsync();
+        var topics = await db.Topics.ToDictionaryAsync(t => t.Name.ToLower(), t => t);
+
+        await csvReader.ReadAsync();
+        csvReader.ReadHeader();
+
+        while (await csvReader.ReadAsync())
+        {
+            try
+            {
+                var record = csvReader.GetRecord<WordCsvRecord>();
+                
+                if (record == null || string.IsNullOrWhiteSpace(record.Term) || string.IsNullOrWhiteSpace(record.Meaning) || string.IsNullOrWhiteSpace(record.TopicName))
+                {
+                    errorCount++;
+                    continue;
+                }
+
+                var topicKey = record.TopicName.Trim().ToLower();
+                if (!topics.TryGetValue(topicKey, out var topic))
+                {
+                    topic = new Topic
+                    {
+                        Name = record.TopicName.Trim(),
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    db.Topics.Add(topic);
+                    topics[topicKey] = topic;
+                }
+
+                var word = new Word
+                {
+                    Term = record.Term.Trim(),
+                    Meaning = record.Meaning.Trim(),
+                    Phonetic = record.Phonetic?.Trim(),
+                    PartOfSpeech = record.PartOfSpeech?.Trim(),
+                    ExampleSentence = record.ExampleSentence?.Trim(),
+                    ExampleTranslation = record.ExampleTranslation?.Trim(),
+                    IsMastered = record.IsMastered,
+                    Topic = topic,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                db.Words.Add(word);
+                successCount++;
+            }
+            catch
+            {
+                errorCount++;
+            }
+        }
+
+        if (successCount > 0)
+        {
+            await db.SaveChangesAsync();
+        }
+
+        return (successCount, errorCount);
+    }
+
+    #endregion
+
     #region Private Helpers
 
     /// <summary>

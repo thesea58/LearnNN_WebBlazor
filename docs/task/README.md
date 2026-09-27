@@ -2,7 +2,7 @@
 ## Quản lý Tiến độ Công việc
 
 > **Dự án**: LearnNN – Vocabulary Management App  
-> **Tổng số Tasks**: 11  
+> **Tổng số Tasks**: 12  
 > **Ngày tạo**: 2026-09-22
 
 ---
@@ -22,6 +22,7 @@
 | 09 | [Integration & Testing](09_integration_testing/) | Kiểm tra E2E, responsive, error handling, performance, cleanup | 🔴 Cao | Task 01→08 | ✅ Hoàn thành |
 | 10 | Code Commenting Convention | Tạo rule comment code thống nhất (EN, 5W1H, XML Docs, #region phân vùng chức năng) và áp dụng toàn bộ codebase | 🟡 TB | Task 01→09 | ✅ Hoàn thành |
 | 11 | Solution File Setup | Tạo file solution định dạng XML (`LearnNN_WebBlazor.slnx`) và add project `Source/LearnNN_WebBlazor.csproj` | 🟢 Thấp | Task 01 | ✅ Hoàn thành |
+| 12 | [Import/Export Data](12_import_export_data/) | Thêm tính năng Import/Export danh sách từ vựng từ file CSV và Backup bằng JSON | 🔴 Cao | Task 06 | ✅ Hoàn thành |
 
 ---
 

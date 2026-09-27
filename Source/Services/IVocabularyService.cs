@@ -101,5 +101,18 @@ public interface IVocabularyService
     /// </summary>
     /// <param name="wordId">The word identifier to toggle.</param>
     Task ToggleMasteredAsync(int wordId);
+    /// <summary>
+    /// Exports all words to a CSV format stream.
+    /// </summary>
+    /// <returns>A byte array containing the CSV data.</returns>
+    Task<byte[]> ExportWordsToCsvAsync();
+
+    /// <summary>
+    /// Imports words from a CSV stream. If a topic doesn't exist, it will be created.
+    /// </summary>
+    /// <param name="fileStream">The CSV file stream.</param>
+    /// <returns>A tuple containing the number of successfully imported words and the number of failed rows.</returns>
+    Task<(int successCount, int errorCount)> ImportWordsFromCsvAsync(Stream fileStream);
+
     #endregion
 }

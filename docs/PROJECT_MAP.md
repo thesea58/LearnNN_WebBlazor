@@ -37,7 +37,8 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📁 06_word_list/                #    ⬜ Task 06 – Word List
 │       ├── 📁 07_word_form_modal/          #    ⬜ Task 07 – Word Form Modal
 │       ├── 📁 08_shared_components/        #    ⬜ Task 08 – Shared Components
-│       └── 📁 09_integration_testing/      #    ⬜ Task 09 – Integration & Testing
+│       ├── 📁 09_integration_testing/      #    ⬜ Task 09 – Integration & Testing
+│       └── 📁 12_import_export_data/       #    ⬜ Task 12 – Import/Export Data
 │
 ├── 📁 Source/                              # 💻 MÃ NGUỒN CHÍNH (Blazor Web App)
 │   ├── 📄 LearnNN_WebBlazor.csproj         #    Project file (.NET 10)
@@ -224,5 +225,5 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-09-23 | Task 10 – Code Commenting Convention | `[NEW] .agents/rules/code-commenting.md`, `Source/Data/Entities/Topic.cs`, `Source/Data/Entities/Word.cs`, `Source/Data/AppDbContext.cs`, `Source/Models/AlertType.cs`, `Source/Models/WordFilterModel.cs`, `Source/Services/IVocabularyService.cs`, `Source/Services/VocabularyService.cs`, `Source/Components/Shared/AlertMessage.razor`, `Source/Components/Shared/ConfirmDeleteModal.razor`, `Source/Components/Shared/LoadingSpinner.razor`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Words/WordFormModal.razor`, `Source/Program.cs` | Tạo rule comment code thống nhất (EN, 5W1H, XML Docs, section dividers, #region) và áp dụng cho toàn bộ codebase. Thêm file rule `.agents/rules/code-commenting.md` |
 | 2026-09-24 | Cập nhật Rule #region | `.agents/rules/code-commenting.md`, `Source/Services/VocabularyService.cs`, `Source/Services/IVocabularyService.cs`, `Source/Program.cs`, `Source/Data/AppDbContext.cs`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/Components/Pages/Words/WordList.razor`, `docs/design/03_architecture.md` | Cập nhật quy ước phân vùng chức năng trong code C# sang dùng `#region ... #endregion` thay thế cho comment phân đoạn `// ───` |
 | 2026-09-24 | Khởi tạo Solution file (.slnx) | `LearnNN_WebBlazor.slnx` | Tạo solution file XML (.slnx) cho repo và add project `Source/LearnNN_WebBlazor.csproj` vào solution |
-
-
+| 2026-09-24 | Phân tích & Tạo Task Import/Export | `docs/task/12_import_export_data/README.md`, `docs/task/README.md`, `docs/PROJECT_MAP.md` | Phân tích phương án Import/Export dữ liệu (đề xuất CSV/JSON), tạo Task 12 để chuẩn bị triển khai |
+| 2026-09-24 | Task 12 - Import/Export Data | `Source/Models/WordCsvRecord.cs`, `Source/Services/IVocabularyService.cs`, `Source/Services/VocabularyService.cs`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/App.razor` | Triển khai tính năng Import/Export từ vựng ra CSV sử dụng thư viện CsvHelper. Thêm JS Interop tải file. |

@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject IVocabularyService VocabularyService
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JS
 @implements IDisposable
 
 <PageTitle>Danh sách từ vựng - LearnNN 📝</PageTitle>
@@ -17,10 +18,20 @@
                 Quản lý, tra cứu và theo dõi mức độ ghi nhớ vốn từ của bạn
             </p>
         </div>
-        <button class="btn btn-primary rounded-pill px-4 py-2 shadow-sm d-flex align-items-center gap-2" @onclick="OpenAddModal">
-            <i class="bi bi-plus-circle-fill"></i>
-            <span>Thêm từ mới</span>
-        </button>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-success rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2" @onclick="OpenImportModal">
+                <i class="bi bi-box-arrow-in-down"></i>
+                <span class="d-none d-sm-inline">Import</span>
+            </button>
+            <button class="btn btn-outline-info rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2" @onclick="ExportCsvAsync" disabled="@isExporting">
+                <i class="bi bi-box-arrow-up"></i>
+                <span class="d-none d-sm-inline">Export</span>
+            </button>
+            <button class="btn btn-primary rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2" @onclick="OpenAddModal">
+                <i class="bi bi-plus-circle-fill"></i>
+                <span class="d-none d-sm-inline">Thêm từ mới</span>
+            </button>
+        </div>
     </div>
     <!-- #endregion: Page Header -->
 
@@ -326,6 +337,44 @@
                     OnCancel="() => isDeleteModalVisible = false" />
 <!-- #endregion: Confirm Delete Modal -->
 
+<!-- #region: Import Modal -->
+@if (isImportModalVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">📥 Import từ vựng từ CSV</h5>
+                    <button type="button" class="btn-close" @onclick="CloseImportModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">
+                        Vui lòng tải lên file <code>.csv</code> đúng định dạng. Bạn có thể 
+                        <a href="#" @onclick:preventDefault @onclick="DownloadTemplateAsync">tải file mẫu tại đây</a>.
+                    </p>
+                    <div class="mb-3">
+                        <InputFile OnChange="LoadImportFile" class="form-control" accept=".csv" />
+                    </div>
+                    @if (isImporting)
+                    {
+                        <div class="d-flex align-items-center gap-2 text-primary">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span>Đang xử lý dữ liệu...</span>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseImportModal" disabled="@isImporting">Đóng</button>
+                    <button type="button" class="btn btn-success" @onclick="ProcessImportAsync" disabled="@(importBrowserFile == null || isImporting)">
+                        <i class="bi bi-cloud-arrow-up-fill me-1"></i> Bắt đầu Import
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<!-- #endregion: Import Modal -->
+
 @code {
     [SupplyParameterFromQuery] public int? TopicId { get; set; }
 
@@ -359,6 +408,12 @@
     private bool isDeleting = false;
     private Word? wordToDelete;
     private string deleteWarningMessage = string.Empty;
+
+    // ─── Import / Export ────────────────────────────────
+    private bool isExporting = false;
+    private bool isImportModalVisible = false;
+    private bool isImporting = false;
+    private Microsoft.AspNetCore.Components.Forms.IBrowserFile? importBrowserFile;
 
     private bool HasActiveFilters => !string.IsNullOrWhiteSpace(searchTerm) || (selectedTopicId.HasValue && selectedTopicId.Value > 0) || selectedMasteredFilter != MasteredFilter.All;
 
@@ -595,6 +650,96 @@
     {
         if (string.IsNullOrEmpty(value)) return string.Empty;
         return value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...";
+    }
+
+    // ─── Import / Export Logic ──────────────────────────
+    private async Task ExportCsvAsync()
+    {
+        if (isExporting) return;
+        isExporting = true;
+        try
+        {
+            var bytes = await VocabularyService.ExportWordsToCsvAsync();
+            var base64 = Convert.ToBase64String(bytes);
+            var url = $"data:text/csv;base64,{base64}";
+            await JS.InvokeVoidAsync("downloadFileFromBase64", "words_export.csv", url);
+            ShowAlert("Xuất file CSV thành công!", true);
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Lỗi xuất file: {ex.Message}", false);
+        }
+        finally
+        {
+            isExporting = false;
+        }
+    }
+
+    private void OpenImportModal()
+    {
+        importBrowserFile = null;
+        isImportModalVisible = true;
+    }
+
+    private void CloseImportModal()
+    {
+        isImportModalVisible = false;
+        importBrowserFile = null;
+    }
+
+    private async Task DownloadTemplateAsync()
+    {
+        var headers = "TopicName,Term,Meaning,Pronunciation,PartOfSpeech,Example,ExampleTranslation,IsMastered\nChủ đề mẫu,Hello,Xin chào,həˈloʊ,noun,Hello world,Chào thế giới,false";
+        // Use UTF8 with BOM for Excel
+        var preamble = System.Text.Encoding.UTF8.GetPreamble();
+        var bytes = System.Text.Encoding.UTF8.GetBytes(headers);
+        var finalBytes = preamble.Concat(bytes).ToArray();
+        var base64 = Convert.ToBase64String(finalBytes);
+        var url = $"data:text/csv;base64,{base64}";
+        await JS.InvokeVoidAsync("downloadFileFromBase64", "template.csv", url);
+    }
+
+    private void LoadImportFile(InputFileChangeEventArgs e)
+    {
+        importBrowserFile = e.File;
+    }
+
+    private async Task ProcessImportAsync()
+    {
+        if (importBrowserFile == null) return;
+        isImporting = true;
+        try
+        {
+            // Limit to 5MB
+            using var stream = importBrowserFile.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
+            var result = await VocabularyService.ImportWordsFromCsvAsync(stream);
+            
+            CloseImportModal();
+            
+            if (result.errorCount == -1)
+            {
+                ShowAlert("Lỗi định dạng file hoặc cấu trúc CSV không đúng.", false);
+            }
+            else
+            {
+                ShowAlert($"Import hoàn tất. Thành công: {result.successCount} từ. Lỗi/bỏ qua: {result.errorCount} dòng.", result.successCount > 0);
+            }
+            
+            if (result.successCount > 0)
+            {
+                await LoadTopicsAsync();
+                await LoadWordsAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            CloseImportModal();
+            ShowAlert($"Lỗi khi import file: {ex.Message}", false);
+        }
+        finally
+        {
+            isImporting = false;
+        }
     }
 
     public void Dispose()
