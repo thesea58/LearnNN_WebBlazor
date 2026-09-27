@@ -19,6 +19,12 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📄 project-architecture.md      #    Quy tắc kiến trúc & file conventions
 │       └── 📄 update-status-task.md
 │
+├── 📁 CrawData/                            # 📦 Dữ liệu thô & script xử lý import (JSON, CSV, Python)
+│   ├── 📄 template_importData.csv          #    File mẫu CSV import dữ liệu cho web
+│   ├── 📄 toeic_600_essential_words_en_vi.json # Dữ liệu 600 từ vựng TOEIC (Anh - Việt)
+│   ├── 📄 convert_json_to_csv.py           #    Script Python chuyển đổi JSON sang CSV import
+│   └── 📄 toeic_600_words_import.csv       #    File kết quả CSV sẵn sàng import vào Web
+│
 ├── 📁 docs/                                # 📚 Tài liệu dự án
 │   ├── 📄 PROJECT_MAP.md                   # ★ BẢN ĐỒ KIẾN TRÚC (file này)
 │   ├── 📁 design/                          #    Tài liệu thiết kế hệ thống
@@ -227,3 +233,4 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-09-24 | Khởi tạo Solution file (.slnx) | `LearnNN_WebBlazor.slnx` | Tạo solution file XML (.slnx) cho repo và add project `Source/LearnNN_WebBlazor.csproj` vào solution |
 | 2026-09-24 | Phân tích & Tạo Task Import/Export | `docs/task/12_import_export_data/README.md`, `docs/task/README.md`, `docs/PROJECT_MAP.md` | Phân tích phương án Import/Export dữ liệu (đề xuất CSV/JSON), tạo Task 12 để chuẩn bị triển khai |
 | 2026-09-24 | Task 12 - Import/Export Data | `Source/Models/WordCsvRecord.cs`, `Source/Services/IVocabularyService.cs`, `Source/Services/VocabularyService.cs`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/App.razor` | Triển khai tính năng Import/Export từ vựng ra CSV sử dụng thư viện CsvHelper. Thêm JS Interop tải file. |
+| 2026-09-27 | Chuyển đổi dữ liệu TOEIC 600 JSON sang CSV | `CrawData/convert_json_to_csv.py`, `CrawData/toeic_600_words_import.csv` | Tạo script Python chuyển đổi dữ liệu từ vựng TOEIC JSON sang định dạng CSV import của web (UTF-8 BOM, map các trường TopicName, Term, Meaning, Pronunciation, PartOfSpeech, Example, ExampleTranslation, IsMastered) |

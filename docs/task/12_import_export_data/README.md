@@ -36,6 +36,10 @@ Sau khi đánh giá các phương án (CSV, Excel, JSON, XML), hệ thống sẽ
 - [x] Thêm validation cho quá trình Import (file quá lớn, sai định dạng).
 - [x] Viết Unit Test/Integration Test cho chức năng Import/Export (nếu cần).
 
+### 3.4. Dữ liệu mẫu & Tool chuyển đổi (Data Converter)
+- Script Python: `CrawData/convert_json_to_csv.py` chuyển đổi dữ liệu từ vựng TOEIC 600 từ file JSON sang CSV chuẩn template.
+- File CSV đầu ra: `CrawData/toeic_600_words_import.csv` (598 từ vựng thuộc 50 chủ đề, mã hóa UTF-8 with BOM).
+
 ## 4. UI/UX Note
 - Khi import số lượng lớn, cần hiển thị `LoadingSpinner`.
 - Sau khi import, hiển thị `AlertMessage` báo cáo số lượng thành công/thất bại.
