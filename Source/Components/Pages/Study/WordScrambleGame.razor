@@ -1,0 +1,456 @@
+@page "/study/scramble"
+@page "/study/scramble/{TopicIdRoute:int?}"
+@rendermode InteractiveServer
+@inject IStudyService StudyService
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+
+<PageTitle>Game Xếp Chữ - LearnNN 📘</PageTitle>
+
+<div class="container py-3" style="max-width: 800px;">
+    <!-- #region: Header & Scoreboard -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+        <a href="/study" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Trở về Hub
+        </a>
+
+        <div class="d-flex align-items-center gap-3">
+            <div class="badge bg-white text-dark border px-3 py-2 fs-6 shadow-sm">
+                <i class="bi bi-star-fill text-warning me-1"></i>
+                <span><strong>@score</strong> điểm</span>
+            </div>
+
+            @if (streakCount > 1)
+            {
+                <div class="badge bg-danger text-white border px-3 py-2 fs-6 shadow-sm">
+                    <i class="bi bi-fire me-1"></i>
+                    <span>Chuỗi <strong>@streakCount</strong>!</span>
+                </div>
+            }
+
+            <span class="badge bg-light text-dark border px-3 py-2">
+                Từ <strong>@(currentIndex + 1)</strong> / @words.Count
+            </span>
+        </div>
+    </div>
+
+    @if (words.Count > 0)
+    {
+        <div class="progress-container mb-4" style="height: 6px;">
+            <div class="progress-bar-gradient h-100" style="width: @(progressPercent)%"></div>
+        </div>
+    }
+    <!-- #endregion: Header & Scoreboard -->
+
+    @if (isLoading)
+    {
+        <LoadingSpinner IsVisible="true" Message="Đang tạo câu đố xếp chữ..." />
+    }
+    else if (words.Count == 0)
+    {
+        <div class="card border rounded-3 p-5 text-center bg-white shadow-sm">
+            <div class="display-3 text-muted mb-3">
+                <i class="bi bi-inbox"></i>
+            </div>
+            <h4 class="fw-bold text-dark">Không có từ vựng nào!</h4>
+            <p class="text-muted">Chủ đề được chọn chưa có từ vựng phù hợp để tạo game xếp chữ.</p>
+            <div>
+                <a href="/study" class="btn btn-primary">
+                    <i class="bi bi-arrow-left me-1"></i> Chọn chủ đề khác
+                </a>
+            </div>
+        </div>
+    }
+    else if (isFinished)
+    {
+        <!-- #region: Game Finished Screen -->
+        <div class="card border rounded-4 p-5 text-center bg-white shadow-sm">
+            <div class="display-1 text-warning mb-3">
+                🎉
+            </div>
+            <h2 class="fw-bold text-dark mb-2">Hoàn Thành Thử Thách Xếp Chữ!</h2>
+            <p class="text-muted mb-4">
+                Bạn đã vượt qua toàn bộ <strong>@words.Count</strong> câu đố xếp chữ trong phiên này.
+            </p>
+
+            <div class="row g-3 justify-content-center mb-4" style="max-width: 480px; margin: 0 auto;">
+                <div class="col-6">
+                    <div class="card bg-primary-subtle border-0 p-3 rounded-3 text-primary">
+                        <small class="d-block text-muted">Tổng điểm số</small>
+                        <h3 class="fw-bold mb-0">@score</h3>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card bg-success-subtle border-0 p-3 rounded-3 text-success">
+                        <small class="d-block text-muted">Số câu đúng</small>
+                        <h3 class="fw-bold mb-0">@correctCount / @words.Count</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-2">
+                <button class="btn btn-primary px-4 py-2" @onclick="RestartSessionAsync">
+                    <i class="bi bi-arrow-repeat me-1"></i> Chơi lượt mới
+                </button>
+                <a href="/study" class="btn btn-outline-secondary px-4 py-2">
+                    <i class="bi bi-house me-1"></i> Về trung tâm
+                </a>
+            </div>
+        </div>
+        <!-- #endregion: Game Finished Screen -->
+    }
+    else
+    {
+        var currentWord = words[currentIndex];
+
+        <!-- #region: Puzzle Card -->
+        <div class="card border rounded-4 p-4 p-md-5 bg-white shadow-sm mb-4 text-center">
+            <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                <span class="badge bg-light text-secondary border rounded-pill px-3 py-1">
+                    @(currentWord.Topic?.Name ?? "Chung")
+                </span>
+                @if (!string.IsNullOrWhiteSpace(currentWord.PartOfSpeech))
+                {
+                    <span class="badge bg-secondary-subtle text-secondary rounded-pill">
+                        @currentWord.PartOfSpeech
+                    </span>
+                }
+            </div>
+
+            <!-- Meaning Prompt -->
+            <div class="text-muted small text-uppercase fw-semibold mb-1">Nghĩa tiếng Việt</div>
+            <h3 class="fw-bold text-dark mb-3">@currentWord.Meaning</h3>
+
+            @if (showHint)
+            {
+                <div class="d-flex justify-content-center align-items-center gap-2 mb-3 animate__animated animate__fadeIn">
+                    @if (!string.IsNullOrWhiteSpace(currentWord.Phonetic))
+                    {
+                        <span class="badge bg-info-subtle text-info font-monospace fs-6 px-3 py-1">
+                            @currentWord.Phonetic
+                        </span>
+                    }
+                    <button class="speaker-btn btn-sm" title="Phát âm" @onclick="() => SpeakTermAsync(currentWord.Term)">
+                        <i class="bi bi-volume-up-fill fs-6"></i>
+                    </button>
+                </div>
+            }
+
+            <!-- Letter Target Slots -->
+            <div class="scramble-slots">
+                @for (int i = 0; i < currentWordClean.Length; i++)
+                {
+                    int slotIndex = i;
+                    bool hasLetter = slotIndex < userSlots.Count;
+                    string letterChar = hasLetter ? userSlots[slotIndex].Letter.ToString() : "";
+
+                    <div class="letter-slot @(hasLetter ? "filled cursor-pointer" : "")"
+                         @onclick="() => OnRemoveLetterAtAsync(slotIndex)"
+                         title="@(hasLetter ? "Bấm để gỡ chữ cái này" : "")">
+                        @letterChar
+                    </div>
+                }
+            </div>
+
+            @if (!string.IsNullOrEmpty(statusMessage))
+            {
+                <div class="alert @statusMessageClass py-2 px-3 d-inline-block mx-auto mb-3 animate__animated animate__fadeIn">
+                    @statusMessage
+                </div>
+            }
+
+            <!-- Scrambled Letter Tray -->
+            <div class="d-flex flex-wrap justify-content-center gap-2 my-3">
+                @foreach (var chip in availableChips)
+                {
+                    <button type="button" class="letter-chip" disabled="@chip.IsUsed"
+                            @onclick="() => OnLetterChipClickedAsync(chip)">
+                        @chip.Letter
+                    </button>
+                }
+            </div>
+
+            <!-- Action Controls -->
+            <div class="d-flex flex-wrap justify-content-center gap-2 mt-4 pt-3 border-top">
+                <button class="btn btn-outline-secondary btn-sm" @onclick="ClearInput" disabled="@(userSlots.Count == 0)">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Xóa hết
+                </button>
+
+                <button class="btn btn-outline-secondary btn-sm" @onclick="BackspaceInput" disabled="@(userSlots.Count == 0)">
+                    <i class="bi bi-backspace me-1"></i> Xóa chữ cuối
+                </button>
+
+                <button class="btn btn-outline-info btn-sm" @onclick="ToggleHint">
+                    <i class="bi bi-lightbulb me-1"></i> Gợi ý
+                </button>
+
+                <button class="btn btn-outline-warning text-dark btn-sm" @onclick="SkipWord">
+                    <i class="bi bi-skip-forward me-1"></i> Bỏ qua
+                </button>
+            </div>
+        </div>
+        <!-- #endregion: Puzzle Card -->
+    }
+</div>
+
+@code {
+    #region Parameters
+
+    [Parameter]
+    public int? TopicIdRoute { get; set; }
+
+    [SupplyParameterFromQuery]
+    public int? TopicId { get; set; }
+
+    [SupplyParameterFromQuery]
+    public bool? Unmastered { get; set; }
+
+    [SupplyParameterFromQuery]
+    public int? Count { get; set; }
+
+    #endregion
+
+    #region Inner Types
+
+    private class LetterChipItem
+    {
+        public int Id { get; set; }
+        public char Letter { get; set; }
+        public bool IsUsed { get; set; }
+    }
+
+    #endregion
+
+    #region State
+
+    private bool isLoading = true;
+    private bool isFinished = false;
+    private bool showHint = false;
+
+    private int currentIndex = 0;
+    private int score = 0;
+    private int streakCount = 0;
+    private int correctCount = 0;
+
+    private string statusMessage = string.Empty;
+    private string statusMessageClass = string.Empty;
+
+    private List<Word> words = new();
+    private string currentWordClean = string.Empty;
+    private List<LetterChipItem> availableChips = new();
+    private List<LetterChipItem> userSlots = new();
+
+    private int progressPercent => words.Count > 0 ? (int)Math.Round((double)(currentIndex + 1) / words.Count * 100) : 0;
+
+    #endregion
+
+    #region Lifecycle
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadWordsAsync();
+    }
+
+    #endregion
+
+    #region Methods
+
+    private async Task LoadWordsAsync()
+    {
+        isLoading = true;
+        try
+        {
+            int? effectiveTopicId = TopicIdRoute ?? (TopicId > 0 ? TopicId : null);
+            var options = new StudySessionOptions
+            {
+                TopicId = effectiveTopicId,
+                OnlyUnmastered = Unmastered ?? false,
+                ItemCount = Count ?? 15
+            };
+
+            words = await StudyService.GetWordsForStudyAsync(options);
+            // Filter words that only contain letters/hyphens and are reasonable in length
+            words = words.Where(w => !string.IsNullOrWhiteSpace(w.Term) && w.Term.Length <= 15).ToList();
+
+            currentIndex = 0;
+            score = 0;
+            streakCount = 0;
+            correctCount = 0;
+            isFinished = false;
+
+            if (words.Count > 0)
+            {
+                PrepareCurrentWord();
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void PrepareCurrentWord()
+    {
+        var word = words[currentIndex];
+        currentWordClean = word.Term.Trim().ToUpperInvariant();
+        userSlots.Clear();
+        showHint = false;
+        statusMessage = string.Empty;
+
+        // Create letter chips
+        var chips = new List<LetterChipItem>();
+        int idCounter = 0;
+        foreach (char c in currentWordClean)
+        {
+            chips.Add(new LetterChipItem
+            {
+                Id = idCounter++,
+                Letter = c,
+                IsUsed = false
+            });
+        }
+
+        // Shuffle chips so they don't appear in order
+        var random = Random.Shared;
+        for (int i = chips.Count - 1; i > 0; i--)
+        {
+            int k = random.Next(i + 1);
+            (chips[k], chips[i]) = (chips[i], chips[k]);
+        }
+
+        availableChips = chips;
+    }
+
+    private async Task OnLetterChipClickedAsync(LetterChipItem chip)
+    {
+        if (chip.IsUsed || userSlots.Count >= currentWordClean.Length)
+        {
+            return;
+        }
+
+        chip.IsUsed = true;
+        userSlots.Add(chip);
+
+        // Check if word is complete
+        if (userSlots.Count == currentWordClean.Length)
+        {
+            await CheckWordAnswerAsync();
+        }
+    }
+
+    private void OnRemoveLetterAtAsync(int slotIndex)
+    {
+        if (slotIndex >= 0 && slotIndex < userSlots.Count)
+        {
+            var chip = userSlots[slotIndex];
+            chip.IsUsed = false;
+            userSlots.RemoveAt(slotIndex);
+            statusMessage = string.Empty;
+        }
+    }
+
+    private void BackspaceInput()
+    {
+        if (userSlots.Count > 0)
+        {
+            var last = userSlots[^1];
+            last.IsUsed = false;
+            userSlots.RemoveAt(userSlots.Count - 1);
+            statusMessage = string.Empty;
+        }
+    }
+
+    private void ClearInput()
+    {
+        foreach (var chip in availableChips)
+        {
+            chip.IsUsed = false;
+        }
+        userSlots.Clear();
+        statusMessage = string.Empty;
+    }
+
+    private void ToggleHint()
+    {
+        showHint = !showHint;
+    }
+
+    private async Task CheckWordAnswerAsync()
+    {
+        string userWord = new string(userSlots.Select(s => s.Letter).ToArray());
+
+        if (userWord == currentWordClean)
+        {
+            // Correct Answer
+            score += 10 + (streakCount * 2);
+            streakCount++;
+            correctCount++;
+            statusMessage = "🎉 Chính xác! Tuyệt vời!";
+            statusMessageClass = "alert-success";
+
+            try
+            {
+                await JS.InvokeVoidAsync("studyInterop.playSound", "success");
+            }
+            catch { }
+
+            StateHasChanged();
+            await Task.Delay(1200);
+
+            NextWord();
+        }
+        else
+        {
+            // Wrong Answer
+            streakCount = 0;
+            statusMessage = "❌ Chưa chính xác, hãy thử đổi vị trí chữ cái!";
+            statusMessageClass = "alert-danger";
+
+            try
+            {
+                await JS.InvokeVoidAsync("studyInterop.playSound", "error");
+            }
+            catch { }
+        }
+    }
+
+    private void SkipWord()
+    {
+        streakCount = 0;
+        NextWord();
+    }
+
+    private void NextWord()
+    {
+        if (currentIndex < words.Count - 1)
+        {
+            currentIndex++;
+            PrepareCurrentWord();
+        }
+        else
+        {
+            isFinished = true;
+            try
+            {
+                _ = JS.InvokeVoidAsync("studyInterop.playSound", "complete");
+            }
+            catch { }
+        }
+    }
+
+    private async Task SpeakTermAsync(string term)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("studyInterop.speakWord", term, "en-US");
+        }
+        catch { }
+    }
+
+    private async Task RestartSessionAsync()
+    {
+        await LoadWordsAsync();
+    }
+
+    #endregion
+}

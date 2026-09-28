@@ -1,0 +1,342 @@
+@page "/study/match"
+@page "/study/match/{TopicIdRoute:int?}"
+@rendermode InteractiveServer
+@implements IDisposable
+@inject IStudyService StudyService
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+
+<PageTitle>Game Nối Từ - LearnNN 📘</PageTitle>
+
+<div class="container py-3" style="max-width: 900px;">
+    <!-- #region: Top Navigation & Game Stats -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+        <a href="/study" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Trở về Hub
+        </a>
+
+        <!-- Scoreboard Bar -->
+        <div class="d-flex align-items-center gap-3">
+            <div class="badge bg-white text-dark border px-3 py-2 fs-6 shadow-sm">
+                <i class="bi bi-stopwatch text-primary me-1"></i>
+                <span>@FormatTime(secondsElapsed)</span>
+            </div>
+
+            <div class="badge bg-white text-dark border px-3 py-2 fs-6 shadow-sm">
+                <i class="bi bi-hand-index-thumb text-info me-1"></i>
+                <span><strong>@movesCount</strong> lượt chọn</span>
+            </div>
+
+            @if (comboCount > 1)
+            {
+                <div class="badge bg-warning text-dark border px-3 py-2 fs-6 shadow-sm animate__animated animate__pulse">
+                    <i class="bi bi-fire text-danger me-1"></i>
+                    <span>Combo <strong>x@comboCount</strong>!</span>
+                </div>
+            }
+
+            <button class="btn btn-outline-primary btn-sm" @onclick="RestartGameAsync" title="Chơi ván mới">
+                <i class="bi bi-arrow-repeat me-1"></i> Ván mới
+            </button>
+        </div>
+    </div>
+    <!-- #endregion: Top Navigation & Game Stats -->
+
+    @if (isLoading)
+    {
+        <LoadingSpinner IsVisible="true" Message="Đang xáo trộn thẻ bài nối từ..." />
+    }
+    else if (cards.Count == 0)
+    {
+        <div class="card border rounded-3 p-5 text-center bg-white shadow-sm">
+            <div class="display-3 text-muted mb-3">
+                <i class="bi bi-inbox"></i>
+            </div>
+            <h4 class="fw-bold text-dark">Chưa đủ từ vựng để chơi!</h4>
+            <p class="text-muted">Cần tối thiểu ít nhất 2 từ vựng để tạo bảng thẻ ghép đôi.</p>
+            <div>
+                <a href="/study" class="btn btn-primary">
+                    <i class="bi bi-arrow-left me-1"></i> Chọn chủ đề khác
+                </a>
+            </div>
+        </div>
+    }
+    else if (isGameWon)
+    {
+        <!-- #region: Victory Screen -->
+        <div class="card border-0 rounded-4 p-5 text-center shadow-lg text-white"
+             style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+            <div class="display-1 mb-2 animate__animated animate__bounceIn">
+                🏆
+            </div>
+            <h2 class="display-6 fw-bold mb-2">Chiến Thắng Hoàn Hảo!</h2>
+            <p class="fs-5 text-white-50 mb-4">
+                Bạn đã hoàn thành ghép đúng toàn bộ các cặp từ vựng.
+            </p>
+
+            <div class="row g-3 justify-content-center mb-4" style="max-width: 550px; margin: 0 auto;">
+                <div class="col-4">
+                    <div class="card bg-white bg-opacity-10 border-0 p-3 rounded-3 text-white">
+                        <small class="text-white-50 d-block">Thời gian</small>
+                        <h4 class="fw-bold mb-0">@FormatTime(secondsElapsed)</h4>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card bg-white bg-opacity-10 border-0 p-3 rounded-3 text-white">
+                        <small class="text-white-50 d-block">Số bước</small>
+                        <h4 class="fw-bold mb-0">@movesCount</h4>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card bg-white bg-opacity-10 border-0 p-3 rounded-3 text-white">
+                        <small class="text-white-50 d-block">Đánh giá</small>
+                        <h4 class="fw-bold mb-0 text-warning">
+                            @(movesCount <= pairCount * 1.5 ? "⭐⭐⭐" : movesCount <= pairCount * 2.2 ? "⭐⭐" : "⭐")
+                        </h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3">
+                <button class="btn btn-light text-success fw-bold px-4 py-2" @onclick="RestartGameAsync">
+                    <i class="bi bi-arrow-repeat me-1"></i> Chơi Lại Ván Mới
+                </button>
+                <a href="/study" class="btn btn-outline-light px-4 py-2">
+                    <i class="bi bi-house me-1"></i> Về Trung Tâm
+                </a>
+            </div>
+        </div>
+        <!-- #endregion: Victory Screen -->
+    }
+    else
+    {
+        <!-- #region: Matching Game Board -->
+        <div class="card border rounded-3 p-4 bg-white shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small">
+                    <i class="bi bi-info-circle me-1"></i> Hãy nhấp vào 1 từ tiếng Anh và 1 nghĩa tiếng Việt tương ứng để nối chúng!
+                </span>
+                <span class="badge bg-light text-primary border">
+                    Đã ghép: @(matchedPairsCount) / @pairCount cặp
+                </span>
+            </div>
+
+            <div class="matching-grid">
+                @foreach (var card in cards)
+                {
+                    var cardClass = "match-card";
+                    if (card.IsMatched) cardClass += " matched";
+                    else if (card.IsWrong) cardClass += " wrong";
+                    else if (card.IsSelected) cardClass += " selected";
+
+                    <div class="@cardClass" @onclick="() => OnCardClickedAsync(card)">
+                        <div class="card-content">
+                            @if (card.CardType == MatchCardType.Term)
+                            {
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill small mb-2 d-inline-block">EN</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill small mb-2 d-inline-block">VI</span>
+                            }
+                            <div class="text-break">@card.Content</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <!-- #endregion: Matching Game Board -->
+    }
+</div>
+
+@code {
+    #region Parameters
+
+    /// <summary>
+    /// Optional topic identifier passed via URL route segment.
+    /// </summary>
+    [Parameter]
+    public int? TopicIdRoute { get; set; }
+
+    /// <summary>
+    /// Topic identifier passed via query string.
+    /// </summary>
+    [SupplyParameterFromQuery]
+    public int? TopicId { get; set; }
+
+    /// <summary>
+    /// Filter for unmastered words.
+    /// </summary>
+    [SupplyParameterFromQuery]
+    public bool? Unmastered { get; set; }
+
+    #endregion
+
+    #region State
+
+    private bool isLoading = true;
+    private bool isGameWon = false;
+    private bool isProcessingMatch = false;
+
+    private int pairCount = 6;
+    private int matchedPairsCount = 0;
+    private int movesCount = 0;
+    private int comboCount = 0;
+    private int secondsElapsed = 0;
+
+    private System.Threading.Timer? gameTimer;
+    private List<MatchCardDto> cards = new();
+    private MatchCardDto? firstSelectedCard;
+
+    #endregion
+
+    #region Lifecycle
+
+    protected override async Task OnInitializedAsync()
+    {
+        await StartNewGameAsync();
+    }
+
+    public void Dispose()
+    {
+        gameTimer?.Dispose();
+    }
+
+    #endregion
+
+    #region Methods
+
+    private async Task StartNewGameAsync()
+    {
+        isLoading = true;
+        gameTimer?.Dispose();
+        secondsElapsed = 0;
+        movesCount = 0;
+        comboCount = 0;
+        matchedPairsCount = 0;
+        isGameWon = false;
+        firstSelectedCard = null;
+
+        try
+        {
+            int? effectiveTopicId = TopicIdRoute ?? (TopicId > 0 ? TopicId : null);
+            var options = new StudySessionOptions
+            {
+                TopicId = effectiveTopicId,
+                OnlyUnmastered = Unmastered ?? false,
+                ItemCount = pairCount
+            };
+
+            cards = await StudyService.GenerateMatchCardsAsync(options, pairCount);
+            pairCount = cards.Count / 2;
+
+            if (cards.Count > 0)
+            {
+                // Start elapsed time counter
+                gameTimer = new System.Threading.Timer(_ =>
+                {
+                    secondsElapsed++;
+                    InvokeAsync(StateHasChanged);
+                }, null, 1000, 1000);
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnCardClickedAsync(MatchCardDto clickedCard)
+    {
+        // Ignore if busy evaluating or if card is already matched / selected
+        if (isProcessingMatch || clickedCard.IsMatched || clickedCard.IsSelected)
+        {
+            return;
+        }
+
+        // A. Handle First Card selection
+        if (firstSelectedCard == null)
+        {
+            clickedCard.IsSelected = true;
+            firstSelectedCard = clickedCard;
+            return;
+        }
+
+        // B. Handle Second Card selection
+        clickedCard.IsSelected = true;
+        movesCount++;
+        isProcessingMatch = true;
+
+        // I. Verify Match: Same WordId AND Different CardType (Term + Meaning)
+        bool isMatch = firstSelectedCard.WordId == clickedCard.WordId &&
+                       firstSelectedCard.CardType != clickedCard.CardType;
+
+        if (isMatch)
+        {
+            // II. Correct match
+            firstSelectedCard.IsMatched = true;
+            clickedCard.IsMatched = true;
+            matchedPairsCount++;
+            comboCount++;
+
+            try
+            {
+                await JS.InvokeVoidAsync("studyInterop.playSound", "success");
+            }
+            catch { }
+
+            firstSelectedCard = null;
+            isProcessingMatch = false;
+
+            // Check if game complete
+            if (matchedPairsCount >= pairCount)
+            {
+                gameTimer?.Dispose();
+                isGameWon = true;
+                try
+                {
+                    await JS.InvokeVoidAsync("studyInterop.playSound", "complete");
+                }
+                catch { }
+            }
+        }
+        else
+        {
+            // III. Incorrect pair: trigger shake and reset
+            comboCount = 0;
+            firstSelectedCard.IsWrong = true;
+            clickedCard.IsWrong = true;
+
+            try
+            {
+                await JS.InvokeVoidAsync("studyInterop.playSound", "error");
+            }
+            catch { }
+
+            StateHasChanged();
+            await Task.Delay(800);
+
+            firstSelectedCard.IsSelected = false;
+            firstSelectedCard.IsWrong = false;
+            clickedCard.IsSelected = false;
+            clickedCard.IsWrong = false;
+
+            firstSelectedCard = null;
+            isProcessingMatch = false;
+        }
+    }
+
+    private async Task RestartGameAsync()
+    {
+        await StartNewGameAsync();
+    }
+
+    private static string FormatTime(int totalSeconds)
+    {
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return $"{minutes:D2}:{seconds:D2}";
+    }
+
+    #endregion
+}

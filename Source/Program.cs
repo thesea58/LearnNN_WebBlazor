@@ -15,6 +15,7 @@ builder.Services.AddDbContextFactory<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IVocabularyService, VocabularyService>();
+builder.Services.AddScoped<IStudyService, StudyService>();
 
 var app = builder.Build();
 

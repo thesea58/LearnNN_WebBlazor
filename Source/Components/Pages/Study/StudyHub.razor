@@ -1,0 +1,256 @@
+@page "/study"
+@rendermode InteractiveServer
+@inject IStudyService StudyService
+@inject IVocabularyService VocabularyService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Học từ vựng - LearnNN 📘</PageTitle>
+
+<div class="container-fluid p-0">
+    <!-- #region: Header Banner -->
+    <div class="card border-0 mb-4 rounded-4 text-white shadow-sm overflow-hidden"
+         style="background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 50%, #4f46e5 100%);">
+        <div class="card-body p-4 p-lg-5 position-relative">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-2 mb-3 fw-normal">
+                        <i class="bi bi-mortarboard-fill text-warning me-1"></i> Trung tâm học tập & Rèn luyện
+                    </span>
+                    <h1 class="display-6 fw-bold mb-2">Học Từ Vựng & Thử Thách 🚀</h1>
+                    <p class="text-white-50 fs-6 mb-0" style="max-width: 650px;">
+                        Lựa chọn phương pháp học qua Flashcard trực quan, các trò chơi rèn luyện trí nhớ và các bài kiểm tra trắc nghiệm giúp bạn ghi nhớ từ vựng sâu sắc và lâu dài.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end d-none d-lg-block">
+                    <div class="display-1 text-white opacity-25">
+                        <i class="bi bi-controller"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- #endregion: Header Banner -->
+
+    <!-- #region: Filter Configuration Bar -->
+    <div class="card border rounded-3 p-3 p-md-4 mb-4 bg-white shadow-sm">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted text-uppercase mb-1">
+                    <i class="bi bi-folder2-open me-1 text-primary"></i> Chủ đề học tập
+                </label>
+                <select class="form-select" @bind="selectedTopicId" @bind:after="OnTopicChangedAsync">
+                    <option value="0">Tất cả chủ đề</option>
+                    @foreach (var topic in topics)
+                    {
+                        <option value="@topic.Id">@topic.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-muted text-uppercase mb-1">
+                    <i class="bi bi-hash me-1 text-primary"></i> Số lượng từ mỗi lượt
+                </label>
+                <select class="form-select" @bind="itemCount">
+                    <option value="10">10 từ</option>
+                    <option value="20">20 từ (khuyên dùng)</option>
+                    <option value="30">30 từ</option>
+                    <option value="50">50 từ</option>
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <label class="form-label small fw-semibold text-muted text-uppercase mb-1 d-block">
+                    <i class="bi bi-funnel me-1 text-primary"></i> Trạng thái học
+                </label>
+                <div class="d-flex align-items-center gap-3 pt-1">
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="onlyUnmasteredSwitch"
+                               @bind="onlyUnmastered" @bind:after="OnTopicChangedAsync" />
+                        <label class="form-check-label fw-medium" for="onlyUnmasteredSwitch">
+                            Chỉ học từ chưa thuộc
+                        </label>
+                    </div>
+
+                    <div class="ms-auto">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2">
+                            <i class="bi bi-check2-circle me-1"></i>
+                            <strong>@availableWordsCount</strong> từ sẵn sàng
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (totalWordsCount > 0)
+        {
+            <div class="mt-3 pt-3 border-top d-flex flex-wrap align-items-center justify-content-between text-muted small">
+                <span>
+                    Tiến độ chủ đề: <strong>@(totalWordsCount - unmasteredWordsCount)</strong> / @totalWordsCount từ đã thuộc
+                </span>
+                <div class="d-flex align-items-center gap-2" style="min-width: 200px;">
+                    <div class="progress-container flex-grow-1" style="height: 6px;">
+                        <div class="progress-bar-gradient h-100" style="width: @(masteredPercent)%"></div>
+                    </div>
+                    <span class="fw-semibold text-success">@masteredPercent%</span>
+                </div>
+            </div>
+        }
+    </div>
+    <!-- #endregion: Filter Configuration Bar -->
+
+    <!-- #region: Learning Activities Grid -->
+    <div class="mb-4">
+        <h5 class="fw-bold text-dark mb-3">
+            <i class="bi bi-book-half text-primary me-2"></i>1. Phương pháp học ghi nhớ
+        </h5>
+        <div class="row g-3">
+            <!-- Flashcards 3D -->
+            <div class="col-md-6 col-lg-6">
+                <div class="study-mode-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="mode-icon-wrapper" style="background-color: var(--primary-subtle); color: var(--primary);">
+                            <i class="bi bi-card-text"></i>
+                        </div>
+                        <span class="badge bg-primary-subtle text-primary rounded-pill">Phổ biến nhất</span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-1">Thẻ ghi nhớ Flashcards 3D</h5>
+                    <p class="text-muted small flex-grow-1 mb-3">
+                        Lật thẻ 3D hai mặt xem phiên âm, nghe phát âm bản xứ (TTS), nghĩa tiếng Việt và ví dụ câu. Phím tắt Space để lật thẻ và đánh dấu đã nhớ.
+                    </p>
+                    <button class="btn btn-primary w-100" @onclick="NavigateToFlashcards" disabled="@(availableWordsCount == 0)">
+                        <i class="bi bi-play-circle-fill me-1"></i> Bắt đầu học Flashcard
+                    </button>
+                </div>
+            </div>
+
+            <!-- Spaced Review / Quick Test shortcut -->
+            <div class="col-md-6 col-lg-6">
+                <div class="study-mode-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="mode-icon-wrapper" style="background-color: var(--success-subtle); color: var(--success);">
+                            <i class="bi bi-check2-all"></i>
+                        </div>
+                        <span class="badge bg-success-subtle text-success rounded-pill">Hiệu quả cao</span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-1">Kiểm tra Trắc nghiệm 4 Đáp án</h5>
+                    <p class="text-muted small flex-grow-1 mb-3">
+                        Rèn luyện phản xạ với bài kiểm tra trắc nghiệm 4 lựa chọn, tự động sinh đáp án gây nhiễu và thống kê phân tích các câu làm sai.
+                    </p>
+                    <button class="btn btn-success w-100" @onclick="NavigateToQuiz" disabled="@(availableWordsCount < 4)">
+                        <i class="bi bi-patch-question-fill me-1"></i> Làm bài trắc nghiệm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h5 class="fw-bold text-dark mb-3">
+            <i class="bi bi-controller text-warning me-2"></i>2. Trò chơi từ vựng (Games)
+        </h5>
+        <div class="row g-3">
+            <!-- Word Matching Game -->
+            <div class="col-md-6 col-lg-6">
+                <div class="study-mode-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="mode-icon-wrapper" style="background-color: var(--warning-subtle); color: var(--warning);">
+                            <i class="bi bi-intersect"></i>
+                        </div>
+                        <span class="badge bg-warning-subtle text-warning rounded-pill">Vui nhộn</span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-1">Game Nối Từ (Word Matching)</h5>
+                    <p class="text-muted small flex-grow-1 mb-3">
+                        Thử thách ghép đôi từ tiếng Anh với nghĩa tiếng Việt tương ứng trên bảng thẻ ngẫu nhiên. Tính thời gian, bước đi và chuỗi điểm thưởng (combo).
+                    </p>
+                    <button class="btn btn-warning text-dark fw-bold w-100" @onclick="NavigateToMatching" disabled="@(availableWordsCount < 2)">
+                        <i class="bi bi-controller me-1"></i> Chơi Game Nối Từ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Word Scramble Game -->
+            <div class="col-md-6 col-lg-6">
+                <div class="study-mode-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="mode-icon-wrapper" style="background-color: var(--info-subtle); color: var(--info);">
+                            <i class="bi bi-sort-alpha-down"></i>
+                        </div>
+                        <span class="badge bg-info-subtle text-info rounded-pill">Luyện chính tả</span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-1">Game Sắp Xếp Ký Tự (Word Scramble)</h5>
+                    <p class="text-muted small flex-grow-1 mb-3">
+                        Nhìn nghĩa tiếng Việt và ghép các chữ cái tiếng Anh bị đảo lộn thành từ vựng chính xác. Giúp khắc sâu trí nhớ về mặt chữ và chính tả.
+                    </p>
+                    <button class="btn btn-info text-white w-100" @onclick="NavigateToScramble" disabled="@(availableWordsCount == 0)">
+                        <i class="bi bi-puzzle-fill me-1"></i> Chơi Game Xếp Chữ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- #endregion: Learning Activities Grid -->
+</div>
+
+@code {
+    #region State & Fields
+
+    private List<Topic> topics = new();
+    private int selectedTopicId = 0;
+    private int itemCount = 20;
+    private bool onlyUnmastered = true;
+
+    private int totalWordsCount = 0;
+    private int unmasteredWordsCount = 0;
+    private int availableWordsCount => onlyUnmastered ? unmasteredWordsCount : totalWordsCount;
+    private int masteredPercent => totalWordsCount > 0 ? (int)Math.Round((double)(totalWordsCount - unmasteredWordsCount) / totalWordsCount * 100) : 0;
+
+    #endregion
+
+    #region Lifecycle
+
+    protected override async Task OnInitializedAsync()
+    {
+        topics = await VocabularyService.GetAllTopicsAsync();
+        await LoadCountsAsync();
+    }
+
+    #endregion
+
+    #region Methods
+
+    private async Task OnTopicChangedAsync()
+    {
+        await LoadCountsAsync();
+    }
+
+    private async Task LoadCountsAsync()
+    {
+        int? topicParam = selectedTopicId > 0 ? selectedTopicId : null;
+        var counts = await StudyService.GetStudyWordCountsAsync(topicParam);
+        totalWordsCount = counts.TotalCount;
+        unmasteredWordsCount = counts.UnmasteredCount;
+    }
+
+    private void NavigateToFlashcards()
+    {
+        NavigationManager.NavigateTo($"/study/flashcards?topicId={selectedTopicId}&unmastered={onlyUnmastered}&count={itemCount}");
+    }
+
+    private void NavigateToMatching()
+    {
+        NavigationManager.NavigateTo($"/study/match?topicId={selectedTopicId}&unmastered={onlyUnmastered}");
+    }
+
+    private void NavigateToScramble()
+    {
+        NavigationManager.NavigateTo($"/study/scramble?topicId={selectedTopicId}&unmastered={onlyUnmastered}&count={itemCount}");
+    }
+
+    private void NavigateToQuiz()
+    {
+        NavigationManager.NavigateTo($"/study/quiz?topicId={selectedTopicId}&unmastered={onlyUnmastered}&count={itemCount}");
+    }
+
+    #endregion
+}

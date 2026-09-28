@@ -1,0 +1,291 @@
+/* ==========================================================================
+   LearnNN - Vocabulary Study & Gamification Stylesheet (study.css)
+   ========================================================================== */
+
+/* ─── Hub Cards & Dashboard ────────────────────────────────────────────── */
+.study-mode-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none !important;
+    color: inherit;
+}
+
+.study-mode-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+}
+
+.study-mode-card .mode-icon-wrapper {
+    width: 54px;
+    height: 54px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.study-mode-card:hover .mode-icon-wrapper {
+    transform: scale(1.08);
+}
+
+/* ─── 3D Flashcard Flip Mechanics ───────────────────────────────────────── */
+.flashcard-scene {
+    perspective: 1200px;
+    width: 100%;
+    max-width: 580px;
+    margin: 0 auto;
+}
+
+.flashcard-inner {
+    position: relative;
+    width: 100%;
+    min-height: 380px;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+
+.flashcard-inner.is-flipped {
+    transform: rotateY(180deg);
+}
+
+.flashcard-face {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: var(--radius-lg);
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2.25rem;
+    user-select: none;
+}
+
+.flashcard-front {
+    background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%);
+}
+
+.flashcard-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(145deg, #fbfcfe 0%, #f1f5f9 100%);
+    border-color: #cbd5e1;
+}
+
+.speaker-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-subtle);
+    color: var(--primary);
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.speaker-btn:hover {
+    background: var(--primary);
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+/* ─── Matching Game Grid & Cards ────────────────────────────────────────── */
+.matching-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.match-card {
+    background: #ffffff;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.5rem 1rem;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    font-size: 1.05rem;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    user-select: none;
+}
+
+.match-card:hover:not(.matched):not(.disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
+}
+
+.match-card.selected {
+    border-color: var(--primary) !important;
+    background: var(--primary-subtle) !important;
+    color: var(--primary) !important;
+    font-weight: 600;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
+}
+
+.match-card.matched {
+    border-color: var(--success) !important;
+    background: var(--success-subtle) !important;
+    color: var(--success) !important;
+    opacity: 0.85;
+    cursor: default;
+    pointer-events: none;
+}
+
+.match-card.wrong {
+    animation: shake 0.5s ease-in-out;
+    border-color: var(--danger) !important;
+    background: var(--danger-subtle) !important;
+    color: var(--danger) !important;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
+/* ─── Word Scramble Game ───────────────────────────────────────────────── */
+.scramble-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+.letter-slot {
+    width: 48px;
+    height: 54px;
+    border: 2px dashed #cbd5e1;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    background: #f8fafc;
+    color: var(--dark);
+    text-transform: uppercase;
+}
+
+.letter-slot.filled {
+    border-style: solid;
+    border-color: var(--primary);
+    background: var(--primary-subtle);
+    color: var(--primary);
+}
+
+.letter-chip {
+    width: 50px;
+    height: 52px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    box-shadow: var(--shadow-sm);
+    font-size: 1.35rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    text-transform: uppercase;
+}
+
+.letter-chip:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: var(--primary);
+    background: #fdfefe;
+    box-shadow: var(--shadow-md);
+}
+
+.letter-chip:disabled {
+    opacity: 0.35;
+    cursor: default;
+    background: #f1f5f9;
+}
+
+/* ─── Quiz Practice ─────────────────────────────────────────────────────── */
+.quiz-option-btn {
+    width: 100%;
+    text-align: left;
+    padding: 1.15rem 1.25rem;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--border-color);
+    background: #ffffff;
+    font-size: 1.05rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 0.85rem;
+    cursor: pointer;
+}
+
+.quiz-option-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    background: #f8faff;
+    transform: translateX(4px);
+}
+
+.quiz-option-btn.selected {
+    border-color: var(--primary);
+    background: var(--primary-subtle);
+    font-weight: 600;
+}
+
+.quiz-option-btn.correct {
+    border-color: var(--success) !important;
+    background: var(--success-subtle) !important;
+    color: var(--success) !important;
+    font-weight: 600;
+}
+
+.quiz-option-btn.incorrect {
+    border-color: var(--danger) !important;
+    background: var(--danger-subtle) !important;
+    color: var(--danger) !important;
+}
+
+.option-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    background: #f1f5f9;
+    color: #475569;
+    flex-shrink: 0;
+}

@@ -42,9 +42,10 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📁 05_topic_management/         #    ⬜ Task 05 – Topic Management
 │       ├── 📁 06_word_list/                #    ⬜ Task 06 – Word List
 │       ├── 📁 07_word_form_modal/          #    ⬜ Task 07 – Word Form Modal
-│       ├── 📁 08_shared_components/        #    ⬜ Task 08 – Shared Components
-│       ├── 📁 09_integration_testing/      #    ⬜ Task 09 – Integration & Testing
-│       └── 📁 12_import_export_data/       #    ⬜ Task 12 – Import/Export Data
+│       ├── 📁 08_shared_components/        #    ✅ Task 08 – Shared Components
+│       ├── 📁 09_integration_testing/      #    ✅ Task 09 – Integration & Testing
+│       ├── 📁 12_import_export_data/       #    ✅ Task 12 – Import/Export Data
+│       └── 📁 13_vocabulary_study_hub/     #    ✅ Task 13 – Vocabulary Study Hub, Games & Quizzes
 │
 ├── 📁 Source/                              # 💻 MÃ NGUỒN CHÍNH (Blazor Web App)
 │   ├── 📄 LearnNN_WebBlazor.csproj         #    Project file (.NET 10)
@@ -60,11 +61,19 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │
 │   ├── 📁 Models/                          # 📦 ViewModels / DTOs
 │   │   ├── 📄 AlertType.cs                 #    Enum: Kiểu thông báo (Success, Warning, Error, Info)
-│   │   └── 📄 WordFilterModel.cs           #    Filter model cho Word (search, paging)
+│   │   ├── 📄 WordFilterModel.cs           #    Filter model cho Word (search, paging)
+│   │   ├── 📄 WordCsvRecord.cs             #    Model ánh xạ import/export CSV
+│   │   └── 📁 Study/                       #    Models & DTOs cho phân hệ học tập & games
+│   │       ├── 📄 StudySessionOptions.cs   #    Tùy chọn cấu hình phiên học (Topic, Filter, Count)
+│   │       ├── 📄 QuizQuestionDto.cs       #    DTO câu hỏi trắc nghiệm 4 đáp án
+│   │       ├── 📄 MatchCardDto.cs          #    DTO thẻ bài ghép đôi (Word Match)
+│   │       └── 📄 QuizResultDto.cs         #    DTO kết quả & đánh giá bài kiểm tra
 │   │
 │   ├── 📁 Services/                        # ⚡ Business Logic Layer
 │   │   ├── 📄 IVocabularyService.cs        #    Interface – Contract cho vocabulary CRUD
-│   │   └── 📄 VocabularyService.cs         #    Implementation – Logic xử lý business
+│   │   ├── 📄 VocabularyService.cs         #    Implementation – Logic xử lý business
+│   │   ├── 📄 IStudyService.cs             #    Interface – Hoạt động học từ, sinh game & quiz
+│   │   └── 📄 StudyService.cs              #    Implementation – Xáo trộn, sinh distractors, cập nhật tiến độ
 │   │
 │   ├── 📁 Components/                      # 🎨 UI Layer (Blazor Components)
 │   │   ├── 📄 App.razor                    #    Root component (HTML shell)
@@ -73,7 +82,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │   ├── 📁 Layout/                      #    Layout components
 │   │   │   ├── 📄 MainLayout.razor         #    Layout chính của ứng dụng
 │   │   │   ├── 📄 MainLayout.razor.css     #    Scoped CSS cho MainLayout
-│   │   │   ├── 📄 NavMenu.razor            #    Thanh điều hướng
+│   │   │   ├── 📄 NavMenu.razor            #    Thanh điều hướng (Home, Study, Words, Topics)
 │   │   │   ├── 📄 NavMenu.razor.css        #    Scoped CSS cho NavMenu
 │   │   │   ├── 📄 ReconnectModal.razor     #    Modal reconnect (Blazor Server)
 │   │   │   ├── 📄 ReconnectModal.razor.css #    Scoped CSS cho ReconnectModal
@@ -84,6 +93,12 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │   │   ├── 📄 Weather.razor            #    Demo weather (template mặc định)
 │   │   │   ├── 📄 Error.razor              #    Trang lỗi
 │   │   │   ├── 📄 NotFound.razor           #    Trang 404
+│   │   │   ├── 📁 Study/                   #    Pages phân hệ học từ vựng & games
+│   │   │   │   ├── 📄 StudyHub.razor       #    Trang Hub trung tâm chọn chủ đề & chế độ học (/study)
+│   │   │   │   ├── 📄 FlashcardStudy.razor #    Trang học Flashcard 3D lật thẻ + TTS (/study/flashcards)
+│   │   │   │   ├── 📄 WordMatchGame.razor  #    Game nối từ tiếng Anh - Việt ghép đôi (/study/match)
+│   │   │   │   ├── 📄 WordScrambleGame.razor #  Game sắp xếp chữ cái tiếng Anh (/study/scramble)
+│   │   │   │   └── 📄 QuizPractice.razor   #    Trắc nghiệm 4 đáp án & tổng kết kết quả (/study/quiz)
 │   │   │   ├── 📁 Topics/                  #    Pages quản lý chủ đề
 │   │   │   │   └── 📄 TopicManage.razor    #    Trang quản lý chủ đề (CRUD, validation, xóa cascade)
 │   │   │   └── 📁 Words/                   #    Pages quản lý từ vựng
@@ -104,6 +119,8 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │
 │   └── 📁 wwwroot/                         # 🌐 Static files (served publicly)
 │       ├── 📄 app.css                      #    Custom CSS styles
+│       ├── 📄 study.css                    #    CSS 3D flip card, matching game, scramble, quiz
+│       ├── 📄 study.js                     #    JS Interop phát âm Web Speech API & audio effects
 │       ├── 📄 favicon.png                  #    Favicon
 │       └── 📁 lib/                         #    Third-party client libraries
 │           └── 📁 bootstrap/              #    Bootstrap 5
@@ -234,3 +251,4 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-09-24 | Phân tích & Tạo Task Import/Export | `docs/task/12_import_export_data/README.md`, `docs/task/README.md`, `docs/PROJECT_MAP.md` | Phân tích phương án Import/Export dữ liệu (đề xuất CSV/JSON), tạo Task 12 để chuẩn bị triển khai |
 | 2026-09-24 | Task 12 - Import/Export Data | `Source/Models/WordCsvRecord.cs`, `Source/Services/IVocabularyService.cs`, `Source/Services/VocabularyService.cs`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/App.razor` | Triển khai tính năng Import/Export từ vựng ra CSV sử dụng thư viện CsvHelper. Thêm JS Interop tải file. |
 | 2026-09-27 | Chuyển đổi dữ liệu TOEIC 600 JSON sang CSV | `CrawData/convert_json_to_csv.py`, `CrawData/toeic_600_words_import.csv` | Tạo script Python chuyển đổi dữ liệu từ vựng TOEIC JSON sang định dạng CSV import của web (UTF-8 BOM, map các trường TopicName, Term, Meaning, Pronunciation, PartOfSpeech, Example, ExampleTranslation, IsMastered) |
+| 2026-09-28 | Task 13 – Vocabulary Study Hub, Games & Quizzes | `docs/task/13_vocabulary_study_hub/README.md`, `Source/Models/Study/*`, `Source/Services/IStudyService.cs`, `Source/Services/StudyService.cs`, `Source/Components/Layout/NavMenu.razor`, `Source/Components/Pages/Study/*`, `Source/wwwroot/study.css`, `Source/wwwroot/study.js`, `Source/Components/App.razor`, `Source/Components/Pages/Home.razor` | Xây dựng phân hệ Học từ vựng toàn diện: NavMenu 'Học từ vựng' (/study), StudyHub với bộ lọc & thống kê, Flashcard 3D lật thẻ + TTS Web Speech API, Game Nối từ (Word Match), Game Xếp chữ (Word Scramble), Bài kiểm tra trắc nghiệm 4 đáp án (Quiz) và cập nhật trạng thái học |

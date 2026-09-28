@@ -23,6 +23,7 @@
 | 10 | Code Commenting Convention | Tạo rule comment code thống nhất (EN, 5W1H, XML Docs, #region phân vùng chức năng) và áp dụng toàn bộ codebase | 🟡 TB | Task 01→09 | ✅ Hoàn thành |
 | 11 | Solution File Setup | Tạo file solution định dạng XML (`LearnNN_WebBlazor.slnx`) và add project `Source/LearnNN_WebBlazor.csproj` | 🟢 Thấp | Task 01 | ✅ Hoàn thành |
 | 12 | [Import/Export Data](12_import_export_data/) | Thêm tính năng Import/Export danh sách từ vựng từ file CSV và Backup bằng JSON | 🔴 Cao | Task 06 | ✅ Hoàn thành |
+| 13 | [Vocabulary Study Hub](13_vocabulary_study_hub/) | Trung tâm học từ vựng: Flashcard 3D, Game nối từ, Xếp chữ, Bài kiểm tra trắc nghiệm | 🔴 Cao | Task 03, 04 | ✅ Hoàn thành |
 
 ---
 
@@ -34,10 +35,12 @@ Task 01 (Project Setup)
   │      └──► Task 03 (Service Layer)
   │             ├──► Task 05 (Topic Management)
   │             ├──► Task 06 (Word List) ◄── Task 05
-  │             └──► Task 07 (Word Form Modal) ◄── Task 06
+  │             ├──► Task 07 (Word Form Modal) ◄── Task 06
+  │             └──► Task 13 (Vocabulary Study Hub) ◄── Task 04
   ├──► Task 04 (Layout & Navigation)
   │      ├──► Task 05
-  │      └──► Task 06
+  │      ├──► Task 06
+  │      └──► Task 13
   └──► Task 08 (Shared Components)
              └──► Task 05, 06, 07
 

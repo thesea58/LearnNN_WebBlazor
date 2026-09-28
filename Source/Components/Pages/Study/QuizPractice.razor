@@ -1,0 +1,430 @@
+@page "/study/quiz"
+@page "/study/quiz/{TopicIdRoute:int?}"
+@rendermode InteractiveServer
+@inject IStudyService StudyService
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+
+<PageTitle>Kiểm tra Trắc nghiệm - LearnNN 📘</PageTitle>
+
+<div class="container py-3" style="max-width: 800px;">
+    <!-- #region: Top Navigation & Progress Bar -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+        <a href="/study" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Trở về Hub
+        </a>
+
+        @if (questions.Count > 0 && !isCompleted)
+        {
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-white text-dark border px-3 py-2 shadow-sm">
+                    <i class="bi bi-patch-question text-primary me-1"></i>
+                    Câu <strong>@(currentIndex + 1)</strong> / @questions.Count
+                </span>
+
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 shadow-sm">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Đúng: <strong>@correctCount</strong>
+                </span>
+            </div>
+        }
+    </div>
+
+    @if (questions.Count > 0 && !isCompleted)
+    {
+        <div class="progress-container mb-4" style="height: 6px;">
+            <div class="progress-bar-gradient h-100" style="width: @(progressPercent)%"></div>
+        </div>
+    }
+    <!-- #endregion: Top Navigation & Progress Bar -->
+
+    @if (isLoading)
+    {
+        <LoadingSpinner IsVisible="true" Message="Đang tạo bộ đề thi trắc nghiệm..." />
+    }
+    else if (questions.Count == 0)
+    {
+        <div class="card border rounded-3 p-5 text-center bg-white shadow-sm">
+            <div class="display-3 text-muted mb-3">
+                <i class="bi bi-patch-question"></i>
+            </div>
+            <h4 class="fw-bold text-dark">Chưa có đủ từ vựng để tạo bài test!</h4>
+            <p class="text-muted">Hệ thống cần ít nhất 4 từ vựng trong cơ sở dữ liệu để tạo bộ 4 lựa chọn trắc nghiệm.</p>
+            <div>
+                <a href="/study" class="btn btn-primary">
+                    <i class="bi bi-arrow-left me-1"></i> Chọn chủ đề khác
+                </a>
+            </div>
+        </div>
+    }
+    else if (isCompleted)
+    {
+        <!-- #region: Quiz Results Summary -->
+        <div class="card border-0 rounded-4 p-4 p-md-5 bg-white shadow-sm text-center mb-4">
+            <div class="display-1 text-warning mb-2">
+                @(scorePercentage >= 80 ? "🏆" : scorePercentage >= 50 ? "👏" : "💪")
+            </div>
+
+            <h2 class="fw-bold text-dark mb-1">Kết Quả Bài Kiểm Tra</h2>
+            <p class="text-muted mb-4">
+                @(scorePercentage >= 80 ? "Xuất sắc! Bạn đã ghi nhớ từ vựng rất vững vàng." :
+                  scorePercentage >= 50 ? "Khá tốt! Hãy ôn luyện thêm các từ còn sai nhé." :
+                  "Đừng nản lòng! Hãy ôn tập lại với Flashcard để ghi nhớ tốt hơn.")
+            </p>
+
+            <div class="row g-3 justify-content-center mb-4" style="max-width: 600px; margin: 0 auto;">
+                <div class="col-4">
+                    <div class="card bg-light border-0 p-3 rounded-3">
+                        <small class="text-muted d-block">Điểm số</small>
+                        <h3 class="fw-bold text-primary mb-0">@scorePercentage%</h3>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card bg-success-subtle border-0 p-3 rounded-3 text-success">
+                        <small class="d-block">Câu đúng</small>
+                        <h3 class="fw-bold mb-0">@correctCount / @questions.Count</h3>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card bg-danger-subtle border-0 p-3 rounded-3 text-danger">
+                        <small class="d-block">Câu sai</small>
+                        <h3 class="fw-bold mb-0">@(questions.Count - correctCount)</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Batch Action Button -->
+            @if (correctCount > 0 && !hasMarkedMastered)
+            {
+                <div class="mb-4">
+                    <button class="btn btn-success px-4 py-2" @onclick="MarkAllCorrectAsMasteredAsync">
+                        <i class="bi bi-check-all me-1"></i> Đánh dấu @correctCount từ đã làm đúng là "Đã thuộc"
+                    </button>
+                </div>
+            }
+            else if (hasMarkedMastered)
+            {
+                <div class="alert alert-success d-inline-block mx-auto py-2 px-3 mb-4">
+                    <i class="bi bi-check-circle-fill me-1"></i> Đã cập nhật trạng thái "Đã thuộc" vào cơ sở dữ liệu!
+                </div>
+            }
+
+            <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+                <button class="btn btn-primary px-4" @onclick="RestartQuizAsync">
+                    <i class="bi bi-arrow-repeat me-1"></i> Làm bài kiểm tra mới
+                </button>
+
+                @if (incorrectQuestions.Count > 0)
+                {
+                    <button class="btn btn-outline-warning text-dark px-4" @onclick="RetestIncorrectOnly">
+                        <i class="bi bi-exclamation-triangle me-1 text-warning"></i> Chỉ kiểm tra lại @incorrectQuestions.Count câu sai
+                    </button>
+                }
+
+                <a href="/study" class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-house me-1"></i> Về Hub học tập
+                </a>
+            </div>
+
+            <!-- Detailed Review Accordion -->
+            <div class="text-start mt-4 pt-4 border-top">
+                <h5 class="fw-bold text-dark mb-3">
+                    <i class="bi bi-card-checklist text-primary me-2"></i>Chi tiết đáp án từng câu
+                </h5>
+
+                <div class="list-group list-group-flush border rounded-3">
+                    @for (int i = 0; i < questions.Count; i++)
+                    {
+                        var q = questions[i];
+                        <div class="list-group-item p-3 @(q.IsCorrect ? "bg-light" : "bg-danger-subtle bg-opacity-25")">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="fw-bold text-dark">
+                                    Câu @(i + 1): <span class="text-primary fs-5">@q.Term</span>
+                                    <span class="text-muted small font-monospace">(@q.Phonetic)</span>
+                                </span>
+                                @if (q.IsCorrect)
+                                {
+                                    <span class="badge bg-success"><i class="bi bi-check2"></i> Đúng</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger"><i class="bi bi-x"></i> Sai</span>
+                                }
+                            </div>
+
+                            <div class="small">
+                                <span class="text-muted">Đáp án đúng: </span>
+                                <strong class="text-success">@q.Meaning</strong>
+                            </div>
+
+                            @if (!q.IsCorrect && q.SelectedOptionIndex >= 0 && q.SelectedOptionIndex < q.Options.Count)
+                            {
+                                <div class="small text-danger">
+                                    <span>Bạn đã chọn: </span>
+                                    <span>@q.Options[q.SelectedOptionIndex]</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <!-- #endregion: Quiz Results Summary -->
+    }
+    else
+    {
+        var currentQ = questions[currentIndex];
+
+        <!-- #region: Active Question Card -->
+        <div class="card border rounded-4 p-4 p-md-5 bg-white shadow-sm mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">
+                    Câu hỏi trắc nghiệm
+                </span>
+
+                <button type="button" class="speaker-btn btn-sm" title="Phát âm từ"
+                        @onclick="() => SpeakTermAsync(currentQ.Term)">
+                    <i class="bi bi-volume-up-fill fs-6"></i>
+                </button>
+            </div>
+
+            <!-- Question Prompt -->
+            <div class="text-center my-3">
+                <h1 class="display-5 fw-bold text-primary mb-1">@currentQ.Term</h1>
+                @if (!string.IsNullOrWhiteSpace(currentQ.Phonetic))
+                {
+                    <div class="text-muted font-monospace fs-6 mb-2">@currentQ.Phonetic</div>
+                }
+                @if (!string.IsNullOrWhiteSpace(currentQ.PartOfSpeech))
+                {
+                    <span class="badge bg-secondary-subtle text-secondary rounded-pill mb-3">
+                        @currentQ.PartOfSpeech
+                    </span>
+                }
+                <div class="text-muted">Chọn nghĩa tiếng Việt chính xác nhất:</div>
+            </div>
+
+            <!-- Options Grid -->
+            <div class="mt-4">
+                @for (int optIndex = 0; optIndex < currentQ.Options.Count; optIndex++)
+                {
+                    int capturedIndex = optIndex;
+                    string optionLetter = ((char)('A' + capturedIndex)).ToString();
+                    string optionText = currentQ.Options[capturedIndex];
+
+                    string btnClass = "quiz-option-btn";
+                    if (currentQ.IsAnswered)
+                    {
+                        if (capturedIndex == currentQ.CorrectOptionIndex)
+                        {
+                            btnClass += " correct";
+                        }
+                        else if (capturedIndex == currentQ.SelectedOptionIndex)
+                        {
+                            btnClass += " incorrect";
+                        }
+                    }
+
+                    <button type="button" class="@btnClass" disabled="@currentQ.IsAnswered"
+                            @onclick="() => SelectOptionAsync(capturedIndex)">
+                        <span class="option-badge">@optionLetter</span>
+                        <span class="flex-grow-1">@optionText</span>
+                        @if (currentQ.IsAnswered)
+                        {
+                            if (capturedIndex == currentQ.CorrectOptionIndex)
+                            {
+                                <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                            }
+                            else if (capturedIndex == currentQ.SelectedOptionIndex)
+                            {
+                                <i class="bi bi-x-circle-fill text-danger fs-5"></i>
+                            }
+                        }
+                    </button>
+                }
+            </div>
+
+            <!-- Explanation & Next Button (after answered) -->
+            @if (currentQ.IsAnswered)
+            {
+                <div class="mt-4 pt-3 border-top animate__animated animate__fadeIn">
+                    @if (!string.IsNullOrWhiteSpace(currentQ.ExampleSentence))
+                    {
+                        <div class="p-3 bg-light rounded-3 mb-3 small">
+                            <span class="fw-bold text-primary d-block mb-1">
+                                <i class="bi bi-chat-quote me-1"></i> Ví dụ câu:
+                            </span>
+                            <div class="fst-italic text-dark mb-1">"@currentQ.ExampleSentence"</div>
+                            @if (!string.IsNullOrWhiteSpace(currentQ.Meaning))
+                            {
+                                <div class="text-muted">→ Nghĩa: @currentQ.Meaning</div>
+                            }
+                        </div>
+                    }
+
+                    <div class="text-end">
+                        <button class="btn btn-primary px-4 py-2" @onclick="NextQuestion">
+                            @(currentIndex < questions.Count - 1 ? "Câu tiếp theo" : "Xem kết quả bài test")
+                            <i class="bi bi-arrow-right ms-1"></i>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+        <!-- #endregion: Active Question Card -->
+    }
+</div>
+
+@code {
+    #region Parameters
+
+    [Parameter]
+    public int? TopicIdRoute { get; set; }
+
+    [SupplyParameterFromQuery]
+    public int? TopicId { get; set; }
+
+    [SupplyParameterFromQuery]
+    public bool? Unmastered { get; set; }
+
+    [SupplyParameterFromQuery]
+    public int? Count { get; set; }
+
+    #endregion
+
+    #region State
+
+    private bool isLoading = true;
+    private bool isCompleted = false;
+    private bool hasMarkedMastered = false;
+
+    private int currentIndex = 0;
+    private int correctCount = 0;
+    private List<QuizQuestionDto> questions = new();
+
+    private List<QuizQuestionDto> incorrectQuestions => questions.Where(q => !q.IsCorrect).ToList();
+    private int scorePercentage => questions.Count > 0 ? (int)Math.Round((double)correctCount / questions.Count * 100) : 0;
+    private int progressPercent => questions.Count > 0 ? (int)Math.Round((double)(currentIndex + 1) / questions.Count * 100) : 0;
+
+    #endregion
+
+    #region Lifecycle
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadQuizAsync();
+    }
+
+    #endregion
+
+    #region Methods
+
+    private async Task LoadQuizAsync()
+    {
+        isLoading = true;
+        try
+        {
+            int? effectiveTopicId = TopicIdRoute ?? (TopicId > 0 ? TopicId : null);
+            var options = new StudySessionOptions
+            {
+                TopicId = effectiveTopicId,
+                OnlyUnmastered = Unmastered ?? false,
+                ItemCount = Count ?? 10
+            };
+
+            questions = await StudyService.GenerateQuizQuestionsAsync(options);
+            currentIndex = 0;
+            correctCount = 0;
+            isCompleted = false;
+            hasMarkedMastered = false;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task SelectOptionAsync(int optionIndex)
+    {
+        if (currentIndex >= questions.Count) return;
+
+        var q = questions[currentIndex];
+        q.SelectedOptionIndex = optionIndex;
+
+        if (q.IsCorrect)
+        {
+            correctCount++;
+            try
+            {
+                await JS.InvokeVoidAsync("studyInterop.playSound", "success");
+            }
+            catch { }
+        }
+        else
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("studyInterop.playSound", "error");
+            }
+            catch { }
+        }
+    }
+
+    private void NextQuestion()
+    {
+        if (currentIndex < questions.Count - 1)
+        {
+            currentIndex++;
+        }
+        else
+        {
+            isCompleted = true;
+            try
+            {
+                _ = JS.InvokeVoidAsync("studyInterop.playSound", "complete");
+            }
+            catch { }
+        }
+    }
+
+    private async Task MarkAllCorrectAsMasteredAsync()
+    {
+        var correctWordIds = questions.Where(q => q.IsCorrect).Select(q => q.WordId).ToList();
+        if (correctWordIds.Count > 0)
+        {
+            await StudyService.SetBatchWordsMasteryAsync(correctWordIds, true);
+            hasMarkedMastered = true;
+        }
+    }
+
+    private void RetestIncorrectOnly()
+    {
+        var wrongList = questions.Where(q => !q.IsCorrect).ToList();
+        foreach (var q in wrongList)
+        {
+            q.SelectedOptionIndex = -1;
+        }
+
+        questions = wrongList;
+        currentIndex = 0;
+        correctCount = 0;
+        isCompleted = false;
+        hasMarkedMastered = false;
+    }
+
+    private async Task RestartQuizAsync()
+    {
+        await LoadQuizAsync();
+    }
+
+    private async Task SpeakTermAsync(string term)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("studyInterop.speakWord", term, "en-US");
+        }
+        catch { }
+    }
+
+    #endregion
+}
