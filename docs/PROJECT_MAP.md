@@ -19,6 +19,10 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📄 project-architecture.md      #    Quy tắc kiến trúc & file conventions
 │       └── 📄 update-status-task.md
 │
+├── 📁 .github/                             # 🚀 GitHub Workflows & CI/CD
+│   └── 📁 workflows/
+│       └── 📄 dotnet.yml                   #    Workflow build, test & publish Blazor Web App
+│
 ├── 📁 CrawData/                            # 📦 Dữ liệu thô & script xử lý import (JSON, CSV, Python)
 │   ├── 📄 template_importData.csv          #    File mẫu CSV import dữ liệu cho web
 │   ├── 📄 toeic_600_essential_words_en_vi.json # Dữ liệu 600 từ vựng TOEIC (Anh - Việt)
@@ -252,3 +256,4 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-09-24 | Task 12 - Import/Export Data | `Source/Models/WordCsvRecord.cs`, `Source/Services/IVocabularyService.cs`, `Source/Services/VocabularyService.cs`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/App.razor` | Triển khai tính năng Import/Export từ vựng ra CSV sử dụng thư viện CsvHelper. Thêm JS Interop tải file. |
 | 2026-09-27 | Chuyển đổi dữ liệu TOEIC 600 JSON sang CSV | `CrawData/convert_json_to_csv.py`, `CrawData/toeic_600_words_import.csv` | Tạo script Python chuyển đổi dữ liệu từ vựng TOEIC JSON sang định dạng CSV import của web (UTF-8 BOM, map các trường TopicName, Term, Meaning, Pronunciation, PartOfSpeech, Example, ExampleTranslation, IsMastered) |
 | 2026-09-28 | Task 13 – Vocabulary Study Hub, Games & Quizzes | `docs/task/13_vocabulary_study_hub/README.md`, `Source/Models/Study/*`, `Source/Services/IStudyService.cs`, `Source/Services/StudyService.cs`, `Source/Components/Layout/NavMenu.razor`, `Source/Components/Pages/Study/*`, `Source/wwwroot/study.css`, `Source/wwwroot/study.js`, `Source/Components/App.razor`, `Source/Components/Pages/Home.razor` | Xây dựng phân hệ Học từ vựng toàn diện: NavMenu 'Học từ vựng' (/study), StudyHub với bộ lọc & thống kê, Flashcard 3D lật thẻ + TTS Web Speech API, Game Nối từ (Word Match), Game Xếp chữ (Word Scramble), Bài kiểm tra trắc nghiệm 4 đáp án (Quiz) và cập nhật trạng thái học |
+| 2026-10-07 | Task 14 – GitHub Actions CI/CD Publish | `.github/workflows/dotnet.yml` | Tối ưu hóa workflow GitHub Actions: build Release, test, dotnet publish ứng dụng Blazor Server .NET 10 và upload artifact lên GitHub Actions |

@@ -1,28 +1,45 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+# This workflow will build, test, and publish the Blazor Server Web App (.NET 10)
+# Artifacts will be available for download directly in the GitHub Actions summary.
 
-name: .NET
+name: Build and Publish LearnNN WebBlazor
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions UI
 
 jobs:
-  build:
-
+  build-and-publish:
+    name: Build & Publish App
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 10.0.300
+        dotnet-version: '10.0.x'
+
     - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet restore Source/LearnNN_WebBlazor.csproj
+
+    - name: Build application (Release)
+      run: dotnet build Source/LearnNN_WebBlazor.csproj --configuration Release --no-restore
+
+    - name: Run unit tests
+      run: dotnet test --configuration Release --no-build --verbosity normal
+
+    - name: Publish web application
+      run: dotnet publish Source/LearnNN_WebBlazor.csproj --configuration Release --no-build --output ./publish
+
+    - name: Upload publish artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: LearnNN_WebBlazor-Published
+        path: ./publish
+        if-no-files-found: error
+        retention-days: 30
