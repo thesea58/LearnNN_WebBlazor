@@ -2,7 +2,7 @@
 ## Quản lý Tiến độ Công việc
 
 > **Dự án**: LearnNN – Vocabulary Management App  
-> **Tổng số Tasks**: 14  
+> **Tổng số Tasks**: 15  
 > **Ngày tạo**: 2026-09-22
 
 ---
@@ -25,6 +25,7 @@
 | 12 | [Import/Export Data](12_import_export_data/) | Thêm tính năng Import/Export danh sách từ vựng từ file CSV và Backup bằng JSON | 🔴 Cao | Task 06 | ✅ Hoàn thành |
 | 13 | [Vocabulary Study Hub](13_vocabulary_study_hub/) | Trung tâm học từ vựng: Flashcard 3D, Game nối từ, Xếp chữ, Bài kiểm tra trắc nghiệm | 🔴 Cao | Task 03, 04 | ✅ Hoàn thành |
 | 14 | GitHub Actions CI/CD Publish | Cấu hình script workflow build, test và publish artifact Blazor Web App trên GitHub Actions | 🟢 Thấp | Task 01 | ✅ Hoàn thành |
+| 15 | [Feature Research Draft](../design/draft.md) | Nghiên cứu & phác thảo chức năng app học tiếng Anh cá nhân hóa (lấy gốc → TOEIC), AI Gemini, 3 vòng review, roadmap 6 phase | 🔴 Cao | Task 13 | ✅ Hoàn thành (chờ review) |
 
 ---
 

@@ -8,7 +8,7 @@
 
 ## Mục 1: 🌳 Cây thư mục hiện tại (Directory Tree)
 
-> Cập nhật lần cuối: 2026-09-24
+> Cập nhật lần cuối: 2026-10-07
 
 ```
 LearnNN_WebBlazor/                          # 🏠 Repository root
@@ -36,6 +36,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │   ├── 📄 01_project_overview.md       #    Tổng quan dự án
 │   │   ├── 📄 02_database_design.md        #    Thiết kế database
 │   │   ├── 📄 03_architecture.md           #    Kiến trúc phân tầng
+│   │   ├── 📄 draft.md                     #    DRAFT phác thảo chức năng (lấy gốc → TOEIC, AI Gemini) – chờ review
 │   │   └── 📄 database_design.xml          #    Diagram database (XML)
 │   └── 📁 task/                            #    Quản lý tiến độ công việc
 │       ├── 📄 README.md                    #    Bảng tổng quan task
@@ -257,3 +258,4 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-09-27 | Chuyển đổi dữ liệu TOEIC 600 JSON sang CSV | `CrawData/convert_json_to_csv.py`, `CrawData/toeic_600_words_import.csv` | Tạo script Python chuyển đổi dữ liệu từ vựng TOEIC JSON sang định dạng CSV import của web (UTF-8 BOM, map các trường TopicName, Term, Meaning, Pronunciation, PartOfSpeech, Example, ExampleTranslation, IsMastered) |
 | 2026-09-28 | Task 13 – Vocabulary Study Hub, Games & Quizzes | `docs/task/13_vocabulary_study_hub/README.md`, `Source/Models/Study/*`, `Source/Services/IStudyService.cs`, `Source/Services/StudyService.cs`, `Source/Components/Layout/NavMenu.razor`, `Source/Components/Pages/Study/*`, `Source/wwwroot/study.css`, `Source/wwwroot/study.js`, `Source/Components/App.razor`, `Source/Components/Pages/Home.razor` | Xây dựng phân hệ Học từ vựng toàn diện: NavMenu 'Học từ vựng' (/study), StudyHub với bộ lọc & thống kê, Flashcard 3D lật thẻ + TTS Web Speech API, Game Nối từ (Word Match), Game Xếp chữ (Word Scramble), Bài kiểm tra trắc nghiệm 4 đáp án (Quiz) và cập nhật trạng thái học |
 | 2026-10-07 | Task 14 – GitHub Actions CI/CD Publish | `.github/workflows/dotnet.yml` | Tối ưu hóa workflow GitHub Actions: build Release, test, dotnet publish ứng dụng Blazor Server .NET 10 và upload artifact lên GitHub Actions |
+| 2026-10-07 | Task 15 – Nghiên cứu & Phác thảo chức năng | `docs/design/draft.md`, `docs/task/README.md` | Tạo bản draft (v0.1 & v0.2) phác thảo module chức năng app học tiếng Anh cá nhân hóa (lấy gốc → TOEIC), lớp AI Gemini, cơ chế Manual AI Bridge (dùng AI không cần API key), data model sketch, 3 vòng review và roadmap 6 phase. |
