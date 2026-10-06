@@ -2,7 +2,7 @@
 ## Quản lý Tiến độ Công việc
 
 > **Dự án**: LearnNN – Vocabulary Management App  
-> **Tổng số Tasks**: 15  
+> **Tổng số Tasks**: 22  
 > **Ngày tạo**: 2026-09-22
 
 ---
@@ -25,7 +25,14 @@
 | 12 | [Import/Export Data](12_import_export_data/) | Thêm tính năng Import/Export danh sách từ vựng từ file CSV và Backup bằng JSON | 🔴 Cao | Task 06 | ✅ Hoàn thành |
 | 13 | [Vocabulary Study Hub](13_vocabulary_study_hub/) | Trung tâm học từ vựng: Flashcard 3D, Game nối từ, Xếp chữ, Bài kiểm tra trắc nghiệm | 🔴 Cao | Task 03, 04 | ✅ Hoàn thành |
 | 14 | GitHub Actions CI/CD Publish | Cấu hình script workflow build, test và publish artifact Blazor Web App trên GitHub Actions | 🟢 Thấp | Task 01 | ✅ Hoàn thành |
-| 15 | [Feature Research Draft](../design/draft.md) | Nghiên cứu & phác thảo chức năng app học tiếng Anh cá nhân hóa (lấy gốc → TOEIC), AI Gemini, 3 vòng review, roadmap 6 phase | 🔴 Cao | Task 13 | ✅ Hoàn thành (chờ review) |
+| 15 | [Feature Research Draft](../design/draft.md) | Nghiên cứu & phác thảo chức năng app học tiếng Anh cá nhân hóa (lấy gốc → TOEIC), AI Gemini, phỏng vấn /grill-me hoàn tất | 🔴 Cao | Task 13 | ✅ Hoàn thành |
+| 16 | [Personalization Core & SRS](16_personalization_core_srs/) | Bảng phân loại kỹ năng (SkillTag), nhật ký học (AnswerLog), thuật toán lặp lại ngắt quãng SM-2 (WordProgress) | 🔴 Cao nhất | Task 02, 13 | ⬜ Chưa bắt đầu |
+| 17 | AI Infrastructure & Manual Bridge | Hạ tầng AI đa kênh: PromptBuilder, Manual AI Bridge Modal, AI Inbox, Parser khoan dung & bảo mật | 🔴 Cao | Task 16 | ⬜ Chưa bắt đầu |
+| 18 | AI Quiz Explainer & Trap Detector | Tích hợp AI giải thích câu sai và phân tích bẫy trực tiếp trên Quiz (/study/quiz) qua Manual Bridge | 🔴 Cao | Task 16, 17 | ⬜ Chưa bắt đầu |
+| 19 | Import Question Bank & Grammar | Chuẩn hóa định dạng CSV/JSON import đề thi chuẩn, cây bài học ngữ pháp nền tảng cho Part 5/6 | 🟡 TB | Task 16 | ⬜ Chưa bắt đầu |
+| 20 | TOEIC Reading Practice (Part 5-7) | Luyện tập phân hóa theo Part 5, 6, 7; giải thích đáp án & bóc trần bẫy, chế độ làm bài bấm giờ | 🟡 TB | Task 17, 18, 19 | ⬜ Chưa bắt đầu |
+| 21 | TOEIC Listening & Audio Practice | Luyện nghe Part 1-4, Luyện chép chính tả (Dictation) kèm chấm diff, nghe đa giọng (US/UK/AU) | 🟡 TB | Task 16, 20 | ⬜ Chưa bắt đầu |
+| 22 | Mock Test & Score Prediction | Thi thử trắc nghiệm Full (200 câu)/Mini (100 câu), quy đổi điểm TOEIC, radar kỹ năng & dự đoán điểm | 🟢 Thấp | Task 20, 21 | ⬜ Chưa bắt đầu |
 
 ---
 

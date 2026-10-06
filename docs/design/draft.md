@@ -1,10 +1,9 @@
 # 📝 DRAFT – Phác thảo Chức năng App Học Tiếng Anh Cá nhân hóa (Lấy gốc → TOEIC)
 
-> **Phiên bản**: Draft 0.2 – Chờ review
-> **Ngày tạo**: 2026-10-07
-> **Cập nhật 0.2**: Bổ sung **Manual AI Bridge** – dùng AI không cần API key (xem [mục 6.4](#64-chế-độ-ai-thủ-công--manual-ai-bridge-không-cần-api-key))
+> **Phiên bản**: 1.0 (Finalized Plan) – Đã hoàn thành phỏng vấn thiết kế qua `/grill-me`
+> **Ngày cập nhật**: 2026-10-07
 > **Mục tiêu sản phẩm**: Giúp **một người học cụ thể** đi từ mất gốc → nền tảng vững → luyện thi TOEIC Listening & Reading hiệu quả, với **AI đánh giá & cá nhân hóa** là lõi.
-> **AI Provider đề xuất**: Google AI Studio – Gemini API (text, audio understanding, TTS, structured JSON output).
+> **AI Provider**: Manual AI Bridge (ưu tiên Phase 1) + Google AI Studio Gemini API (Phase sau).
 
 ---
 
@@ -642,17 +641,17 @@ flowchart LR
 
 ---
 
-## 12. Câu hỏi mở cần bạn quyết định
+## 12. Các quyết định thiết kế đã chốt qua /grill-me
 
-1. **Single-user hay multi-user?** Draft đề xuất single-user cho V1 (không đăng nhập). Bạn có định cho người khác dùng chung không?
-2. **Nguồn nội dung đề TOEIC**: tự nhập + AI sinh có duyệt là đủ, hay bạn đã có nguồn câu hỏi hợp lệ để import?
-3. **Ngân sách AI**: chỉ dùng **free tier** của Google AI Studio, hay chấp nhận trả phí (paid tier, dữ liệu không dùng để huấn luyện)?
-4. **Phạm vi kỳ thi**: chỉ TOEIC **Listening & Reading**, hay cả **Speaking & Writing**?
-5. **Thiết bị chính**: Desktop hay Mobile? (ảnh hưởng ưu tiên Micro-learning, ghi âm, PWA).
-6. **Thứ tự Phase**: Bạn muốn giữ "Reading trước Listening", hay ưu tiên Listening sớm hơn?
-7. **Mức độ AI tự động**: AI được **tự áp dụng** lộ trình mới, hay chỉ **đề xuất** để bạn bấm chấp nhận?
-8. **Manual AI Bridge**: Chatbot web bạn hay dùng nhất (Gemini / ChatGPT / khác) để nút "Copy & mở" trỏ đúng? Khi có API key, mặc định dùng **Hybrid** hay **Auto**?
+| # | Hạng mục | Quyết định đã chốt | Tác động kỹ thuật |
+|---|---|---|---|
+| 1 | **Mô hình người dùng** | **Single-user (Cá nhân)**: 1 hồ sơ học tập duy nhất trong SQLite, không cần hệ thống Auth/Đăng nhập phức tạp. | Schema vẫn giữ `LearnerId` để sẵn sàng scale đa người dùng ở V2. |
+| 2 | **Phạm vi bài thi** | **TOEIC Listening & Reading (Part 1 - 7)**: Tận dụng AI chấm câu viết/phát âm như công cụ bổ trợ học từ vựng. | Không làm đề thi TOEIC Speaking & Writing riêng; tập trung tối đa cho 2 kỹ năng cốt lõi. |
+| 3 | **Kênh thực thi AI** | **Manual AI Bridge trước, Gemini API sau**: Xây dựng modal copy prompt + JSON schema, dán kết quả về app. | Không phụ thuộc API key, không bị rate limit, kiểm thử tính năng ngay lập tức. |
+| 4 | **Tích hợp SRS** | **Tích hợp toàn diện**: 4 game hiện tại (Flashcards, Match, Scramble, Quiz) đều tự động ghi `AnswerLog` và nuôi thuật toán SRS; `IsMastered` suy ra từ khoảng cách ôn. | Dữ liệu học tập thống nhất, người dùng học ở đâu cũng được tính tiến độ ngắt quãng. |
+| 5 | **Tính năng AI đầu tiên** | **AI Quiz Explainer & Trap Detector**: Tích hợp ngay vào `/study/quiz` để mỗi khi làm sai câu hỏi là AI giải thích lý do & vạch trần bẫy. | Tạo giá trị "AI đánh giá" thấy được ngay trên kho 600 từ TOEIC hiện có. |
+| 6 | **Nguồn nội dung đề thi & bài học** | **Nhập thủ công & Import file CSV/JSON từ tài liệu chuẩn uy tín**: Đảm bảo sát đề thi thật 100%. | AI chỉ đóng vai trò **Đánh giá, Giải thích lỗi, Lập lộ trình**, KHÔNG dùng AI tự bịa câu hỏi đề thi thiếu kiểm soát. |
 
 ---
 
-> 📌 **Bước tiếp theo sau khi bạn review**: chốt phạm vi → tách Phase 1 thành các task `docs/task/15_xx`, `16_xx`... → cập nhật `02_database_design.md` và `03_architecture.md`.
+> 📌 **Trạng thái**: Đã thống nhất 100% thiết kế. Chuyển sang thực hiện kế hoạch công việc WBS (Task 16 -> 22).

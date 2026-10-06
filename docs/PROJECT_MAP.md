@@ -50,7 +50,8 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📁 08_shared_components/        #    ✅ Task 08 – Shared Components
 │       ├── 📁 09_integration_testing/      #    ✅ Task 09 – Integration & Testing
 │       ├── 📁 12_import_export_data/       #    ✅ Task 12 – Import/Export Data
-│       └── 📁 13_vocabulary_study_hub/     #    ✅ Task 13 – Vocabulary Study Hub, Games & Quizzes
+│       ├── 📁 13_vocabulary_study_hub/     #    ✅ Task 13 – Vocabulary Study Hub, Games & Quizzes
+│       └── 📁 16_personalization_core_srs/ #    ⬜ Task 16 – Personalization Core & SRS Engine
 │
 ├── 📁 Source/                              # 💻 MÃ NGUỒN CHÍNH (Blazor Web App)
 │   ├── 📄 LearnNN_WebBlazor.csproj         #    Project file (.NET 10)
@@ -258,4 +259,5 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-09-27 | Chuyển đổi dữ liệu TOEIC 600 JSON sang CSV | `CrawData/convert_json_to_csv.py`, `CrawData/toeic_600_words_import.csv` | Tạo script Python chuyển đổi dữ liệu từ vựng TOEIC JSON sang định dạng CSV import của web (UTF-8 BOM, map các trường TopicName, Term, Meaning, Pronunciation, PartOfSpeech, Example, ExampleTranslation, IsMastered) |
 | 2026-09-28 | Task 13 – Vocabulary Study Hub, Games & Quizzes | `docs/task/13_vocabulary_study_hub/README.md`, `Source/Models/Study/*`, `Source/Services/IStudyService.cs`, `Source/Services/StudyService.cs`, `Source/Components/Layout/NavMenu.razor`, `Source/Components/Pages/Study/*`, `Source/wwwroot/study.css`, `Source/wwwroot/study.js`, `Source/Components/App.razor`, `Source/Components/Pages/Home.razor` | Xây dựng phân hệ Học từ vựng toàn diện: NavMenu 'Học từ vựng' (/study), StudyHub với bộ lọc & thống kê, Flashcard 3D lật thẻ + TTS Web Speech API, Game Nối từ (Word Match), Game Xếp chữ (Word Scramble), Bài kiểm tra trắc nghiệm 4 đáp án (Quiz) và cập nhật trạng thái học |
 | 2026-10-07 | Task 14 – GitHub Actions CI/CD Publish | `.github/workflows/dotnet.yml` | Tối ưu hóa workflow GitHub Actions: build Release, test, dotnet publish ứng dụng Blazor Server .NET 10 và upload artifact lên GitHub Actions |
-| 2026-10-07 | Task 15 – Nghiên cứu & Phác thảo chức năng | `docs/design/draft.md`, `docs/task/README.md` | Tạo bản draft (v0.1 & v0.2) phác thảo module chức năng app học tiếng Anh cá nhân hóa (lấy gốc → TOEIC), lớp AI Gemini, cơ chế Manual AI Bridge (dùng AI không cần API key), data model sketch, 3 vòng review và roadmap 6 phase. |
+| 2026-10-07 | Task 15 – Nghiên cứu & Phác thảo chức năng | `docs/design/draft.md`, `docs/task/README.md` | Hoàn thiện bản thiết kế (v1.0) qua phỏng vấn /grill-me: Single-user, tập trung TOEIC L&R, Manual AI Bridge trước, tích hợp toàn diện SRS, ngân hàng đề import chuẩn |
+| 2026-10-07 | Lập Kế hoạch Công việc & WBS (Task 16-22) | `docs/task/README.md`, `[NEW] docs/task/16_personalization_core_srs/README.md`, `docs/PROJECT_MAP.md` | Phân rã bản thiết kế thành chuỗi 7 task thực thi khoa học (Task 16 -> 22). Tạo đặc tả Task 16 là ưu tiên cao nhất mang tính quyết định toàn bộ hệ thống. |
