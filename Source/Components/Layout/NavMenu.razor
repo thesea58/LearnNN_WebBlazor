@@ -1,3 +1,6 @@
+@using LearnNN_WebBlazor.Services.Ai
+@inject IAiService AiService
+
 <div class="top-row ps-3 pe-3 navbar navbar-dark">
     <div class="container-fluid d-flex align-items-center justify-content-between p-0">
         <a class="navbar-brand d-flex align-items-center gap-2 m-0" href="">
@@ -38,7 +41,39 @@
                 <span>Chủ đề</span>
             </NavLink>
         </div>
+
+        <div class="nav-item mt-2 pt-2 border-top border-secondary border-opacity-25">
+            <NavLink class="nav-link d-flex align-items-center" href="ai/inbox">
+                <i class="bi bi-inbox me-2" aria-hidden="true"></i>
+                <span>AI Inbox</span>
+                @if (pendingCount > 0)
+                {
+                    <span class="badge bg-danger rounded-pill ms-auto">@pendingCount</span>
+                }
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link" href="ai/settings">
+                <i class="bi bi-gear me-2" aria-hidden="true"></i>
+                <span>Cài đặt AI</span>
+            </NavLink>
+        </div>
     </nav>
 </div>
 
+@code {
+    private int pendingCount = 0;
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            pendingCount = await AiService.GetPendingRequestCountAsync();
+        }
+        catch
+        {
+            pendingCount = 0;
+        }
+    }
+}

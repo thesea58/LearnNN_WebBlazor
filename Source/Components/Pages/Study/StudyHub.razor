@@ -1,6 +1,7 @@
 @page "/study"
 @rendermode InteractiveServer
 @inject IStudyService StudyService
+@inject ISrsEngineService SrsEngineService
 @inject IVocabularyService VocabularyService
 @inject NavigationManager NavigationManager
 
@@ -30,6 +31,96 @@
         </div>
     </div>
     <!-- #endregion: Header Banner -->
+
+    <!-- #region: SRS Due Today Banner -->
+    <div class="card border-0 mb-4 rounded-4 shadow-sm overflow-hidden @(srsStats.DueTodayCount > 0 ? "bg-warning-subtle border border-warning" : "bg-success-subtle border border-success")">
+        <div class="card-body p-4">
+            <div class="row align-items-center g-3">
+                <div class="col-lg-7">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        @if (srsStats.DueTodayCount > 0)
+                        {
+                            <span class="badge bg-danger text-white rounded-pill px-3 py-1 fw-bold animate__animated animate__pulse animate__infinite">
+                                <i class="bi bi-bell-fill me-1"></i> Đến hạn ôn tập
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success text-white rounded-pill px-3 py-1 fw-bold">
+                                <i class="bi bi-check-circle-fill me-1"></i> Đã hoàn thành mục tiêu ngày
+                            </span>
+                        }
+                        <span class="small text-muted fw-semibold text-uppercase">Spaced Repetition (SM-2)</span>
+                    </div>
+
+                    <h4 class="fw-bold mb-1 @(srsStats.DueTodayCount > 0 ? "text-dark" : "text-success")">
+                        @if (srsStats.DueTodayCount > 0)
+                        {
+                            <span>Hôm nay bạn có <span class="text-danger fw-bolder">@srsStats.DueTodayCount từ</span> cần ôn tập! 🧠</span>
+                        }
+                        else
+                        {
+                            <span>Hôm nay không còn từ nào đến hạn ôn tập! 🎉</span>
+                        }
+                    </h4>
+                    <p class="text-muted small mb-0">
+                        @if (srsStats.DueTodayCount > 0)
+                        {
+                            <span>Thuật toán SM-2 tính toán thời điểm vàng chuẩn bị quên để nhắc bạn ôn tập, giúp từ vựng đi vào trí nhớ dài hạn hiệu quả nhất.</span>
+                        }
+                        else
+                        {
+                            <span>Bạn đã ôn tập toàn bộ từ vựng đến hạn. Hãy duy trì nhịp độ bằng cách học thêm từ mới hoặc luyện tập qua các trò chơi!</span>
+                        }
+                    </p>
+                </div>
+
+                <div class="col-lg-5 text-lg-end">
+                    @if (srsStats.DueTodayCount > 0)
+                    {
+                        <button class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm rounded-pill" @onclick="NavigateToSrsReview">
+                            <i class="bi bi-lightning-charge-fill me-1"></i> Ôn tập SRS ngay (@srsStats.DueTodayCount từ)
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-success text-white fw-bold px-4 py-2 shadow-sm rounded-pill" @onclick="NavigateToFlashcards">
+                            <i class="bi bi-plus-circle me-1"></i> Học từ mới ngay
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- SRS Metrics Breakdown -->
+            <div class="row g-2 mt-3 pt-3 border-top border-dark border-opacity-10 text-center">
+                <div class="col-6 col-md-3">
+                    <div class="bg-white bg-opacity-75 p-2 rounded-3 border">
+                        <div class="text-danger fw-bold fs-5">@srsStats.DueTodayCount</div>
+                        <div class="small text-muted">Cần ôn hôm nay</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="bg-white bg-opacity-75 p-2 rounded-3 border">
+                        <div class="text-primary fw-bold fs-5">@srsStats.LearningCount</div>
+                        <div class="small text-muted">Đang học (&lt; 21 ngày)</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="bg-white bg-opacity-75 p-2 rounded-3 border">
+                        <div class="text-success fw-bold fs-5">@srsStats.MasteredCount</div>
+                        <div class="small text-muted">Đã thuộc (≥ 21 ngày)</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="bg-white bg-opacity-75 p-2 rounded-3 border">
+                        <div class="text-secondary fw-bold fs-5">@srsStats.NewWordsCount</div>
+                        <div class="small text-muted">Từ mới chưa học</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- #endregion: SRS Due Today Banner -->
 
     <!-- #region: Filter Configuration Bar -->
     <div class="card border rounded-3 p-3 p-md-4 mb-4 bg-white shadow-sm">
@@ -202,6 +293,8 @@
 
     private int totalWordsCount = 0;
     private int unmasteredWordsCount = 0;
+    private SrsStatisticsDto srsStats = new();
+
     private int availableWordsCount => onlyUnmastered ? unmasteredWordsCount : totalWordsCount;
     private int masteredPercent => totalWordsCount > 0 ? (int)Math.Round((double)(totalWordsCount - unmasteredWordsCount) / totalWordsCount * 100) : 0;
 
@@ -230,6 +323,14 @@
         var counts = await StudyService.GetStudyWordCountsAsync(topicParam);
         totalWordsCount = counts.TotalCount;
         unmasteredWordsCount = counts.UnmasteredCount;
+
+        // Load SRS Spaced Repetition metrics
+        srsStats = await SrsEngineService.GetSrsStatisticsAsync(topicParam);
+    }
+
+    private void NavigateToSrsReview()
+    {
+        NavigationManager.NavigateTo($"/study/flashcards?topicId={selectedTopicId}&dueOnly=true&count=50");
     }
 
     private void NavigateToFlashcards()

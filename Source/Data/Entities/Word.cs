@@ -48,4 +48,9 @@ public class Word
     /// Parent topic this word belongs to. Required navigation property.
     /// </summary>
     public Topic Topic { get; set; } = null!;
+
+    /// <summary>
+    /// Spaced repetition progress tracking state for this word.
+    /// </summary>
+    public WordProgress? WordProgress { get; set; }
 }

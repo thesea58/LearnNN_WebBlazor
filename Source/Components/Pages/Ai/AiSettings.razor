@@ -1,0 +1,222 @@
+@page "/ai/settings"
+@rendermode InteractiveServer
+@using LearnNN_WebBlazor.Models.Ai
+@using Microsoft.Extensions.Options
+@inject IOptions<AiOptions> AiConfigOptions
+@inject NavigationManager Navigation
+
+<PageTitle>Cài Đặt AI – AI Settings | LearnNN</PageTitle>
+
+<div class="container py-4" style="max-width: 900px;">
+    @* Page Header *@
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div class="d-flex align-items-center gap-3">
+            <span class="fs-1">⚙️</span>
+            <div>
+                <h2 class="fw-bold mb-0 text-dark">Cài Đặt Hệ Thống AI</h2>
+                <p class="text-muted mb-0 small">
+                    Quản lý chế độ hoạt động, bảo mật API Key và tùy biến cầu nối chatbot web.
+                </p>
+            </div>
+        </div>
+        <div>
+            <a href="ai/inbox" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-inbox"></i> Về AI Inbox
+            </a>
+        </div>
+    </div>
+
+    @if (showSavedAlert)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Đã lưu thay đổi cấu hình phiên làm việc thành công!
+            <button type="button" class="btn-close" @onclick="() => showSavedAlert = false"></button>
+        </div>
+    }
+
+    @* Section 1: AI Operating Mode *@
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-sliders text-primary"></i> 1. Chế Độ Hoạt Động (AI Operating Mode)
+            </h5>
+            <p class="text-muted small mb-3">
+                Chọn cách thức ứng dụng tương tác với trí tuệ nhân tạo. Bạn có thể đổi chế độ bất cứ lúc nào.
+            </p>
+
+            <div class="row g-3">
+                @* Manual Mode *@
+                <div class="col-md-4">
+                    <div class="card h-100 p-3 rounded-3 border-2 @(selectedMode == AiMode.Manual ? "border-primary bg-primary bg-opacity-10" : "border-light bg-light")"
+                         style="cursor: pointer;"
+                         @onclick="() => selectedMode = AiMode.Manual">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="aiModeRadio" id="modeManual"
+                                   checked="@(selectedMode == AiMode.Manual)" />
+                            <label class="form-check-label fw-bold text-dark" for="modeManual">
+                                🅼 Manual Bridge
+                            </label>
+                        </div>
+                        <div class="small text-muted mt-2">
+                            • <strong>100% Miễn phí</strong>, không cần API Key.<br />
+                            • Copy prompt sang chatbot web và dán JSON về app.<br />
+                            • Khuyên dùng khi muốn dùng bản Gemini Advanced trên web.
+                        </div>
+                    </div>
+                </div>
+
+                @* Hybrid Mode *@
+                <div class="col-md-4">
+                    <div class="card h-100 p-3 rounded-3 border-2 @(selectedMode == AiMode.Hybrid ? "border-primary bg-primary bg-opacity-10" : "border-light bg-light")"
+                         style="cursor: pointer;"
+                         @onclick="() => selectedMode = AiMode.Hybrid">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="aiModeRadio" id="modeHybrid"
+                                   checked="@(selectedMode == AiMode.Hybrid)" />
+                            <label class="form-check-label fw-bold text-dark" for="modeHybrid">
+                                🅷 Hybrid (Khuyến nghị)
+                            </label>
+                        </div>
+                        <div class="small text-muted mt-2">
+                            • Gọi Gemini API tự động.<br />
+                            • Khi hết hạn ngạch (HTTP 429) hoặc mạng yếu, <strong>tự động chuyển sang Manual Bridge</strong> mà không mất bài.<br />
+                            • An toàn và linh hoạt nhất.
+                        </div>
+                    </div>
+                </div>
+
+                @* Auto Mode *@
+                <div class="col-md-4">
+                    <div class="card h-100 p-3 rounded-3 border-2 @(selectedMode == AiMode.Auto ? "border-primary bg-primary bg-opacity-10" : "border-light bg-light")"
+                         style="cursor: pointer;"
+                         @onclick="() => selectedMode = AiMode.Auto">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="aiModeRadio" id="modeAuto"
+                                   checked="@(selectedMode == AiMode.Auto)" />
+                            <label class="form-check-label fw-bold text-dark" for="modeAuto">
+                                🅰 Auto (Gemini API)
+                            </label>
+                        </div>
+                        <div class="small text-muted mt-2">
+                            • Tự động 100% qua Google AI Studio API.<br />
+                            • Cần cấu hình API Key.<br />
+                            • Phản hồi tức thì, không cần thao tác copy/dán.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Section 2: API Key Security & Status *@
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                    <i class="bi bi-shield-lock text-success"></i> 2. Trạng Thái API Key & Chuẩn Bảo Mật
+                </h5>
+                @if (hasApiKey)
+                {
+                    <span class="badge bg-success px-3 py-2 fs-6">
+                        <i class="bi bi-check-circle-fill me-1"></i> Đã cấu hình API Key
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary px-3 py-2 fs-6">
+                        <i class="bi bi-exclamation-circle me-1"></i> Chưa cấu hình API Key
+                    </span>
+                }
+            </div>
+
+            @* Security Guarantee Note *@
+            <div class="alert alert-info border-0 rounded-3 p-3 small mb-3">
+                <div class="fw-bold d-flex align-items-center gap-1 mb-1">
+                    <i class="bi bi-shield-check fs-5"></i> Cam kết bảo mật GitHub:
+                </div>
+                <div>
+                    Để tránh tuyệt đối nguy cơ rò rỉ API Key lên GitHub hoặc các kho lưu trữ mã nguồn mở,
+                    LearnNN không lưu API Key dạng văn bản thuần trong file `appsettings.json`.
+                    Hệ thống tự động nạp key an toàn qua <strong>.NET User Secrets</strong> hoặc <strong>Biến môi trường</strong>.
+                </div>
+            </div>
+
+            <div class="bg-light p-3 rounded-3 small">
+                <div class="fw-semibold text-dark mb-2">Cách cấu hình API Key an toàn trên máy của bạn:</div>
+                <div class="mb-2">
+                    <span class="badge bg-dark">Cách 1 (.NET User Secrets - Khuyến nghị khi dev):</span>
+                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace">dotnet user-secrets set "Ai:ApiKey" "AIzaSy..."</pre>
+                </div>
+                <div>
+                    <span class="badge bg-dark">Cách 2 (Biến môi trường OS):</span>
+                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace">set GEMINI_API_KEY="AIzaSy..." (Windows CMD/PowerShell)</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Section 3: Web Chatbot URL (For Manual Bridge) *@
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-globe text-info"></i> 3. Chatbot Web Mở Nhanh (Dành cho Manual Bridge)
+            </h5>
+            <p class="text-muted small mb-3">
+                Khi bạn bấm nút "Mở Chatbot Web" trong Modal, trình duyệt sẽ tự động bật tab mới tới địa chỉ này:
+            </p>
+
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <button type="button" class="btn btn-sm @(selectedChatbotUrl == "https://gemini.google.com/" ? "btn-primary" : "btn-outline-secondary")"
+                        @onclick='() => selectedChatbotUrl = "https://gemini.google.com/"'>
+                    Google Gemini Web
+                </button>
+                <button type="button" class="btn btn-sm @(selectedChatbotUrl == "https://chatgpt.com/" ? "btn-primary" : "btn-outline-secondary")"
+                        @onclick='() => selectedChatbotUrl = "https://chatgpt.com/"'>
+                    ChatGPT
+                </button>
+                <button type="button" class="btn btn-sm @(selectedChatbotUrl == "https://claude.ai/" ? "btn-primary" : "btn-outline-secondary")"
+                        @onclick='() => selectedChatbotUrl = "https://claude.ai/"'>
+                    Claude AI
+                </button>
+            </div>
+
+            <div class="input-group shadow-sm">
+                <span class="input-group-text bg-white"><i class="bi bi-link-45deg"></i></span>
+                <input type="text" class="form-control" @bind="selectedChatbotUrl" placeholder="https://gemini.google.com/" />
+            </div>
+        </div>
+    </div>
+
+    @* Save Button *@
+    <div class="d-flex justify-content-end gap-2 mb-5">
+        <button class="btn btn-primary px-4 fw-semibold shadow-sm d-flex align-items-center gap-2" @onclick="SaveSettings">
+            <i class="bi bi-check-lg"></i> Lưu Cấu Hình
+        </button>
+    </div>
+</div>
+
+@code {
+    private AiMode selectedMode;
+    private string selectedChatbotUrl = "https://gemini.google.com/";
+    private bool hasApiKey = false;
+    private bool showSavedAlert = false;
+
+    protected override void OnInitialized()
+    {
+        var config = AiConfigOptions.Value;
+        selectedMode = config.Mode;
+        selectedChatbotUrl = !string.IsNullOrWhiteSpace(config.PreferredChatbotUrl)
+            ? config.PreferredChatbotUrl
+            : "https://gemini.google.com/";
+        hasApiKey = config.HasApiKey;
+    }
+
+    private void SaveSettings()
+    {
+        // Update in-memory options for the active session
+        AiConfigOptions.Value.Mode = selectedMode;
+        AiConfigOptions.Value.PreferredChatbotUrl = selectedChatbotUrl;
+        showSavedAlert = true;
+    }
+}

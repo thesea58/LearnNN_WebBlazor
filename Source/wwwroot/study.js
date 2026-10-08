@@ -72,3 +72,40 @@ window.studyInterop = {
         }
     }
 };
+
+/**
+ * Helper to manage view mode preference (table vs card) and detect mobile devices.
+ */
+window.viewModeHelper = {
+    /**
+     * Retrieves the stored view mode or defaults based on viewport width (< 768px -> card, >= 768px -> table).
+     * @param {string} storageKey - localStorage key.
+     * @returns {string} 'table' or 'card'.
+     */
+    getViewMode: function (storageKey) {
+        try {
+            const saved = localStorage.getItem(storageKey);
+            if (saved === 'card' || saved === 'table') {
+                return saved;
+            }
+        } catch (e) {
+            // Fall through if localStorage is inaccessible
+        }
+
+        // Auto-detect mobile phones & tablets (Android / iPhone / iPad portrait < 768px)
+        return window.innerWidth < 768 ? 'card' : 'table';
+    },
+
+    /**
+     * Persists the selected view mode in localStorage.
+     * @param {string} storageKey - localStorage key.
+     * @param {string} mode - 'table' or 'card'.
+     */
+    setViewMode: function (storageKey, mode) {
+        try {
+            localStorage.setItem(storageKey, mode);
+        } catch (e) {
+            // Ignore quota or private browsing exceptions
+        }
+    }
+};

@@ -1,0 +1,47 @@
+@using LearnNN_WebBlazor.Models
+
+<!-- #region: View Mode Switcher Component -->
+<div class="btn-group shadow-xs view-mode-switcher" role="group" aria-label="Chế độ hiển thị">
+    <button type="button" 
+            class="btn btn-sm @(CurrentMode == ViewMode.Table ? "btn-primary active" : "btn-outline-secondary bg-white") d-inline-flex align-items-center gap-1 px-3 py-1" 
+            @onclick="() => SetModeAsync(ViewMode.Table)"
+            title="Kiểu dòng (Bảng chi tiết)">
+        <i class="bi bi-list-ul"></i>
+        <span class="d-none d-sm-inline fw-medium">Dòng</span>
+    </button>
+    <button type="button" 
+            class="btn btn-sm @(CurrentMode == ViewMode.Card ? "btn-primary active" : "btn-outline-secondary bg-white") d-inline-flex align-items-center gap-1 px-3 py-1" 
+            @onclick="() => SetModeAsync(ViewMode.Card)"
+            title="Kiểu icon / thẻ (Trực quan, chạm mượt)">
+        <i class="bi bi-grid-fill"></i>
+        <span class="d-none d-sm-inline fw-medium">Thẻ icon</span>
+    </button>
+</div>
+<!-- #endregion: View Mode Switcher Component -->
+
+@code {
+    #region Parameters
+    /// <summary>
+    /// The currently selected presentation view mode (Table or Card).
+    /// </summary>
+    [Parameter]
+    public ViewMode CurrentMode { get; set; } = ViewMode.Table;
+
+    /// <summary>
+    /// Event callback emitted when the user selects a different view mode.
+    /// </summary>
+    [Parameter]
+    public EventCallback<ViewMode> CurrentModeChanged { get; set; }
+    #endregion
+
+    #region Event Handlers
+    private async Task SetModeAsync(ViewMode newMode)
+    {
+        if (CurrentMode != newMode)
+        {
+            CurrentMode = newMode;
+            await CurrentModeChanged.InvokeAsync(newMode);
+        }
+    }
+    #endregion
+}

@@ -187,6 +187,8 @@
     private System.Threading.Timer? gameTimer;
     private List<MatchCardDto> cards = new();
     private MatchCardDto? firstSelectedCard;
+    private Guid sessionId = Guid.NewGuid();
+    private DateTime matchStartTime = DateTime.UtcNow;
 
     #endregion
 
@@ -216,6 +218,8 @@
         matchedPairsCount = 0;
         isGameWon = false;
         firstSelectedCard = null;
+        sessionId = Guid.NewGuid();
+        matchStartTime = DateTime.UtcNow;
 
         try
         {
@@ -266,10 +270,14 @@
         clickedCard.IsSelected = true;
         movesCount++;
         isProcessingMatch = true;
+        long responseTimeMs = (long)(DateTime.UtcNow - matchStartTime).TotalMilliseconds;
 
         // I. Verify Match: Same WordId AND Different CardType (Term + Meaning)
         bool isMatch = firstSelectedCard.WordId == clickedCard.WordId &&
                        firstSelectedCard.CardType != clickedCard.CardType;
+
+        // Record to SRS & AnswerLog (Rating 4 if correct, Rating 2 if incorrect)
+        await StudyService.RecordMatchAnswerAsync(sessionId, clickedCard.WordId, isMatch, responseTimeMs);
 
         if (isMatch)
         {

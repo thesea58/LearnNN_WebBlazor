@@ -14,6 +14,12 @@ public class AppDbContext : DbContext
 
     public DbSet<Topic> Topics => Set<Topic>();
     public DbSet<Word> Words => Set<Word>();
+    public DbSet<LearnerProfile> LearnerProfiles => Set<LearnerProfile>();
+    public DbSet<SkillTag> SkillTags => Set<SkillTag>();
+    public DbSet<TagMastery> TagMasteries => Set<TagMastery>();
+    public DbSet<WordProgress> WordProgresses => Set<WordProgress>();
+    public DbSet<AnswerLog> AnswerLogs => Set<AnswerLog>();
+    public DbSet<AiRequest> AiRequests => Set<AiRequest>();
 
     /// <summary>
     /// Configures entity schemas, indexes, default values, and relationships using Fluent API.
@@ -44,6 +50,81 @@ public class AppDbContext : DbContext
                   .WithMany(t => t.Words)
                   .HasForeignKey(w => w.TopicId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            // One-to-one relationship with WordProgress
+            entity.HasOne(w => w.WordProgress)
+                  .WithOne(wp => wp.Word)
+                  .HasForeignKey<WordProgress>(wp => wp.WordId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+        #endregion
+
+        #region LearnerProfile Configuration
+        modelBuilder.Entity<LearnerProfile>(entity =>
+        {
+            entity.Property(p => p.CreatedAt).HasDefaultValueSql("datetime('now')");
+        });
+        #endregion
+
+        #region SkillTag Configuration
+        modelBuilder.Entity<SkillTag>(entity =>
+        {
+            entity.HasIndex(s => s.Code).IsUnique();
+            entity.HasIndex(s => s.Category);
+            entity.HasOne(s => s.ParentTag)
+                  .WithMany(p => p.ChildTags)
+                  .HasForeignKey(s => s.ParentId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+        #endregion
+
+        #region TagMastery Configuration
+        modelBuilder.Entity<TagMastery>(entity =>
+        {
+            entity.HasIndex(tm => tm.SkillTagId);
+            entity.HasOne(tm => tm.SkillTag)
+                  .WithMany(st => st.TagMasteries)
+                  .HasForeignKey(tm => tm.SkillTagId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+        #endregion
+
+        #region WordProgress Configuration
+        modelBuilder.Entity<WordProgress>(entity =>
+        {
+            entity.HasIndex(wp => wp.WordId).IsUnique();
+            entity.HasIndex(wp => wp.DueDate);
+            entity.Property(wp => wp.EaseFactor).HasDefaultValue(2.5);
+            entity.Property(wp => wp.IntervalDays).HasDefaultValue(1);
+            entity.Property(wp => wp.Repetitions).HasDefaultValue(0);
+            entity.Property(wp => wp.Lapses).HasDefaultValue(0);
+        });
+        #endregion
+
+        #region AnswerLog Configuration
+        modelBuilder.Entity<AnswerLog>(entity =>
+        {
+            entity.HasIndex(al => al.SessionId);
+            entity.HasIndex(al => al.SkillTagId);
+            entity.HasIndex(al => al.CreatedAt);
+            entity.HasIndex(al => new { al.ItemType, al.ItemId });
+            entity.Property(al => al.CreatedAt).HasDefaultValueSql("datetime('now')");
+
+            entity.HasOne(al => al.SkillTag)
+                  .WithMany(st => st.AnswerLogs)
+                  .HasForeignKey(al => al.SkillTagId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+        #endregion
+
+        #region AiRequest Configuration
+        modelBuilder.Entity<AiRequest>(entity =>
+        {
+            entity.HasIndex(ar => ar.RequestId).IsUnique();
+            entity.HasIndex(ar => ar.InputHash);
+            entity.HasIndex(ar => ar.Status);
+            entity.HasIndex(ar => ar.CreatedAt);
+            entity.Property(ar => ar.CreatedAt).HasDefaultValueSql("datetime('now')");
         });
         #endregion
 
@@ -105,7 +186,7 @@ public class AppDbContext : DbContext
                 Meaning = "Khung phần mềm – bộ thư viện/công cụ hỗ trợ xây dựng ứng dụng",
                 ExampleSentence = ".NET is a powerful framework for building web applications.",
                 ExampleTranslation = ".NET là một framework mạnh mẽ để xây dựng ứng dụng web.",
-                IsMastered = true,
+                IsMastered = false,
                 CreatedAt = seedDate
             },
             new Word
@@ -144,7 +225,7 @@ public class AppDbContext : DbContext
                 Meaning = "Làm rõ, giải thích rõ hơn",
                 ExampleSentence = "Could you clarify what you mean by that?",
                 ExampleTranslation = "Bạn có thể làm rõ ý bạn muốn nói không?",
-                IsMastered = true,
+                IsMastered = false,
                 CreatedAt = seedDate
             },
             new Word
@@ -174,5 +255,51 @@ public class AppDbContext : DbContext
                 CreatedAt = seedDate
             }
         );
+
+        #region Seed LearnerProfile
+        modelBuilder.Entity<LearnerProfile>().HasData(
+            new LearnerProfile
+            {
+                Id = 1,
+                TargetScore = 650,
+                DailyGoalMinutes = 30,
+                CurrentStage = "S1",
+                PreferredAccent = "en-US",
+                CreatedAt = seedDate
+            }
+        );
+        #endregion
+
+        #region Seed SkillTags
+        modelBuilder.Entity<SkillTag>().HasData(
+            // High-level roots
+            new SkillTag { Id = 1, Code = "VOC.ROOT", Name = "Từ vựng tổng quát", Category = "Vocabulary", ParentId = null },
+            new SkillTag { Id = 2, Code = "GRAM.ROOT", Name = "Ngữ pháp tổng quát", Category = "Grammar", ParentId = null },
+            new SkillTag { Id = 3, Code = "LIS.ROOT", Name = "Kỹ năng nghe", Category = "Listening", ParentId = null },
+            new SkillTag { Id = 4, Code = "READ.ROOT", Name = "Kỹ năng đọc", Category = "Reading", ParentId = null },
+
+            // Vocabulary sub-tags
+            new SkillTag { Id = 5, Code = "VOC.TOEIC_600", Name = "Từ vựng TOEIC 600 Essential Words", Category = "Vocabulary", ParentId = 1 },
+            new SkillTag { Id = 6, Code = "VOC.WORD_FORM", Name = "Cấu tạo từ & Từ loại (Word Form)", Category = "Vocabulary", ParentId = 1 },
+            new SkillTag { Id = 7, Code = "VOC.COLLOCATION", Name = "Cụm từ đi kèm (Collocation)", Category = "Vocabulary", ParentId = 1 },
+
+            // Grammar sub-tags
+            new SkillTag { Id = 8, Code = "GRAM.TENSE", Name = "Các thì trong tiếng Anh", Category = "Grammar", ParentId = 2 },
+            new SkillTag { Id = 9, Code = "GRAM.PARTS_OF_SPEECH", Name = "Từ loại & Vị trí trong câu", Category = "Grammar", ParentId = 2 },
+            new SkillTag { Id = 10, Code = "GRAM.PASSIVE_VOICE", Name = "Câu bị động", Category = "Grammar", ParentId = 2 },
+            new SkillTag { Id = 11, Code = "GRAM.RELATIVE_CLAUSE", Name = "Mệnh đề quan hệ", Category = "Grammar", ParentId = 2 },
+
+            // Listening sub-tags
+            new SkillTag { Id = 12, Code = "LIS.PART1_PHOTO", Name = "Part 1 - Mô tả hình ảnh", Category = "Listening", ParentId = 3 },
+            new SkillTag { Id = 13, Code = "LIS.PART2_QA", Name = "Part 2 - Hỏi đáp", Category = "Listening", ParentId = 3 },
+            new SkillTag { Id = 14, Code = "LIS.PART3_CONV", Name = "Part 3 - Đoạn hội thoại", Category = "Listening", ParentId = 3 },
+            new SkillTag { Id = 15, Code = "LIS.PART4_TALK", Name = "Part 4 - Bài nói ngắn", Category = "Listening", ParentId = 3 },
+
+            // Reading sub-tags
+            new SkillTag { Id = 16, Code = "READ.PART5_INCOMPLETE", Name = "Part 5 - Điền câu", Category = "Reading", ParentId = 4 },
+            new SkillTag { Id = 17, Code = "READ.PART6_TEXT_COMPLETION", Name = "Part 6 - Hoàn thành đoạn văn", Category = "Reading", ParentId = 4 },
+            new SkillTag { Id = 18, Code = "READ.PART7_SINGLE_PASSAGE", Name = "Part 7 - Đoạn đơn", Category = "Reading", ParentId = 4 }
+        );
+        #endregion
     }
 }

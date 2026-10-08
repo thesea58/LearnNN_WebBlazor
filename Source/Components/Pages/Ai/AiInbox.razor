@@ -1,0 +1,680 @@
+@page "/ai/inbox"
+@rendermode InteractiveServer
+@using LearnNN_WebBlazor.Data.Entities
+@using LearnNN_WebBlazor.Models.Ai
+@using LearnNN_WebBlazor.Services.Ai
+@using Microsoft.Extensions.Options
+@inject IAiService AiService
+@inject IPromptBuilder PromptBuilder
+@inject IOptions<AiOptions> AiOptions
+@inject NavigationManager Navigation
+
+<PageTitle>AI Inbox – Hộp Thư Yêu Cầu AI | LearnNN</PageTitle>
+
+<div class="container py-4">
+    @* Page Header *@
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div class="d-flex align-items-center gap-3">
+            <span class="fs-1">📬</span>
+            <div>
+                <h2 class="fw-bold mb-0 text-dark">Hộp Thư Yêu Cầu AI (AI Inbox)</h2>
+                <p class="text-muted mb-0 small">
+                    Quản lý các yêu cầu AI đang chờ xử lý, lịch sử phản hồi và phòng thử nghiệm prompt.
+                </p>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
+            <a href="ai/settings" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-gear-fill"></i> Cài đặt AI
+            </a>
+            <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm" @onclick="LoadDataAsync">
+                <i class="bi bi-arrow-clockwise"></i> Làm mới
+            </button>
+        </div>
+    </div>
+
+    @* Navigation Tabs *@
+    <ul class="nav nav-pills mb-4 gap-2" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "pending" ? "active fw-semibold shadow-sm" : "")"
+                    @onclick='() => SwitchTab("pending")'>
+                <i class="bi bi-hourglass-split me-1"></i> Yêu cầu đang chờ
+                @if (pendingRequests.Count > 0)
+                {
+                    <span class="badge bg-danger ms-1">@pendingRequests.Count</span>
+                }
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "completed" ? "active fw-semibold shadow-sm" : "")"
+                    @onclick='() => SwitchTab("completed")'>
+                <i class="bi bi-check-circle-fill me-1"></i> Lịch sử hoàn thành (@completedRequests.Count)
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "sandbox" ? "active fw-semibold shadow-sm" : "")"
+                    @onclick='() => SwitchTab("sandbox")'>
+                <i class="bi bi-cpu-fill me-1"></i> 🧪 AI Sandbox (Thử nghiệm)
+            </button>
+        </li>
+    </ul>
+
+    @* Tab 1: Pending Requests *@
+    @if (activeTab == "pending")
+    {
+        @if (isLoading)
+        {
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <div class="text-muted mt-2">Đang tải danh sách yêu cầu...</div>
+            </div>
+        }
+        else if (pendingRequests.Count == 0)
+        {
+            <div class="card border-0 bg-light p-5 text-center rounded-4 shadow-sm">
+                <div class="display-6 text-muted mb-3">🎉</div>
+                <h5 class="fw-bold text-dark mb-1">Không có yêu cầu nào đang chờ xử lý!</h5>
+                <p class="text-muted mb-3 small">
+                    Mọi tác vụ AI đều đã hoàn tất. Bạn có thể sang tab <strong>AI Sandbox</strong> để thử nghiệm tính năng hoặc tiếp tục luyện tập.
+                </p>
+                <div>
+                    <button class="btn btn-primary btn-sm px-3 shadow-sm" @onclick='() => SwitchTab("sandbox")'>
+                        <i class="bi bi-play-circle me-1"></i> Thử nghiệm trong AI Sandbox
+                    </button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var req in pendingRequests)
+                {
+                    <div class="col-12" @key="req.Id">
+                        <div class="card border-0 shadow-sm rounded-3 @(req.Status == AiRequestStatus.Invalid ? "border-start border-4 border-danger" : "border-start border-4 border-warning")">
+                            <div class="card-body p-3">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge @(req.Status == AiRequestStatus.Invalid ? "bg-danger" : "bg-warning text-dark")">
+                                            @(req.Status == AiRequestStatus.Invalid ? "Cần sửa lại" : "Đang chờ dán JSON")
+                                        </span>
+                                        <span class="fw-bold text-primary">@req.RequestId</span>
+                                        <span class="badge bg-light text-secondary">@req.Kind</span>
+                                    </div>
+                                    <small class="text-muted">@req.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+
+                                @if (req.Status == AiRequestStatus.Invalid && !string.IsNullOrWhiteSpace(req.ErrorMessage))
+                                {
+                                    <div class="alert alert-danger py-2 px-3 mb-2 small">
+                                        <i class="bi bi-exclamation-triangle-fill me-1"></i> @req.ErrorMessage
+                                    </div>
+                                }
+
+                                <div class="bg-light p-2 rounded small text-muted font-monospace mb-3" style="max-height: 80px; overflow-y: hidden;">
+                                    @(req.PromptText.Length > 200 ? req.PromptText.Substring(0, 200) + "..." : req.PromptText)
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteRequestAsync(req.Id)">
+                                        <i class="bi bi-trash me-1"></i> Xóa
+                                    </button>
+                                    <button class="btn btn-sm btn-primary shadow-sm" @onclick="() => OpenBridgeForRequest(req)">
+                                        <i class="bi bi-clipboard-check me-1"></i> Mở Cầu Nối (Dán Kết Quả)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+
+    @* Tab 2: Completed History *@
+    @if (activeTab == "completed")
+    {
+        @if (completedRequests.Count == 0)
+        {
+            <div class="card border-0 bg-light p-5 text-center rounded-4 shadow-sm">
+                <div class="display-6 text-muted mb-2">📁</div>
+                <h5 class="fw-bold text-dark">Chưa có lịch sử yêu cầu hoàn thành</h5>
+                <p class="text-muted small mb-0">Các yêu cầu AI được xử lý thành công sẽ xuất hiện tại đây.</p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var req in completedRequests)
+                {
+                    <div class="col-12" @key="req.Id">
+                        <div class="card border-0 shadow-sm rounded-3">
+                            <div class="card-body p-3">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-success"><i class="bi bi-check2"></i> Hoàn tất</span>
+                                        <span class="fw-bold text-dark">@req.RequestId</span>
+                                        <span class="badge bg-light text-secondary">@req.Kind</span>
+                                        <span class="badge bg-info bg-opacity-10 text-info">@(req.ModelLabel ?? "Manual")</span>
+                                    </div>
+                                    <small class="text-muted">Hoàn thành: @(req.CompletedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "-")</small>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <button class="btn btn-link btn-sm p-0 text-decoration-none" @onclick="() => ToggleExpandJson(req.Id)">
+                                        <i class="bi @(expandedRequestId == req.Id ? "bi-chevron-up" : "bi-chevron-down") me-1"></i>
+                                        @(expandedRequestId == req.Id ? "Ẩn kết quả JSON" : "Xem kết quả JSON")
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteRequestAsync(req.Id)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+
+                                @if (expandedRequestId == req.Id && !string.IsNullOrWhiteSpace(req.ResponseJson))
+                                {
+                                    <div class="mt-3">
+                                        <pre class="bg-dark text-light p-3 rounded-3 small font-monospace" style="max-height: 250px; overflow-y: auto;">@req.ResponseJson</pre>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+
+    @* Tab 3: AI Sandbox / Testbed *@
+    @if (activeTab == "sandbox")
+    {
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="fs-4">🧪</span>
+                    <h5 class="fw-bold mb-0">Phòng Thử Nghiệm Prompt & Cầu Nối AI (AI Sandbox)</h5>
+                </div>
+                <p class="text-muted small mb-4">
+                    Kiểm tra trực quan toàn bộ quy trình: Tạo Prompt → Mở Modal Cầu nối → Dán phản hồi JSON → Parser khoan dung → Lưu DB & Cache.
+                </p>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">1. Chọn kịch bản thử nghiệm:</label>
+                        <select class="form-select shadow-sm" @bind="sandboxScenario">
+                            <option value="quiz">Giải thích câu hỏi Quiz & Bóc trần bẫy (Quiz Explanation)</option>
+                            <option value="enrich">Làm giàu thông tin từ vựng (Word Enrichment)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">2. Kênh thực thi thử nghiệm:</label>
+                        <div class="d-flex gap-3 align-items-center mt-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="sandboxChannel" id="channelManual"
+                                       value="manual" checked="@(sandboxChannel == "manual")"
+                                       @onchange='() => sandboxChannel = "manual"' />
+                                <label class="form-check-label" for="channelManual">
+                                    <strong>Manual Bridge</strong> (Thủ công)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="sandboxChannel" id="channelAuto"
+                                       value="auto" checked="@(sandboxChannel == "auto")"
+                                       @onchange='() => sandboxChannel = "auto"' />
+                                <label class="form-check-label" for="channelAuto">
+                                    <strong>Gemini API</strong> (Tự động)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Scenario Details *@
+                <div class="card bg-light border-0 rounded-3 p-3 mt-4">
+                    @if (sandboxScenario == "quiz")
+                    {
+                        <div class="small">
+                            <div class="fw-bold text-primary mb-1">Dữ liệu câu hỏi mẫu TOEIC Part 5:</div>
+                            <div class="p-2 bg-white rounded border mb-2 font-monospace">
+                                "The marketing committee requested that all campaign expense reports be submitted ______ Friday afternoon."
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-sm-6"><strong>Lựa chọn đúng:</strong> A. before</div>
+                                <div class="col-sm-6">
+                                    <strong>Người học chọn thử:</strong>
+                                    <select class="form-select form-select-sm d-inline-block w-auto ms-2" @bind="sandboxQuizChosenOption">
+                                        <option value="1">B. during (Chọn SAI để test bẫy)</option>
+                                        <option value="0">A. before (Chọn ĐÚNG)</option>
+                                        <option value="2">C. until (Chọn SAI)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="small">
+                            <div class="fw-bold text-success mb-1">Từ vựng TOEIC cần làm giàu:</div>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control form-control-sm" @bind="sandboxEnrichTerm" placeholder="Nhập từ vựng..." />
+                                </div>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control form-control-sm" @bind="sandboxEnrichPos" placeholder="Từ loại (vd: verb, adjective)..." />
+                                </div>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control form-control-sm" @bind="sandboxEnrichMeaning" placeholder="Nghĩa sơ bộ..." />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="mt-4 d-flex justify-content-end">
+                    <button class="btn btn-primary px-4 fw-semibold shadow-sm d-flex align-items-center gap-2"
+                            disabled="@isExecutingSandbox"
+                            @onclick="RunSandboxTestAsync">
+                        @if (isExecutingSandbox)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                            <span>Đang xử lý...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-play-fill fs-5"></i>
+                            <span>Sinh Prompt & Chạy Thử</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        @* Sandbox Results Display *@
+        @if (sandboxQuizResult != null)
+        {
+            <div class="card border-0 shadow-sm rounded-4 border-start border-4 border-success mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge @(sandboxQuizResult.IsCorrect ? "bg-success" : "bg-danger") fs-6">
+                                @(sandboxQuizResult.IsCorrect ? "Đúng" : "Sai")
+                            </span>
+                            <h5 class="fw-bold mb-0">Kết quả Phân tích Câu hỏi Quiz</h5>
+                        </div>
+                        <span class="badge bg-light text-secondary">Mã: @sandboxQuizResult.RequestId</span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3 h-100">
+                                <strong class="text-primary d-block mb-1">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Tại sao đáp án đúng chuẩn xác:
+                                </strong>
+                                <p class="mb-0 small">@sandboxQuizResult.CorrectAnswerReasonVi</p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3 h-100">
+                                <strong class="text-danger d-block mb-1">
+                                    <i class="bi bi-exclamation-octagon-fill me-1"></i> Loại bẫy phát hiện:
+                                </strong>
+                                <p class="mb-1 small">
+                                    <span class="badge bg-danger bg-opacity-10 text-danger fw-semibold">@sandboxQuizResult.TrapType</span>
+                                </p>
+                                <p class="mb-0 small text-muted">@sandboxQuizResult.WhyDistractorsAreWrongVi</p>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="p-3 bg-info bg-opacity-10 rounded-3">
+                                <div class="fw-bold text-info mb-1">
+                                    <i class="bi bi-lightbulb-fill me-1"></i> Điểm ngữ pháp cốt lõi & Lời khuyên:
+                                </div>
+                                <div class="small mb-1"><strong>Quy tắc:</strong> @sandboxQuizResult.GrammarRuleRef</div>
+                                <div class="small"><strong>Lời khuyên:</strong> @sandboxQuizResult.AdviceForLearnerVi</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (sandboxEnrichResult != null)
+        {
+            <div class="card border-0 shadow-sm rounded-4 border-start border-4 border-primary mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <h4 class="fw-bold mb-0 text-primary">@sandboxEnrichResult.Term</h4>
+                            <span class="badge bg-secondary">@sandboxEnrichResult.PartOfSpeech</span>
+                            <span class="text-muted font-monospace">@sandboxEnrichResult.Phonetic</span>
+                        </div>
+                        <span class="badge bg-light text-secondary">Mã: @sandboxEnrichResult.RequestId</span>
+                    </div>
+
+                    <p class="fs-6 fw-semibold text-dark mb-3">Nghĩa: @sandboxEnrichResult.MeaningVi</p>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <strong class="d-block text-secondary mb-1">🏢 Ví dụ ngữ cảnh công sở:</strong>
+                                <p class="mb-1 fst-italic small">"@sandboxEnrichResult.BusinessExampleEn"</p>
+                                <p class="mb-0 small text-muted">"@sandboxEnrichResult.BusinessExampleVi"</p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3">
+                                <strong class="d-block text-secondary mb-1">💡 Mẹo liên tưởng nhớ nhanh:</strong>
+                                <p class="mb-0 small">@sandboxEnrichResult.VietnameseMnemonic</p>
+                            </div>
+                        </div>
+
+                        @if (sandboxEnrichResult.Collocations.Count > 0)
+                        {
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3">
+                                    <strong class="d-block text-secondary mb-1">🔗 Collocations thông dụng:</strong>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var c in sandboxEnrichResult.Collocations)
+                                        {
+                                            <span class="badge bg-primary bg-opacity-10 text-primary">@c</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (sandboxEnrichResult.WordFamily.Count > 0)
+                        {
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3">
+                                    <strong class="d-block text-secondary mb-1">🌿 Họ từ vựng (Word Family):</strong>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var wf in sandboxEnrichResult.WordFamily)
+                                        {
+                                            <span class="badge bg-success bg-opacity-10 text-success">@wf</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@* Manual Bridge Modal *@
+<AiManualBridgeModal IsVisible="@isBridgeModalVisible"
+                     RequestId="@activeBridgeRequestId"
+                     PromptText="@activeBridgePromptText"
+                     Title="@activeBridgeTitle"
+                     Subtitle="@activeBridgeSubtitle"
+                     ErrorMessage="@bridgeErrorMessage"
+                     FixPrompt="@bridgeFixPrompt"
+                     IsValidating="@isBridgeValidating"
+                     OnSubmitJson="HandleBridgeSubmitAsync"
+                     OnDeferToInbox="HandleBridgeDefer"
+                     OnClose="HandleBridgeClose" />
+
+@code {
+    private string activeTab = "pending";
+    private bool isLoading = true;
+    private List<AiRequest> pendingRequests = new();
+    private List<AiRequest> completedRequests = new();
+    private int? expandedRequestId;
+
+    // Sandbox state
+    private string sandboxScenario = "quiz";
+    private string sandboxChannel = "manual";
+    private int sandboxQuizChosenOption = 1;
+    private string sandboxEnrichTerm = "negotiate";
+    private string sandboxEnrichPos = "verb";
+    private string sandboxEnrichMeaning = "đàm phán, thương lượng";
+    private bool isExecutingSandbox = false;
+
+    private QuizExplanationDto? sandboxQuizResult;
+    private WordEnrichmentDto? sandboxEnrichResult;
+
+    // Modal state
+    private bool isBridgeModalVisible = false;
+    private string activeBridgeRequestId = string.Empty;
+    private string activeBridgePromptText = string.Empty;
+    private string? activeBridgeTitle;
+    private string? activeBridgeSubtitle;
+    private string? bridgeErrorMessage;
+    private string? bridgeFixPrompt;
+    private bool isBridgeValidating = false;
+    private string currentExecutingKind = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+        try
+        {
+            pendingRequests = await AiService.GetRecentRequestsAsync(50, AiRequestStatus.Pending);
+            // Also include Invalid requests in pending so the user can re-submit
+            var invalidRequests = await AiService.GetRecentRequestsAsync(50, AiRequestStatus.Invalid);
+            pendingRequests.AddRange(invalidRequests);
+            pendingRequests = pendingRequests.OrderByDescending(r => r.CreatedAt).ToList();
+
+            completedRequests = await AiService.GetRecentRequestsAsync(30, AiRequestStatus.Completed);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SwitchTab(string tab)
+    {
+        activeTab = tab;
+    }
+
+    private void ToggleExpandJson(int requestId)
+    {
+        expandedRequestId = (expandedRequestId == requestId) ? null : requestId;
+    }
+
+    private async Task DeleteRequestAsync(int id)
+    {
+        await AiService.DeleteRequestAsync(id);
+        await LoadDataAsync();
+    }
+
+    private void OpenBridgeForRequest(AiRequest req)
+    {
+        activeBridgeRequestId = req.RequestId;
+        activeBridgePromptText = req.PromptText;
+        currentExecutingKind = req.Kind;
+        activeBridgeTitle = $"Xử lý yêu cầu: {req.Kind}";
+        activeBridgeSubtitle = $"Yêu cầu được tạo lúc {req.CreatedAt.ToLocalTime():HH:mm dd/MM/yyyy}.";
+        bridgeErrorMessage = req.ErrorMessage;
+        bridgeFixPrompt = null;
+        isBridgeModalVisible = true;
+    }
+
+    private async Task RunSandboxTestAsync()
+    {
+        isExecutingSandbox = true;
+        sandboxQuizResult = null;
+        sandboxEnrichResult = null;
+        bridgeErrorMessage = null;
+        bridgeFixPrompt = null;
+
+        try
+        {
+            RenderedAiPrompt prompt;
+            if (sandboxScenario == "quiz")
+            {
+                var options = new List<string> { "before", "during", "until", "while" };
+                prompt = PromptBuilder.BuildQuizExplanationPrompt(
+                    "The marketing committee requested that all campaign expense reports be submitted ______ Friday afternoon.",
+                    options,
+                    correctIndex: 0,
+                    chosenIndex: sandboxQuizChosenOption,
+                    relatedTerm: "submit"
+                );
+            }
+            else
+            {
+                prompt = PromptBuilder.BuildWordEnrichmentPrompt(
+                    sandboxEnrichTerm,
+                    sandboxEnrichPos,
+                    sandboxEnrichMeaning
+                );
+            }
+
+            activeBridgeRequestId = prompt.RequestId;
+            activeBridgePromptText = prompt.FullPromptText;
+            currentExecutingKind = prompt.Kind;
+
+            if (sandboxChannel == "manual")
+            {
+                // Register request and show modal
+                if (sandboxScenario == "quiz")
+                {
+                    await AiService.RequestAsync<QuizExplanationDto>(prompt);
+                }
+                else
+                {
+                    await AiService.RequestAsync<WordEnrichmentDto>(prompt);
+                }
+
+                activeBridgeTitle = sandboxScenario == "quiz"
+                    ? "Cầu Nối AI – Thử Nghiệm Giải Thích Quiz"
+                    : "Cầu Nối AI – Thử Nghiệm Làm Giàu Từ Vựng";
+                activeBridgeSubtitle = "Sao chép prompt bên dưới vào chatbot web và dán lại kết quả JSON.";
+                isBridgeModalVisible = true;
+            }
+            else
+            {
+                // Auto mode via Gemini API
+                if (sandboxScenario == "quiz")
+                {
+                    var resp = await AiService.RequestAsync<QuizExplanationDto>(prompt);
+                    if (resp.IsSuccess && resp.Data != null)
+                    {
+                        sandboxQuizResult = resp.Data;
+                    }
+                    else if (resp.RequiresManualInput)
+                    {
+                        // Degraded to manual
+                        activeBridgeTitle = "Chuyển sang Cầu Nối Thủ Công (Manual)";
+                        activeBridgeSubtitle = resp.NoticeMessage;
+                        isBridgeModalVisible = true;
+                    }
+                    else
+                    {
+                        bridgeErrorMessage = resp.ErrorMessage;
+                    }
+                }
+                else
+                {
+                    var resp = await AiService.RequestAsync<WordEnrichmentDto>(prompt);
+                    if (resp.IsSuccess && resp.Data != null)
+                    {
+                        sandboxEnrichResult = resp.Data;
+                    }
+                    else if (resp.RequiresManualInput)
+                    {
+                        activeBridgeTitle = "Chuyển sang Cầu Nối Thủ Công (Manual)";
+                        activeBridgeSubtitle = resp.NoticeMessage;
+                        isBridgeModalVisible = true;
+                    }
+                    else
+                    {
+                        bridgeErrorMessage = resp.ErrorMessage;
+                    }
+                }
+            }
+
+            await LoadDataAsync();
+        }
+        finally
+        {
+            isExecutingSandbox = false;
+        }
+    }
+
+    private async Task HandleBridgeSubmitAsync(string pastedRawText)
+    {
+        isBridgeValidating = true;
+        bridgeErrorMessage = null;
+        bridgeFixPrompt = null;
+
+        try
+        {
+            if (currentExecutingKind == "QuizExplanation")
+            {
+                var validation = await AiService.CompleteManualRequestAsync<QuizExplanationDto>(
+                    activeBridgeRequestId, pastedRawText);
+
+                if (validation.IsValid && validation.Data != null)
+                {
+                    sandboxQuizResult = validation.Data;
+                    isBridgeModalVisible = false;
+                    await LoadDataAsync();
+                }
+                else
+                {
+                    bridgeErrorMessage = validation.ErrorMessage;
+                    bridgeFixPrompt = validation.FixPrompt;
+                }
+            }
+            else if (currentExecutingKind == "WordEnrichment")
+            {
+                var validation = await AiService.CompleteManualRequestAsync<WordEnrichmentDto>(
+                    activeBridgeRequestId, pastedRawText);
+
+                if (validation.IsValid && validation.Data != null)
+                {
+                    sandboxEnrichResult = validation.Data;
+                    isBridgeModalVisible = false;
+                    await LoadDataAsync();
+                }
+                else
+                {
+                    bridgeErrorMessage = validation.ErrorMessage;
+                    bridgeFixPrompt = validation.FixPrompt;
+                }
+            }
+            else
+            {
+                // Fallback generic object validation
+                var validation = await AiService.CompleteManualRequestAsync<object>(activeBridgeRequestId, pastedRawText);
+                if (validation.IsValid)
+                {
+                    isBridgeModalVisible = false;
+                    await LoadDataAsync();
+                }
+                else
+                {
+                    bridgeErrorMessage = validation.ErrorMessage;
+                    bridgeFixPrompt = validation.FixPrompt;
+                }
+            }
+        }
+        finally
+        {
+            isBridgeValidating = false;
+        }
+    }
+
+    private void HandleBridgeDefer()
+    {
+        isBridgeModalVisible = false;
+    }
+
+    private void HandleBridgeClose()
+    {
+        isBridgeModalVisible = false;
+    }
+}

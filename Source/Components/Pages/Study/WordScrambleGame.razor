@@ -239,6 +239,8 @@
     private string currentWordClean = string.Empty;
     private List<LetterChipItem> availableChips = new();
     private List<LetterChipItem> userSlots = new();
+    private Guid sessionId = Guid.NewGuid();
+    private DateTime wordStartTime = DateTime.UtcNow;
 
     private int progressPercent => words.Count > 0 ? (int)Math.Round((double)(currentIndex + 1) / words.Count * 100) : 0;
 
@@ -277,6 +279,8 @@
             streakCount = 0;
             correctCount = 0;
             isFinished = false;
+            sessionId = Guid.NewGuid();
+            wordStartTime = DateTime.UtcNow;
 
             if (words.Count > 0)
             {
@@ -378,6 +382,7 @@
     private async Task CheckWordAnswerAsync()
     {
         string userWord = new string(userSlots.Select(s => s.Letter).ToArray());
+        long responseTimeMs = (long)(DateTime.UtcNow - wordStartTime).TotalMilliseconds;
 
         if (userWord == currentWordClean)
         {
@@ -387,6 +392,12 @@
             correctCount++;
             statusMessage = "🎉 Chính xác! Tuyệt vời!";
             statusMessageClass = "alert-success";
+
+            // Record to SRS & AnswerLog (Rating 4)
+            if (currentIndex < words.Count)
+            {
+                await StudyService.RecordScrambleAnswerAsync(sessionId, words[currentIndex].Id, true, responseTimeMs);
+            }
 
             try
             {
@@ -406,6 +417,12 @@
             statusMessage = "❌ Chưa chính xác, hãy thử đổi vị trí chữ cái!";
             statusMessageClass = "alert-danger";
 
+            // Record to SRS & AnswerLog (Rating 2 soft penalty)
+            if (currentIndex < words.Count)
+            {
+                await StudyService.RecordScrambleAnswerAsync(sessionId, words[currentIndex].Id, false, responseTimeMs);
+            }
+
             try
             {
                 await JS.InvokeVoidAsync("studyInterop.playSound", "error");
@@ -414,14 +431,25 @@
         }
     }
 
-    private void SkipWord()
+    private async Task SkipWordAsync()
     {
         streakCount = 0;
+        long responseTimeMs = (long)(DateTime.UtcNow - wordStartTime).TotalMilliseconds;
+        if (currentIndex < words.Count)
+        {
+            await StudyService.RecordScrambleAnswerAsync(sessionId, words[currentIndex].Id, false, responseTimeMs);
+        }
         NextWord();
+    }
+
+    private void SkipWord()
+    {
+        _ = SkipWordAsync();
     }
 
     private void NextWord()
     {
+        wordStartTime = DateTime.UtcNow;
         if (currentIndex < words.Count - 1)
         {
             currentIndex++;

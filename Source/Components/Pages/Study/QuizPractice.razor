@@ -301,6 +301,8 @@
     private int currentIndex = 0;
     private int correctCount = 0;
     private List<QuizQuestionDto> questions = new();
+    private Guid sessionId = Guid.NewGuid();
+    private DateTime questionStartTime = DateTime.UtcNow;
 
     private List<QuizQuestionDto> incorrectQuestions => questions.Where(q => !q.IsCorrect).ToList();
     private int scorePercentage => questions.Count > 0 ? (int)Math.Round((double)correctCount / questions.Count * 100) : 0;
@@ -337,6 +339,8 @@
             correctCount = 0;
             isCompleted = false;
             hasMarkedMastered = false;
+            sessionId = Guid.NewGuid();
+            questionStartTime = DateTime.UtcNow;
         }
         finally
         {
@@ -350,6 +354,11 @@
 
         var q = questions[currentIndex];
         q.SelectedOptionIndex = optionIndex;
+        long responseTimeMs = (long)(DateTime.UtcNow - questionStartTime).TotalMilliseconds;
+
+        // Record answer into AnswerLog and update SRS Spaced Repetition state
+        string chosenText = optionIndex >= 0 && optionIndex < q.Options.Count ? q.Options[optionIndex] : string.Empty;
+        await StudyService.RecordQuizAnswerAsync(sessionId, q.WordId, q.IsCorrect, responseTimeMs, chosenText);
 
         if (q.IsCorrect)
         {
@@ -372,6 +381,7 @@
 
     private void NextQuestion()
     {
+        questionStartTime = DateTime.UtcNow;
         if (currentIndex < questions.Count - 1)
         {
             currentIndex++;

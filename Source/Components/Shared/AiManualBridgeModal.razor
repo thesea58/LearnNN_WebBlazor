@@ -1,0 +1,222 @@
+@using Microsoft.Extensions.Options
+@using LearnNN_WebBlazor.Models.Ai
+@inject IJSRuntime JS
+@inject IOptions<AiOptions> AiConfigOptions
+
+@if (IsVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(15, 23, 42, 0.7); z-index: 1060;" aria-modal="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content shadow-lg border-0 rounded-4">
+                
+                @* Modal Header *@
+                <div class="modal-header bg-gradient bg-primary text-white border-bottom-0 py-3 px-4 rounded-top-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fs-4">🤖</span>
+                        <div>
+                            <h5 class="modal-title fw-bold mb-0">@(Title ?? "Cầu Nối AI Thủ Công (Manual AI Bridge)")</h5>
+                            <small class="text-white-50">Mã yêu cầu: <span class="badge bg-light text-dark fw-semibold">@RequestId</span></small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" aria-label="Close" @onclick="HandleClose"></button>
+                </div>
+
+                @* Modal Body *@
+                <div class="modal-body p-4">
+                    @if (!string.IsNullOrWhiteSpace(Subtitle))
+                    {
+                        <div class="alert alert-info py-2 px-3 mb-3 d-flex align-items-center gap-2 small">
+                            <i class="bi bi-info-circle-fill fs-5"></i>
+                            <span>@Subtitle</span>
+                        </div>
+                    }
+
+                    @* Step 1: Copy Prompt *@
+                    <div class="card border-0 bg-light rounded-3 mb-4 shadow-sm">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-primary">
+                                    <i class="bi bi-1-circle-fill me-1"></i> Bước 1: Sao chép Prompt
+                                </span>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm @(copiedPrompt ? "btn-success" : "btn-primary") shadow-sm"
+                                            @onclick="CopyPromptAsync">
+                                        <i class="bi @(copiedPrompt ? "bi-check2" : "bi-clipboard") me-1"></i>
+                                        @(copiedPrompt ? "Đã sao chép!" : "Sao chép Prompt")
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-dark" @onclick="OpenChatbotTabAsync">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i> Mở Chatbot Web
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="position-relative">
+                                <textarea class="form-control font-monospace small bg-white"
+                                          rows="6"
+                                          readonly
+                                          value="@PromptText"
+                                          style="resize: vertical; font-size: 0.85rem;"></textarea>
+                            </div>
+                            <small class="text-muted mt-1 d-block">
+                                <i class="bi bi-lightning-charge text-warning"></i> Dán nội dung trên vào chatbot (Gemini, ChatGPT, Claude...). Chatbot sẽ trả về một khối JSON.
+                            </small>
+                        </div>
+                    </div>
+
+                    @* Step 2: Paste Response JSON *@
+                    <div class="card border-0 bg-light rounded-3 shadow-sm">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-success">
+                                    <i class="bi bi-2-circle-fill me-1"></i> Bước 2: Dán kết quả JSON vào đây
+                                </span>
+                                @if (!string.IsNullOrWhiteSpace(pastedJson))
+                                {
+                                    <button class="btn btn-link btn-sm text-muted p-0 text-decoration-none" @onclick="() => pastedJson = string.Empty">
+                                        <i class="bi bi-x-circle me-1"></i> Xóa
+                                    </button>
+                                }
+                            </div>
+
+                            <textarea class="form-control font-monospace small @(hasError ? "is-invalid" : "")"
+                                      rows="7"
+                                      placeholder="Dán toàn bộ kết quả trả về từ chatbot vào đây (hỗ trợ cả dạng ```json...``` hoặc có lời chào)..."
+                                      @bind="pastedJson"
+                                      @bind:event="oninput"
+                                      style="resize: vertical; font-size: 0.85rem;"></textarea>
+
+                            @if (hasError)
+                            {
+                                <div class="alert alert-danger mt-3 p-3 rounded-3 small">
+                                    <div class="fw-bold d-flex align-items-center gap-1 mb-1">
+                                        <i class="bi bi-exclamation-triangle-fill"></i> Kết quả chưa đúng định dạng:
+                                    </div>
+                                    <div>@ErrorMessage</div>
+
+                                    @if (!string.IsNullOrWhiteSpace(FixPrompt))
+                                    {
+                                        <div class="mt-2 pt-2 border-top border-danger border-opacity-25 d-flex align-items-center justify-content-between">
+                                            <span>Chatbot trả lời sai cú pháp? Hãy copy prompt sửa lỗi này:</span>
+                                            <button class="btn btn-sm btn-outline-danger shadow-sm" @onclick="CopyFixPromptAsync">
+                                                <i class="bi @(copiedFixPrompt ? "bi-check2" : "bi-arrow-repeat") me-1"></i>
+                                                @(copiedFixPrompt ? "Đã chép prompt sửa!" : "Chép Prompt Sửa Lỗi")
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                @* Modal Footer *@
+                <div class="modal-footer bg-light px-4 py-3 border-top-0 d-flex justify-content-between rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1" @onclick="HandleDeferToInbox">
+                        <i class="bi bi-inbox"></i> Để sau (Lưu vào AI Inbox)
+                    </button>
+
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary px-3" @onclick="HandleClose">
+                            Đóng
+                        </button>
+                        <button type="button"
+                                class="btn btn-success px-4 fw-semibold shadow-sm d-flex align-items-center gap-2"
+                                disabled="@(string.IsNullOrWhiteSpace(pastedJson) || IsValidating)"
+                                @onclick="HandleSubmitAsync">
+                            @if (IsValidating)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status"></span>
+                                <span>Đang kiểm tra...</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Xác nhận & Hoàn tất</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public string RequestId { get; set; } = string.Empty;
+    [Parameter] public string PromptText { get; set; } = string.Empty;
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Subtitle { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public string? FixPrompt { get; set; }
+    [Parameter] public bool IsValidating { get; set; }
+
+    [Parameter] public EventCallback<string> OnSubmitJson { get; set; }
+    [Parameter] public EventCallback OnDeferToInbox { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private string pastedJson = string.Empty;
+    private bool copiedPrompt = false;
+    private bool copiedFixPrompt = false;
+    private bool hasError => !string.IsNullOrWhiteSpace(ErrorMessage);
+
+    protected override void OnParametersSet()
+    {
+        if (!IsVisible)
+        {
+            pastedJson = string.Empty;
+            copiedPrompt = false;
+            copiedFixPrompt = false;
+        }
+    }
+
+    private async Task CopyPromptAsync()
+    {
+        if (string.IsNullOrWhiteSpace(PromptText)) return;
+        await JS.InvokeVoidAsync("aiBridge.copyText", PromptText);
+        copiedPrompt = true;
+        StateHasChanged();
+
+        await Task.Delay(2000);
+        copiedPrompt = false;
+        StateHasChanged();
+    }
+
+    private async Task CopyFixPromptAsync()
+    {
+        if (string.IsNullOrWhiteSpace(FixPrompt)) return;
+        await JS.InvokeVoidAsync("aiBridge.copyText", FixPrompt);
+        copiedFixPrompt = true;
+        StateHasChanged();
+
+        await Task.Delay(2000);
+        copiedFixPrompt = false;
+        StateHasChanged();
+    }
+
+    private async Task OpenChatbotTabAsync()
+    {
+        string targetUrl = !string.IsNullOrWhiteSpace(AiConfigOptions.Value.PreferredChatbotUrl)
+            ? AiConfigOptions.Value.PreferredChatbotUrl
+            : "https://gemini.google.com/";
+
+        await JS.InvokeVoidAsync("aiBridge.openChatbot", targetUrl);
+    }
+
+    private async Task HandleSubmitAsync()
+    {
+        if (string.IsNullOrWhiteSpace(pastedJson) || IsValidating) return;
+        await OnSubmitJson.InvokeAsync(pastedJson);
+    }
+
+    private async Task HandleDeferToInbox()
+    {
+        await OnDeferToInbox.InvokeAsync();
+    }
+
+    private async Task HandleClose()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

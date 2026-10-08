@@ -192,4 +192,98 @@ a:hover {
 
 .cursor-pointer {
     cursor: pointer;
-}
+}
+
+/* ==========================================================================
+   Multi-View Presentation Modes (Table & Card Grid) - Mobile/Desktop Optimized
+   ========================================================================== */
+
+/* View Mode Switcher (Segmented Control) */
+.view-mode-switcher {
+    background-color: #f1f5f9;
+    padding: 3px;
+    border-radius: 9999px;
+    border: 1px solid var(--border-color);
+}
+
+.view-mode-switcher .btn {
+    border-radius: 9999px !important;
+    font-size: 0.825rem;
+    font-weight: 500;
+    border: none;
+    transition: all 0.15s ease-in-out;
+}
+
+.view-mode-switcher .btn.active {
+    background-color: var(--primary) !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(79, 70, 229, 0.25);
+}
+
+/* Word Card Grid Styling */
+.word-card {
+    border-radius: var(--radius-md) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    border: 1px solid var(--border-color);
+}
+
+@media (hover: hover) {
+    .word-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md) !important;
+        border-color: #cbd5e1;
+    }
+}
+
+/* Active touch feedback for mobile devices (Android / iPhone) */
+@media (hover: none) {
+    .word-card:active {
+        transform: scale(0.995);
+    }
+}
+
+/* Touch-optimized Buttons (Minimum touch target size) */
+.btn-audio-touch {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    min-height: 42px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.12s ease, background-color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-audio-touch:active {
+    transform: scale(0.9);
+}
+
+.btn-mastery-touch {
+    min-height: 42px;
+    font-size: 0.875rem;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-action-touch {
+    min-width: 36px;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Topic Card Grid Styling */
+.topic-card {
+    border-radius: var(--radius-md) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+@media (hover: hover) {
+    .topic-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md) !important;
+        border-color: var(--primary) !important;
+    }
+}
+

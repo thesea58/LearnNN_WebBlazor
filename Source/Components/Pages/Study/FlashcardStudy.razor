@@ -2,12 +2,13 @@
 @page "/study/flashcards/{TopicIdRoute:int?}"
 @rendermode InteractiveServer
 @inject IStudyService StudyService
+@inject ISrsEngineService SrsEngineService
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 
-<PageTitle>Flashcard 3D - Học Từ Vựng 📘</PageTitle>
+<PageTitle>Flashcard 3D - Học Từ Vựng SRS 📘</PageTitle>
 
-<div class="container py-3" style="max-width: 800px;">
+<div class="container py-3" style="max-width: 800px;" tabindex="0" @onkeydown="HandleKeyDown" @ref="containerRef">
     <!-- #region: Top Bar -->
     <div class="d-flex align-items-center justify-content-between mb-3">
         <a href="/study" class="btn btn-outline-secondary btn-sm">
@@ -15,11 +16,17 @@
         </a>
 
         <div class="d-flex align-items-center gap-2">
+            @if (DueOnly == true)
+            {
+                <span class="badge bg-warning-subtle text-dark border border-warning rounded-pill px-3 py-2">
+                    <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Chế độ SRS Đến Hạn
+                </span>
+            }
             <span class="badge bg-light text-dark border px-3 py-2">
                 <i class="bi bi-card-text text-primary me-1"></i>
                 @if (words.Count > 0)
                 {
-                    <span>Từ <strong>@(currentIndex + 1)</strong> / @words.Count</span>
+                    <span>Thẻ <strong>@(currentIndex + 1)</strong> / @words.Count</span>
                 }
                 else
                 {
@@ -45,18 +52,36 @@
     else if (words.Count == 0)
     {
         <div class="card border rounded-3 p-5 text-center bg-white shadow-sm">
-            <div class="display-3 text-muted mb-3">
-                <i class="bi bi-emoji-smile"></i>
+            <div class="display-3 text-success mb-3">
+                <i class="bi bi-patch-check-fill"></i>
             </div>
-            <h4 class="fw-bold text-dark">Không tìm thấy từ vựng nào!</h4>
-            <p class="text-muted">
-                Có thể tất cả từ trong chủ đề này đã được đánh dấu là "Đã thuộc", hoặc chủ đề chưa có từ vựng.
-            </p>
-            <div class="mt-3">
-                <a href="/study" class="btn btn-primary">
-                    <i class="bi bi-arrow-left me-1"></i> Quay lại chọn chủ đề khác
-                </a>
-            </div>
+            @if (DueOnly == true)
+            {
+                <h4 class="fw-bold text-dark">Tuyệt vời! Không có từ nào đến hạn ôn tập 🎉</h4>
+                <p class="text-muted">
+                    Bạn đã hoàn thành toàn bộ nhiệm vụ ôn tập ngắt quãng hôm nay. Hãy học thêm từ mới để mở rộng vốn từ nhé!
+                </p>
+                <div class="mt-3 d-flex justify-content-center gap-2">
+                    <a href="/study/flashcards?unmastered=true" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Học từ mới ngay
+                    </a>
+                    <a href="/study" class="btn btn-outline-secondary">
+                        <i class="bi bi-house me-1"></i> Trở về Hub
+                    </a>
+                </div>
+            }
+            else
+            {
+                <h4 class="fw-bold text-dark">Không tìm thấy từ vựng nào!</h4>
+                <p class="text-muted">
+                    Có thể tất cả từ trong chủ đề này đã được đánh dấu là "Đã thuộc", hoặc chủ đề chưa có từ vựng.
+                </p>
+                <div class="mt-3">
+                    <a href="/study" class="btn btn-primary">
+                        <i class="bi bi-arrow-left me-1"></i> Quay lại chọn chủ đề khác
+                    </a>
+                </div>
+            }
         </div>
     }
     else if (isCompleted)
@@ -68,27 +93,27 @@
             </div>
             <h2 class="fw-bold text-dark mb-2">Tuyệt vời! Bạn đã hoàn thành phiên học 🎉</h2>
             <p class="text-muted mb-4">
-                Bạn đã lướt qua toàn bộ <strong>@words.Count</strong> thẻ từ vựng trong lượt này.
+                Bạn đã lướt qua toàn bộ <strong>@words.Count</strong> lượt thẻ trong phiên ôn tập này.
             </p>
 
             <div class="row g-3 justify-content-center mb-4" style="max-width: 500px; margin: 0 auto;">
                 <div class="col-6">
                     <div class="card bg-success-subtle border-0 p-3 rounded-3">
                         <h3 class="fw-bold text-success mb-0">@sessionMasteredCount</h3>
-                        <small class="text-success fw-semibold">Đã đánh dấu thuộc</small>
+                        <small class="text-success fw-semibold">Đã đạt thành thạo (≥21 ngày)</small>
                     </div>
                 </div>
                 <div class="col-6">
-                    <div class="card bg-warning-subtle border-0 p-3 rounded-3">
-                        <h3 class="fw-bold text-warning mb-0">@(words.Count - sessionMasteredCount)</h3>
-                        <small class="text-warning fw-semibold">Cần ôn lại</small>
+                    <div class="card bg-info-subtle border-0 p-3 rounded-3">
+                        <h3 class="fw-bold text-info mb-0">@requeuedCount</h3>
+                        <small class="text-info fw-semibold">Số lượt học lại trong phiên</small>
                     </div>
                 </div>
             </div>
 
             <div class="d-flex justify-content-center gap-2">
                 <button class="btn btn-primary px-4 py-2" @onclick="RestartSessionAsync">
-                    <i class="bi bi-arrow-repeat me-1"></i> Học lại danh sách này
+                    <i class="bi bi-arrow-repeat me-1"></i> Học lại phiên này
                 </button>
                 <a href="/study" class="btn btn-outline-secondary px-4 py-2">
                     <i class="bi bi-house me-1"></i> Trở về Trung tâm
@@ -132,7 +157,7 @@
                     </div>
 
                     <div class="text-center text-muted small">
-                        <i class="bi bi-arrow-repeat me-1"></i> Nhấp chuột vào thẻ để xem nghĩa (Mặt sau)
+                        <i class="bi bi-arrow-repeat me-1"></i> Nhấp chuột hoặc bấm <strong>Space</strong> để lật thẻ
                     </div>
                 </div>
 
@@ -168,7 +193,7 @@
                     </div>
 
                     <div class="text-center text-muted small">
-                        <i class="bi bi-arrow-repeat me-1"></i> Nhấp chuột vào thẻ để quay lại mặt trước
+                        <i class="bi bi-arrow-repeat me-1"></i> Nhấp chuột để quay lại mặt trước
                     </div>
                 </div>
             </div>
@@ -176,27 +201,55 @@
         <!-- #endregion: 3D Flashcard Presentation -->
 
         <!-- #region: Controls Toolbar -->
-        <div class="d-flex flex-wrap align-items-center justify-content-center gap-3">
-            <button class="btn btn-outline-secondary px-3" disabled="@(currentIndex == 0)" @onclick="PrevCard">
-                <i class="bi bi-chevron-left me-1"></i> Từ trước
-            </button>
+        @if (!isFlipped)
+        {
+            <div class="d-flex flex-wrap align-items-center justify-content-center gap-3">
+                <button class="btn btn-outline-secondary px-3" disabled="@(currentIndex == 0)" @onclick="PrevCard">
+                    <i class="bi bi-chevron-left me-1"></i> Từ trước
+                </button>
 
-            <button class="btn btn-outline-warning text-dark px-3" @onclick="() => MarkMasteryAsync(false)">
-                <i class="bi bi-hourglass-split me-1 text-warning"></i> Chưa nhớ
-            </button>
+                <button class="btn btn-primary px-4 py-2" @onclick="ToggleFlip">
+                    <i class="bi bi-arrow-repeat me-1"></i> Lật thẻ xem nghĩa (Space)
+                </button>
 
-            <button class="btn btn-outline-primary px-3" @onclick="ToggleFlip">
-                <i class="bi bi-arrow-repeat me-1"></i> Lật thẻ
-            </button>
+                <button class="btn btn-outline-secondary px-3" @onclick="NextCard">
+                    Bỏ qua <i class="bi bi-chevron-right ms-1"></i>
+                </button>
+            </div>
+        }
+        else
+        {
+            <!-- 4 SRS Rating Buttons -->
+            <div class="srs-btn-grid animate__animated animate__fadeIn">
+                <!-- 0: Quên (Blackout) -->
+                <button type="button" class="srs-rating-btn srs-btn-blackout" @onclick="() => RateSrsAsync(0)">
+                    <span><i class="bi bi-x-circle me-1"></i> Quên</span>
+                    <span class="srs-interval-badge">@intervalPreview.BlackoutDays ngày</span>
+                    <span class="srs-key-hint">(Phím 1)</span>
+                </button>
 
-            <button class="btn btn-success px-4" @onclick="() => MarkMasteryAsync(true)">
-                <i class="bi bi-check-circle-fill me-1"></i> Đã nhớ từ này
-            </button>
+                <!-- 3: Khó (Difficult) -->
+                <button type="button" class="srs-rating-btn srs-btn-difficult" @onclick="() => RateSrsAsync(3)">
+                    <span><i class="bi bi-question-circle me-1"></i> Khó</span>
+                    <span class="srs-interval-badge">@intervalPreview.DifficultDays ngày</span>
+                    <span class="srs-key-hint">(Phím 2)</span>
+                </button>
 
-            <button class="btn btn-outline-secondary px-3" @onclick="NextCard">
-                Từ tiếp theo <i class="bi bi-chevron-right ms-1"></i>
-            </button>
-        </div>
+                <!-- 4: Tốt (Good) -->
+                <button type="button" class="srs-rating-btn srs-btn-good" @onclick="() => RateSrsAsync(4)">
+                    <span><i class="bi bi-check-circle me-1"></i> Tốt</span>
+                    <span class="srs-interval-badge">@intervalPreview.GoodDays ngày</span>
+                    <span class="srs-key-hint">(Phím 3 / Space)</span>
+                </button>
+
+                <!-- 5: Dễ (Easy) -->
+                <button type="button" class="srs-rating-btn srs-btn-easy" @onclick="() => RateSrsAsync(5)">
+                    <span><i class="bi bi-stars me-1"></i> Dễ</span>
+                    <span class="srs-interval-badge">@intervalPreview.EasyDays ngày</span>
+                    <span class="srs-key-hint">(Phím 4)</span>
+                </button>
+            </div>
+        }
         <!-- #endregion: Controls Toolbar -->
     }
 </div>
@@ -204,27 +257,18 @@
 @code {
     #region Parameters
 
-    /// <summary>
-    /// Optional topic identifier passed via URL route segment.
-    /// </summary>
     [Parameter]
     public int? TopicIdRoute { get; set; }
 
-    /// <summary>
-    /// Target topic identifier passed via query string.
-    /// </summary>
     [SupplyParameterFromQuery]
     public int? TopicId { get; set; }
 
-    /// <summary>
-    /// Filter to include unmastered words only.
-    /// </summary>
     [SupplyParameterFromQuery]
     public bool? Unmastered { get; set; }
 
-    /// <summary>
-    /// Maximum count of words for the study session.
-    /// </summary>
+    [SupplyParameterFromQuery]
+    public bool? DueOnly { get; set; }
+
     [SupplyParameterFromQuery]
     public int? Count { get; set; }
 
@@ -232,12 +276,18 @@
 
     #region State
 
+    private ElementReference containerRef;
     private bool isLoading = true;
     private bool isCompleted = false;
     private bool isFlipped = false;
     private int currentIndex = 0;
     private int sessionMasteredCount = 0;
+    private int requeuedCount = 0;
     private List<Word> words = new();
+    private SrsIntervalPreviewDto intervalPreview = new();
+
+    private Guid sessionId = Guid.NewGuid();
+    private DateTime cardStartTime = DateTime.UtcNow;
 
     private int progressPercent => words.Count > 0 ? (int)Math.Round((double)(currentIndex + 1) / words.Count * 100) : 0;
 
@@ -250,6 +300,18 @@
         await LoadWordsAsync();
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await containerRef.FocusAsync();
+            }
+            catch { }
+        }
+    }
+
     #endregion
 
     #region Methods
@@ -260,11 +322,14 @@
         try
         {
             int? effectiveTopicId = TopicIdRoute ?? (TopicId > 0 ? TopicId : null);
+            bool isDueOnly = DueOnly ?? false;
+
             var options = new StudySessionOptions
             {
                 TopicId = effectiveTopicId,
-                OnlyUnmastered = Unmastered ?? true,
-                ItemCount = Count ?? 20
+                OnlyUnmastered = Unmastered ?? (!isDueOnly),
+                DueSrsOnly = isDueOnly,
+                ItemCount = Count ?? (isDueOnly ? 50 : 20)
             };
 
             words = await StudyService.GetWordsForStudyAsync(options);
@@ -272,10 +337,26 @@
             isFlipped = false;
             isCompleted = false;
             sessionMasteredCount = 0;
+            requeuedCount = 0;
+            sessionId = Guid.NewGuid();
+
+            if (words.Count > 0)
+            {
+                await UpdateCardIntervalPreviewAsync();
+            }
         }
         finally
         {
             isLoading = false;
+        }
+    }
+
+    private async Task UpdateCardIntervalPreviewAsync()
+    {
+        if (currentIndex < words.Count)
+        {
+            cardStartTime = DateTime.UtcNow;
+            intervalPreview = await SrsEngineService.GetIntervalPreviewAsync(words[currentIndex].Id);
         }
     }
 
@@ -290,33 +371,91 @@
         {
             await JS.InvokeVoidAsync("studyInterop.speakWord", term, "en-US");
         }
-        catch
-        {
-            // Ignore speech synthesis errors gracefully
-        }
+        catch { }
     }
 
-    private async Task MarkMasteryAsync(bool isMastered)
+    private async Task RateSrsAsync(int rating)
     {
-        if (currentIndex < words.Count)
+        if (currentIndex >= words.Count) return;
+
+        var currentWord = words[currentIndex];
+        long responseTimeMs = (long)(DateTime.UtcNow - cardStartTime).TotalMilliseconds;
+
+        // Apply SuperMemo-2 algorithm via SrsEngineService
+        var result = await SrsEngineService.RecordReviewResultAsync(currentWord.Id, rating, sessionId, responseTimeMs);
+
+        if (result.IsMastered)
         {
-            var word = words[currentIndex];
-            word.IsMastered = isMastered;
+            sessionMasteredCount++;
+        }
 
-            // Persist mastery state into database
-            await StudyService.SetWordMasteryAsync(word.Id, isMastered);
-
-            if (isMastered)
+        // Anki-style Intra-session Re-queueing: If rated 0 (Forgot), re-queue word at end of current deck
+        if (rating == 0)
+        {
+            words.Add(currentWord);
+            requeuedCount++;
+            try
             {
-                sessionMasteredCount++;
-                try
-                {
-                    await JS.InvokeVoidAsync("studyInterop.playSound", "success");
-                }
-                catch { }
+                await JS.InvokeVoidAsync("studyInterop.playSound", "error");
             }
+            catch { }
+        }
+        else
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("studyInterop.playSound", "success");
+            }
+            catch { }
+        }
 
-            NextCard();
+        await NextCardAsync();
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (words.Count == 0 || isCompleted) return;
+
+        if (e.Key == " ")
+        {
+            if (!isFlipped)
+            {
+                ToggleFlip();
+            }
+            else
+            {
+                // Space when flipped acts as quick "Good" rating
+                await RateSrsAsync(4);
+            }
+        }
+        else if (isFlipped)
+        {
+            switch (e.Key)
+            {
+                case "1":
+                    await RateSrsAsync(0);
+                    break;
+                case "2":
+                    await RateSrsAsync(3);
+                    break;
+                case "3":
+                    await RateSrsAsync(4);
+                    break;
+                case "4":
+                    await RateSrsAsync(5);
+                    break;
+            }
+        }
+        else
+        {
+            if (e.Key == "ArrowLeft" && currentIndex > 0)
+            {
+                PrevCard();
+            }
+            else if (e.Key == "ArrowRight" && currentIndex < words.Count - 1)
+            {
+                await NextCardAsync();
+            }
         }
     }
 
@@ -326,15 +465,18 @@
         {
             currentIndex--;
             isFlipped = false;
+            cardStartTime = DateTime.UtcNow;
+            _ = UpdateCardIntervalPreviewAsync();
         }
     }
 
-    private void NextCard()
+    private async Task NextCardAsync()
     {
         if (currentIndex < words.Count - 1)
         {
             currentIndex++;
             isFlipped = false;
+            await UpdateCardIntervalPreviewAsync();
         }
         else
         {
@@ -345,6 +487,11 @@
             }
             catch { }
         }
+    }
+
+    private void NextCard()
+    {
+        _ = NextCardAsync();
     }
 
     private async Task RestartSessionAsync()

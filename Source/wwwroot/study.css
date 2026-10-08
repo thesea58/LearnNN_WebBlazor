@@ -289,3 +289,93 @@
     color: #475569;
     flex-shrink: 0;
 }
+
+/* ─── SRS 4-Rating Buttons ────────────────────────────────────────────── */
+.srs-btn-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 580px;
+    margin: 0 auto;
+}
+
+@media (max-width: 576px) {
+    .srs-btn-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.srs-rating-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 0.5rem;
+    border-radius: var(--radius-md);
+    border: 2px solid transparent;
+    font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    cursor: pointer;
+}
+
+.srs-rating-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.srs-rating-btn .srs-interval-badge {
+    font-size: 0.78rem;
+    font-weight: 500;
+    opacity: 0.9;
+    margin-top: 0.2rem;
+}
+
+.srs-rating-btn .srs-key-hint {
+    font-size: 0.7rem;
+    opacity: 0.75;
+    margin-top: 0.15rem;
+}
+
+.srs-btn-blackout {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-color: #fca5a5;
+}
+.srs-btn-blackout:hover {
+    background-color: #fecaca;
+    border-color: #ef4444;
+}
+
+.srs-btn-difficult {
+    background-color: #ffedd5;
+    color: #9a3412;
+    border-color: #fdba74;
+}
+.srs-btn-difficult:hover {
+    background-color: #fed7aa;
+    border-color: #f97316;
+}
+
+.srs-btn-good {
+    background-color: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
+}
+.srs-btn-good:hover {
+    background-color: #bbf7d0;
+    border-color: #22c55e;
+}
+
+.srs-btn-easy {
+    background-color: #e0f2fe;
+    color: #075985;
+    border-color: #7dd3fc;
+}
+.srs-btn-easy:hover {
+    background-color: #bae6fd;
+    border-color: #0ea5e9;
+}
+

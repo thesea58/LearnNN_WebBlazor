@@ -19,6 +19,11 @@ public class StudySessionOptions
     public bool OnlyUnmastered { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets a value indicating whether only words currently due for review via SRS (DueDate &lt;= Today) should be selected.
+    /// </summary>
+    public bool DueSrsOnly { get; set; } = false;
+
+    /// <summary>
     /// Gets or sets the maximum number of words or question items for the study session.
     /// </summary>
     public int ItemCount { get; set; } = 20;

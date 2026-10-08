@@ -13,10 +13,17 @@ namespace LearnNN_WebBlazor.Services;
 public class StudyService : IStudyService
 {
     private readonly IDbContextFactory<AppDbContext> _factory;
+    private readonly ISrsEngineService _srsEngineService;
+    private readonly IMasteryTrackingService _masteryService;
 
-    public StudyService(IDbContextFactory<AppDbContext> factory)
+    public StudyService(
+        IDbContextFactory<AppDbContext> factory,
+        ISrsEngineService srsEngineService,
+        IMasteryTrackingService masteryService)
     {
         _factory = factory;
+        _srsEngineService = srsEngineService;
+        _masteryService = masteryService;
     }
 
     #region Study Operations
@@ -24,6 +31,14 @@ public class StudyService : IStudyService
     /// <inheritdoc />
     public async Task<List<Word>> GetWordsForStudyAsync(StudySessionOptions options)
     {
+        // When SRS Due-only mode is selected, load exclusively words due for spaced review
+        if (options.DueSrsOnly)
+        {
+            var dueWords = await _srsEngineService.GetDueWordsAsync(options.ItemCount, options.TopicId);
+            ShuffleList(dueWords);
+            return dueWords;
+        }
+
         await using var db = await _factory.CreateDbContextAsync();
 
         // A. Build base query with topic and mastery filters
@@ -209,6 +224,30 @@ public class StudyService : IStudyService
         int unmastered = await query.CountAsync(w => !w.IsMastered);
 
         return (total, unmastered);
+    }
+
+    /// <inheritdoc />
+    public async Task RecordQuizAnswerAsync(Guid sessionId, int wordId, bool isCorrect, long responseTimeMs, string? selectedOption = null)
+    {
+        // A. Map game answer to SM-2 rating: 4 for correct, 2 for mistake (soft penalty)
+        int rating = isCorrect ? 4 : 2;
+        await _srsEngineService.RecordReviewResultAsync(wordId, rating, sessionId, responseTimeMs);
+    }
+
+    /// <inheritdoc />
+    public async Task RecordMatchAnswerAsync(Guid sessionId, int wordId, bool isCorrect, long responseTimeMs)
+    {
+        // A. Map matching game answer to SM-2 rating: 4 for correct, 2 for mistake
+        int rating = isCorrect ? 4 : 2;
+        await _srsEngineService.RecordReviewResultAsync(wordId, rating, sessionId, responseTimeMs);
+    }
+
+    /// <inheritdoc />
+    public async Task RecordScrambleAnswerAsync(Guid sessionId, int wordId, bool isCorrect, long responseTimeMs)
+    {
+        // A. Map word scramble answer to SM-2 rating: 4 for correct, 2 for mistake
+        int rating = isCorrect ? 4 : 2;
+        await _srsEngineService.RecordReviewResultAsync(wordId, rating, sessionId, responseTimeMs);
     }
 
     #endregion

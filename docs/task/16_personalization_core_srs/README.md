@@ -17,17 +17,17 @@ Theo kết quả thống nhất thiết kế:
 ## 2. Chi tiết công việc (Work Items)
 
 ### 2.1. Cập nhật Database & Entities (`Source/Data/Entities/`)
-- [ ] **`LearnerProfile.cs`**:
+- [x] **`LearnerProfile.cs`**:
   - `Id`, `TargetScore` (VD: 650), `ExamDate`, `DailyGoalMinutes` (VD: 30), `CurrentStage` (S1->S4), `CreatedAt`, `UpdatedAt`.
-- [ ] **`SkillTag.cs`**:
+- [x] **`SkillTag.cs`**:
   - `Id`, `Code` (UNIQUE: VD `VOC.WORD_FORM`, `GRAM.TENSE.PAST`), `Name`, `Category` (`Vocabulary`, `Grammar`, `Listening`, `Reading`), `ParentId` (hỗ trợ phân cấp cây kỹ năng).
-- [ ] **`TagMastery.cs`**:
+- [x] **`TagMastery.cs`**:
   - `Id`, `SkillTagId`, `MasteryScore` (0.0 -> 1.0), `TotalAttempts`, `CorrectAttempts`, `LastPracticedAt`.
-- [ ] **`WordProgress.cs`** (Thay thế cho `IsMastered` cứng):
+- [x] **`WordProgress.cs`** (Thay thế cho `IsMastered` cứng):
   - `Id`, `WordId`, `DueDate` (ngày cần ôn tập tiếp theo), `IntervalDays` (khoảng cách ngày), `EaseFactor` (mặc định 2.5), `Repetitions` (số lần ôn thành công liên tiếp), `Lapses` (số lần quên/trả lời sai), `LastStudiedAt`.
-- [ ] **`AnswerLog.cs`**:
+- [x] **`AnswerLog.cs`**:
   - `Id`, `SessionId` (Guid), `ItemType` (Word / Question), `ItemId`, `SkillTagId`, `IsCorrect`, `ResponseTimeMs`, `SelectedAnswer`, `CreatedAt`.
-- [ ] **`AppDbContext.cs`**:
+- [x] **`AppDbContext.cs`**:
   - Khai báo các `DbSet<>`, cấu hình Fluent API, Foreign Keys, Index tối ưu hóa truy vấn (`DueDate`, `SkillTagId`, `SessionId`).
   - Tạo EF Core Migration (`AddPersonalizationCoreAndSrs`).
   - Seed dữ liệu danh mục `SkillTag` ban đầu (Bộ từ vựng, Ngữ pháp cơ bản).
@@ -35,27 +35,27 @@ Theo kết quả thống nhất thiết kế:
 ---
 
 ### 2.2. Service Layer – Nghiệp vụ SRS & Vết học tập (`Source/Services/`)
-- [ ] **`ISrsEngineService.cs` & `SrsEngineService.cs`**:
+- [x] **`ISrsEngineService.cs` & `SrsEngineService.cs`**:
   - Triển khai thuật toán **SuperMemo-2 (SM-2)**:
     - Input: Đánh giá chất lượng nhớ (0: Quên hoàn toàn, 3: Nhớ khó khăn, 4: Nhớ tốt, 5: Nhớ rất dễ).
     - Output: `NextDueDate`, `NewIntervalDays`, `NewEaseFactor`.
   - Hàm `GetDueWordsAsync(int limit)`: Lấy danh sách từ đến hạn ôn tập hôm nay (`DueDate <= DateTime.UtcNow`).
   - Hàm `RecordReviewResultAsync(int wordId, int qualityRating)`: Cập nhật tiến độ SRS của từ.
-- [ ] **`IMasteryTrackingService.cs` & `MasteryTrackingService.cs`**:
+- [x] **`IMasteryTrackingService.cs` & `MasteryTrackingService.cs`**:
   - Hàm `LogAnswerAsync(...)`: Ghi nhận nhật ký câu trả lời vào `AnswerLog`.
   - Hàm `UpdateTagMasteryAsync(int skillTagId, bool isCorrect)`: Cập nhật điểm thành thạo lũy tiến theo tag.
   - Hàm `GetSkillRadarAsync()`: Trả về thống kê điểm mạnh / điểm yếu theo từng danh mục.
-- [ ] **Tích hợp toàn diện với `StudyService.cs`**:
+- [x] **Tích hợp toàn diện với `StudyService.cs`**:
   - Nâng cấp các game hiện có (Flashcards, Match, Scramble, Quiz): Mỗi khi người dùng trả lời đúng/sai, tự động ghi `AnswerLog` và cập nhật `WordProgress` tương ứng thay vì chỉ gán `IsMastered = true`.
   - Duy trì tương thích ngược: Thuộc tính `Word.IsMastered` được tự động tính: `IsMastered = IntervalDays >= 21`.
 
 ---
 
 ### 2.3. Cập nhật UI Hiện có (`Source/Components/`)
-- [ ] **Study Hub (`Pages/Study/StudyHub.razor`)**:
+- [x] **Study Hub (`Pages/Study/StudyHub.razor`)**:
   - Bổ sung chỉ số **"Từ vựng đến hạn ôn tập hôm nay" (Due Today)** nổi bật trên màn hình.
   - Thêm nút "Ôn tập ngay" dẫn thẳng vào phiên Flashcard với các từ đến hạn.
-- [ ] **FlashcardStudy (`Pages/Study/FlashcardStudy.razor`)**:
+- [x] **FlashcardStudy (`Pages/Study/FlashcardStudy.razor`)**:
   - Thay đổi nút đánh giá: Thêm các mức độ nhớ chuẩn SRS (Quên / Khó / Tốt / Dễ) để cập nhật chính xác thuật toán SM-2.
 
 ---

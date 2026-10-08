@@ -54,5 +54,33 @@ public interface IStudyService
     /// <returns>A tuple containing total count and unmastered count.</returns>
     Task<(int TotalCount, int UnmasteredCount)> GetStudyWordCountsAsync(int? topicId);
 
+    /// <summary>
+    /// Records the result of a quiz answer attempt, logging user interaction and updating spaced repetition state.
+    /// </summary>
+    /// <param name="sessionId">The quiz session identifier.</param>
+    /// <param name="wordId">The word being tested.</param>
+    /// <param name="isCorrect">Whether the selected option was correct.</param>
+    /// <param name="responseTimeMs">Learner response time in milliseconds.</param>
+    /// <param name="selectedOption">Text of the option selected by user.</param>
+    Task RecordQuizAnswerAsync(Guid sessionId, int wordId, bool isCorrect, long responseTimeMs, string? selectedOption = null);
+
+    /// <summary>
+    /// Records the result of a card matching attempt in the Word Match game.
+    /// </summary>
+    /// <param name="sessionId">The matching game session identifier.</param>
+    /// <param name="wordId">The word tested in the card match.</param>
+    /// <param name="isCorrect">Whether the pair matched correctly.</param>
+    /// <param name="responseTimeMs">Time taken to make the match attempt in milliseconds.</param>
+    Task RecordMatchAnswerAsync(Guid sessionId, int wordId, bool isCorrect, long responseTimeMs);
+
+    /// <summary>
+    /// Records the result of a word scramble spelling attempt.
+    /// </summary>
+    /// <param name="sessionId">The word scramble game session identifier.</param>
+    /// <param name="wordId">The word tested in the scramble.</param>
+    /// <param name="isCorrect">Whether the scrambled word was solved correctly.</param>
+    /// <param name="responseTimeMs">Time taken to submit in milliseconds.</param>
+    Task RecordScrambleAnswerAsync(Guid sessionId, int wordId, bool isCorrect, long responseTimeMs);
+
     #endregion
 }

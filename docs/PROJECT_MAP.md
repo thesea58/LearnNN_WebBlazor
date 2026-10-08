@@ -51,7 +51,9 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📁 09_integration_testing/      #    ✅ Task 09 – Integration & Testing
 │       ├── 📁 12_import_export_data/       #    ✅ Task 12 – Import/Export Data
 │       ├── 📁 13_vocabulary_study_hub/     #    ✅ Task 13 – Vocabulary Study Hub, Games & Quizzes
-│       └── 📁 16_personalization_core_srs/ #    ⬜ Task 16 – Personalization Core & SRS Engine
+│       ├── 📁 16_personalization_core_srs/ #    ✅ Task 16 – Personalization Core & SRS Engine
+│       ├── 📁 17_ai_infrastructure_manual_bridge/ # ✅ Task 17 – AI Infrastructure & Manual Bridge
+│       └── 📁 23_multi_view_mode/          #    ✅ Task 23 – Multi-View Mode (Table & Card Grid)
 │
 ├── 📁 Source/                              # 💻 MÃ NGUỒN CHÍNH (Blazor Web App)
 │   ├── 📄 LearnNN_WebBlazor.csproj         #    Project file (.NET 10)
@@ -63,14 +65,34 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │   ├── 📄 AppDbContext.cs              #    DbContext + Fluent API + Seed Data
 │   │   └── 📁 Entities/                    #    Database Entity classes
 │   │       ├── 📄 Topic.cs                 #    Entity: Chủ đề từ vựng
-│   │       └── 📄 Word.cs                  #    Entity: Từ vựng
+│   │       ├── 📄 Word.cs                  #    Entity: Từ vựng
+│   │       ├── 📄 LearnerProfile.cs        #    Entity: Hồ sơ & mục tiêu người học
+│   │       ├── 📄 SkillTag.cs              #    Entity: Cây kỹ năng phân cấp
+│   │       ├── 📄 TagMastery.cs            #    Entity: Độ thành thạo theo tag
+│   │       ├── 📄 WordProgress.cs          #    Entity: Lịch trình lặp lại ngắt quãng SRS (SM-2)
+│   │       ├── 📄 AnswerLog.cs             #    Entity: Nhật ký vết học tập từng câu
+│   │       └── 📄 AiRequest.cs             #    Entity: Yêu cầu AI đa kênh & cache phản hồi
 │   │
 │   ├── 📁 Models/                          # 📦 ViewModels / DTOs
 │   │   ├── 📄 AlertType.cs                 #    Enum: Kiểu thông báo (Success, Warning, Error, Info)
+│   │   ├── 📄 ViewMode.cs                  #    Enum: Chế độ trình bày danh sách (Table, Card)
 │   │   ├── 📄 WordFilterModel.cs           #    Filter model cho Word (search, paging)
 │   │   ├── 📄 WordCsvRecord.cs             #    Model ánh xạ import/export CSV
+│   │   ├── 📁 Ai/                          #    Models & DTOs cho phân hệ AI
+│   │   │   ├── 📄 AiEnums.cs               #    Enum: AiMode, AiChannel, AiRequestStatus
+│   │   │   ├── 📄 AiOptions.cs             #    Options cấu hình binding từ IConfiguration
+│   │   │   ├── 📄 AiPromptDto.cs           #    DTO định nghĩa & render prompt
+│   │   │   ├── 📄 AiValidationResult.cs    #    Kết quả parse, validate & fix prompt
+│   │   │   ├── 📄 AiServiceResponse.cs     #    Phản hồi thống nhất Auto/Manual/Hybrid
+│   │   │   └── 📄 SandboxDto.cs            #    DTO kiểm thử Quiz Explanation & Word Enrichment
+│   │   ├── 📁 Personalization/             #    Models & DTOs cho SRS & Cá nhân hóa
+│   │   │   ├── 📄 SrsRating.cs             #    Enum: 4 mức nhớ SM-2 (Blackout, Difficult, Good, Easy)
+│   │   │   ├── 📄 SrsReviewResultDto.cs    #    DTO kết quả tính toán SM-2
+│   │   │   ├── 📄 SrsStatisticsDto.cs      #    DTO thống kê tiến độ SRS (Due, Learning, Mastered)
+│   │   │   ├── 📄 SrsIntervalPreviewDto.cs #    DTO dự toán số ngày ôn cho 4 nút flashcard
+│   │   │   └── 📄 SkillRadarDto.cs         #    DTO phân tích năng lực radar kỹ năng
 │   │   └── 📁 Study/                       #    Models & DTOs cho phân hệ học tập & games
-│   │       ├── 📄 StudySessionOptions.cs   #    Tùy chọn cấu hình phiên học (Topic, Filter, Count)
+│   │       ├── 📄 StudySessionOptions.cs   #    Tùy chọn cấu hình phiên học (Topic, Filter, DueSrsOnly)
 │   │       ├── 📄 QuizQuestionDto.cs       #    DTO câu hỏi trắc nghiệm 4 đáp án
 │   │       ├── 📄 MatchCardDto.cs          #    DTO thẻ bài ghép đôi (Word Match)
 │   │       └── 📄 QuizResultDto.cs         #    DTO kết quả & đánh giá bài kiểm tra
@@ -78,8 +100,22 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   ├── 📁 Services/                        # ⚡ Business Logic Layer
 │   │   ├── 📄 IVocabularyService.cs        #    Interface – Contract cho vocabulary CRUD
 │   │   ├── 📄 VocabularyService.cs         #    Implementation – Logic xử lý business
-│   │   ├── 📄 IStudyService.cs             #    Interface – Hoạt động học từ, sinh game & quiz
-│   │   └── 📄 StudyService.cs              #    Implementation – Xáo trộn, sinh distractors, cập nhật tiến độ
+│   │   ├── 📄 ISrsEngineService.cs         #    Interface – Thuật toán SM-2, tính DueDate & thống kê SRS
+│   │   ├── 📄 SrsEngineService.cs          #    Implementation – Lập lịch SRS SM-2 & đồng bộ IsMastered
+│   │   ├── 📄 IMasteryTrackingService.cs   #    Interface – Ghi vết học tập AnswerLog & tính độ thành thạo
+│   │   ├── 📄 MasteryTrackingService.cs    #    Implementation – Xử lý log & công thức Dampened Accuracy
+│   │   ├── 📄 IStudyService.cs             #    Interface – Hoạt động học từ, sinh game, quiz & log vết
+│   │   ├── 📄 StudyService.cs              #    Implementation – Xáo trộn, sinh distractors, cập nhật SRS game
+│   │   └── 📁 Ai/                          #    Services & Executors tích hợp AI
+│   │       ├── 📄 ILenientJsonParser.cs    #    Interface parser JSON khoan dung
+│   │       ├── 📄 LenientJsonParser.cs     #    Implementation parser JSON tự sửa lỗi cú pháp & prompt sửa
+│   │       ├── 📄 IPromptBuilder.cs        #    Interface bộ sinh prompt chuẩn sư phạm
+│   │       ├── 📄 PromptBuilder.cs         #    Implementation sinh prompt & băm SHA256 cache
+│   │       ├── 📄 IAiExecutor.cs           #    Interface điều phối kênh thực thi
+│   │       ├── 📄 ManualBridgeExecutor.cs  #    Kênh cầu nối thủ công copy/paste
+│   │       ├── 📄 GeminiApiExecutor.cs     #    Kênh gọi trực tiếp Google AI Studio REST API
+│   │       ├── 📄 IAiService.cs            #    Interface facade trung tâm
+│   │       └── 📄 AiService.cs             #    Implementation cache-first, đa kênh, tự động hạ cấp
 │   │
 │   ├── 📁 Components/                      # 🎨 UI Layer (Blazor Components)
 │   │   ├── 📄 App.razor                    #    Root component (HTML shell)
@@ -88,7 +124,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │   ├── 📁 Layout/                      #    Layout components
 │   │   │   ├── 📄 MainLayout.razor         #    Layout chính của ứng dụng
 │   │   │   ├── 📄 MainLayout.razor.css     #    Scoped CSS cho MainLayout
-│   │   │   ├── 📄 NavMenu.razor            #    Thanh điều hướng (Home, Study, Words, Topics)
+│   │   │   ├── 📄 NavMenu.razor            #    Thanh điều hướng (Home, Study, Words, Topics, AI Inbox)
 │   │   │   ├── 📄 NavMenu.razor.css        #    Scoped CSS cho NavMenu
 │   │   │   ├── 📄 ReconnectModal.razor     #    Modal reconnect (Blazor Server)
 │   │   │   ├── 📄 ReconnectModal.razor.css #    Scoped CSS cho ReconnectModal
@@ -99,6 +135,9 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │   │   ├── 📄 Weather.razor            #    Demo weather (template mặc định)
 │   │   │   ├── 📄 Error.razor              #    Trang lỗi
 │   │   │   ├── 📄 NotFound.razor           #    Trang 404
+│   │   │   ├── 📁 Ai/                      #    Pages phân hệ AI & Cài đặt
+│   │   │   │   ├── 📄 AiInbox.razor        #    Hộp thư AI, hàng đợi Pending & AI Sandbox (/ai/inbox)
+│   │   │   │   └── 📄 AiSettings.razor     #    Cài đặt chế độ AI, bảo mật key & chatbot web (/ai/settings)
 │   │   │   ├── 📁 Study/                   #    Pages phân hệ học từ vựng & games
 │   │   │   │   ├── 📄 StudyHub.razor       #    Trang Hub trung tâm chọn chủ đề & chế độ học (/study)
 │   │   │   │   ├── 📄 FlashcardStudy.razor #    Trang học Flashcard 3D lật thẻ + TTS (/study/flashcards)
@@ -113,11 +152,15 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │   └── 📁 Shared/                      #    Shared/reusable UI components
 │   │       ├── 📄 AlertMessage.razor       #    Component thông báo kết quả (auto-dismiss)
 │   │       ├── 📄 ConfirmDeleteModal.razor #    Modal xác nhận xóa tái sử dụng cho các trang
-│   │       └── 📄 LoadingSpinner.razor     #    Component loading spinner tái sử dụng
+│   │       ├── 📄 LoadingSpinner.razor     #    Component loading spinner tái sử dụng
+│   │       ├── 📄 ViewModeSwitcher.razor   #    Component chuyển đổi chế độ xem (Dòng / Thẻ icon)
+│   │       └── 📄 AiManualBridgeModal.razor #   Modal cầu nối thủ công copy/paste dùng chung
 │   │
 │   ├── 📁 Migrations/                      # 🔄 EF Core Migration files (auto-generated)
 │   │   ├── 📄 20260922..._InitialCreate.Designer.cs
 │   │   ├── 📄 20260922..._InitialCreate.cs
+│   │   ├── 📄 20261008..._AddPersonalizationCoreAndSrs.cs
+│   │   ├── 📄 20261008..._AddAiInfrastructure.cs
 │   │   └── 📄 AppDbContextModelSnapshot.cs
 │   │
 │   ├── 📁 Properties/                      # ⚙️ Project properties
@@ -127,6 +170,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📄 app.css                      #    Custom CSS styles
 │       ├── 📄 study.css                    #    CSS 3D flip card, matching game, scramble, quiz
 │       ├── 📄 study.js                     #    JS Interop phát âm Web Speech API & audio effects
+│       ├── 📄 ai-bridge.js                 #    JS Interop clipboard 1-chạm & mở tab chatbot
 │       ├── 📄 favicon.png                  #    Favicon
 │       └── 📁 lib/                         #    Third-party client libraries
 │           └── 📁 bootstrap/              #    Bootstrap 5
@@ -261,3 +305,8 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-10-07 | Task 14 – GitHub Actions CI/CD Publish | `.github/workflows/dotnet.yml` | Tối ưu hóa workflow GitHub Actions: build Release, test, dotnet publish ứng dụng Blazor Server .NET 10 và upload artifact lên GitHub Actions |
 | 2026-10-07 | Task 15 – Nghiên cứu & Phác thảo chức năng | `docs/design/draft.md`, `docs/task/README.md` | Hoàn thiện bản thiết kế (v1.0) qua phỏng vấn /grill-me: Single-user, tập trung TOEIC L&R, Manual AI Bridge trước, tích hợp toàn diện SRS, ngân hàng đề import chuẩn |
 | 2026-10-07 | Lập Kế hoạch Công việc & WBS (Task 16-22) | `docs/task/README.md`, `[NEW] docs/task/16_personalization_core_srs/README.md`, `docs/PROJECT_MAP.md` | Phân rã bản thiết kế thành chuỗi 7 task thực thi khoa học (Task 16 -> 22). Tạo đặc tả Task 16 là ưu tiên cao nhất mang tính quyết định toàn bộ hệ thống. |
+| 2026-10-09 | Task 16 – Personalization Core & SRS Engine | `Source/Data/Entities/LearnerProfile.cs`, `SkillTag.cs`, `TagMastery.cs`, `WordProgress.cs`, `AnswerLog.cs`, `Source/Data/AppDbContext.cs`, `Source/Migrations/*AddPersonalizationCoreAndSrs*`, `Source/Models/Personalization/*`, `Source/Services/ISrsEngineService.cs`, `SrsEngineService.cs`, `IMasteryTrackingService.cs`, `MasteryTrackingService.cs`, `Source/Services/StudyService.cs`, `Source/Components/Pages/Study/*`, `Source/wwwroot/study.css` | Triển khai hoàn chỉnh Xương sống cá nhân hóa & Thuật toán lặp lại ngắt quãng SuperMemo-2 (SM-2): 5 Entities mới, cây kỹ năng taxonomy, thuật toán SM-2 kèm bảo vệ chuỗi trong Game, lưu vết AnswerLog, bộ 4 nút Flashcard SRS Anki-style, banner Due Today trên Study Hub |
+| 2026-10-09 | Task 23 – Multi-View Mode (Table & Card Grid) | `Source/Models/ViewMode.cs`, `Source/Components/Shared/ViewModeSwitcher.razor`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/wwwroot/study.js`, `Source/wwwroot/app.css`, `docs/task/23_multi_view_mode/README.md` | Bổ sung tính năng xem danh sách theo 2 kiểu trình bày (Kiểu dòng & Kiểu thẻ icon), tối ưu màn hình cảm ứng Android & iPhone (touch target >= 42px, tự động nhận diện mobile < 768px, lưu localStorage, phát âm audio TTS trực tiếp trên thẻ) |
+| 2026-10-09 | Task 17 – AI Infrastructure & Manual Bridge | `Source/Data/Entities/AiRequest.cs`, `Source/Data/AppDbContext.cs`, `Source/Migrations/*AddAiInfrastructure*`, `Source/Models/Ai/*`, `Source/Services/Ai/*`, `Source/Components/Pages/Ai/*`, `Source/Components/Shared/AiManualBridgeModal.razor`, `Source/wwwroot/ai-bridge.js`, `Source/Components/Layout/NavMenu.razor`, `Source/Program.cs`, `Source/appsettings.json`, `docs/task/17_ai_infrastructure_manual_bridge/README.md` | Xây dựng hạ tầng tích hợp AI đa kênh: 3 chế độ (Auto, Manual, Hybrid tự động hạ cấp an toàn khi 429), bộ parser JSON khoan dung (LenientJsonParser), PromptBuilder băm SHA256 cache, modal copy/paste (AiManualBridgeModal), AI Inbox (/ai/inbox) kèm AI Sandbox và trang Cài đặt AI (/ai/settings) |
+
+

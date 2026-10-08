@@ -17,6 +17,376 @@ namespace LearnNN_WebBlazor.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
 
+            modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.AiRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Channel")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("datetime('now')");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InputHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ModelLabel")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PromptText")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PromptVersion")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RequestId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ResponseJson")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("InputHash");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("AiRequests");
+                });
+
+            modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.AnswerLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("datetime('now')");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ItemType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("ResponseTimeMs")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SelectedAnswer")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("SkillTagId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("SessionId");
+
+                    b.HasIndex("SkillTagId");
+
+                    b.HasIndex("ItemType", "ItemId");
+
+                    b.ToTable("AnswerLogs");
+                });
+
+            modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.LearnerProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("datetime('now')");
+
+                    b.Property<string>("CurrentStage")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DailyGoalMinutes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("ExamDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PreferredAccent")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TargetScore")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LearnerProfiles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CurrentStage = "S1",
+                            DailyGoalMinutes = 30,
+                            PreferredAccent = "en-US",
+                            TargetScore = 650
+                        });
+                });
+
+            modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.SkillTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("SkillTags");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Category = "Vocabulary",
+                            Code = "VOC.ROOT",
+                            Name = "Từ vựng tổng quát"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Category = "Grammar",
+                            Code = "GRAM.ROOT",
+                            Name = "Ngữ pháp tổng quát"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Category = "Listening",
+                            Code = "LIS.ROOT",
+                            Name = "Kỹ năng nghe"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Category = "Reading",
+                            Code = "READ.ROOT",
+                            Name = "Kỹ năng đọc"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Category = "Vocabulary",
+                            Code = "VOC.TOEIC_600",
+                            Name = "Từ vựng TOEIC 600 Essential Words",
+                            ParentId = 1
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Category = "Vocabulary",
+                            Code = "VOC.WORD_FORM",
+                            Name = "Cấu tạo từ & Từ loại (Word Form)",
+                            ParentId = 1
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Category = "Vocabulary",
+                            Code = "VOC.COLLOCATION",
+                            Name = "Cụm từ đi kèm (Collocation)",
+                            ParentId = 1
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Category = "Grammar",
+                            Code = "GRAM.TENSE",
+                            Name = "Các thì trong tiếng Anh",
+                            ParentId = 2
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Category = "Grammar",
+                            Code = "GRAM.PARTS_OF_SPEECH",
+                            Name = "Từ loại & Vị trí trong câu",
+                            ParentId = 2
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Category = "Grammar",
+                            Code = "GRAM.PASSIVE_VOICE",
+                            Name = "Câu bị động",
+                            ParentId = 2
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Category = "Grammar",
+                            Code = "GRAM.RELATIVE_CLAUSE",
+                            Name = "Mệnh đề quan hệ",
+                            ParentId = 2
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Category = "Listening",
+                            Code = "LIS.PART1_PHOTO",
+                            Name = "Part 1 - Mô tả hình ảnh",
+                            ParentId = 3
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Category = "Listening",
+                            Code = "LIS.PART2_QA",
+                            Name = "Part 2 - Hỏi đáp",
+                            ParentId = 3
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Category = "Listening",
+                            Code = "LIS.PART3_CONV",
+                            Name = "Part 3 - Đoạn hội thoại",
+                            ParentId = 3
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Category = "Listening",
+                            Code = "LIS.PART4_TALK",
+                            Name = "Part 4 - Bài nói ngắn",
+                            ParentId = 3
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Category = "Reading",
+                            Code = "READ.PART5_INCOMPLETE",
+                            Name = "Part 5 - Điền câu",
+                            ParentId = 4
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Category = "Reading",
+                            Code = "READ.PART6_TEXT_COMPLETION",
+                            Name = "Part 6 - Hoàn thành đoạn văn",
+                            ParentId = 4
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Category = "Reading",
+                            Code = "READ.PART7_SINGLE_PASSAGE",
+                            Name = "Part 7 - Đoạn đơn",
+                            ParentId = 4
+                        });
+                });
+
+            modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.TagMastery", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CorrectAttempts")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("LastPracticedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("MasteryScore")
+                        .HasColumnType("REAL");
+
+                    b.Property<int>("SkillTagId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TotalAttempts")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SkillTagId");
+
+                    b.ToTable("TagMasteries");
+                });
+
             modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.Topic", b =>
                 {
                     b.Property<int>("Id")
@@ -149,7 +519,7 @@ namespace LearnNN_WebBlazor.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             ExampleSentence = ".NET is a powerful framework for building web applications.",
                             ExampleTranslation = ".NET là một framework mạnh mẽ để xây dựng ứng dụng web.",
-                            IsMastered = true,
+                            IsMastered = false,
                             Meaning = "Khung phần mềm – bộ thư viện/công cụ hỗ trợ xây dựng ứng dụng",
                             PartOfSpeech = "noun",
                             Phonetic = "/ˈfreɪm.wɜːk/",
@@ -188,7 +558,7 @@ namespace LearnNN_WebBlazor.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             ExampleSentence = "Could you clarify what you mean by that?",
                             ExampleTranslation = "Bạn có thể làm rõ ý bạn muốn nói không?",
-                            IsMastered = true,
+                            IsMastered = false,
                             Meaning = "Làm rõ, giải thích rõ hơn",
                             PartOfSpeech = "verb",
                             Phonetic = "/ˈklær.ɪ.faɪ/",
@@ -223,6 +593,82 @@ namespace LearnNN_WebBlazor.Migrations
                         });
                 });
 
+            modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.WordProgress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("EaseFactor")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("REAL")
+                        .HasDefaultValue(2.5);
+
+                    b.Property<int>("IntervalDays")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(1);
+
+                    b.Property<int>("Lapses")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(0);
+
+                    b.Property<DateTime?>("LastStudiedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Repetitions")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("WordId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DueDate");
+
+                    b.HasIndex("WordId")
+                        .IsUnique();
+
+                    b.ToTable("WordProgresses");
+                });
+
+            modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.AnswerLog", b =>
+                {
+                    b.HasOne("LearnNN_WebBlazor.Data.Entities.SkillTag", "SkillTag")
+                        .WithMany("AnswerLogs")
+                        .HasForeignKey("SkillTagId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("SkillTag");
+                });
+
+            modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.SkillTag", b =>
+                {
+                    b.HasOne("LearnNN_WebBlazor.Data.Entities.SkillTag", "ParentTag")
+                        .WithMany("ChildTags")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ParentTag");
+                });
+
+            modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.TagMastery", b =>
+                {
+                    b.HasOne("LearnNN_WebBlazor.Data.Entities.SkillTag", "SkillTag")
+                        .WithMany("TagMasteries")
+                        .HasForeignKey("SkillTagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SkillTag");
+                });
+
             modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.Word", b =>
                 {
                     b.HasOne("LearnNN_WebBlazor.Data.Entities.Topic", "Topic")
@@ -234,9 +680,34 @@ namespace LearnNN_WebBlazor.Migrations
                     b.Navigation("Topic");
                 });
 
+            modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.WordProgress", b =>
+                {
+                    b.HasOne("LearnNN_WebBlazor.Data.Entities.Word", "Word")
+                        .WithOne("WordProgress")
+                        .HasForeignKey("LearnNN_WebBlazor.Data.Entities.WordProgress", "WordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Word");
+                });
+
+            modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.SkillTag", b =>
+                {
+                    b.Navigation("AnswerLogs");
+
+                    b.Navigation("ChildTags");
+
+                    b.Navigation("TagMasteries");
+                });
+
             modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.Topic", b =>
                 {
                     b.Navigation("Words");
+                });
+
+            modelBuilder.Entity("LearnNN_WebBlazor.Data.Entities.Word", b =>
+                {
+                    b.Navigation("WordProgress");
                 });
 #pragma warning restore 612, 618
         }
