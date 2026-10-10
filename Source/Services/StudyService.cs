@@ -250,6 +250,24 @@ public class StudyService : IStudyService
         await _srsEngineService.RecordReviewResultAsync(wordId, rating, sessionId, responseTimeMs);
     }
 
+    /// <inheritdoc />
+    public async Task UpdateAnswerLogTrapTypeAsync(Guid sessionId, int wordId, string trapType)
+    {
+        if (string.IsNullOrWhiteSpace(trapType)) return;
+
+        await using var db = await _factory.CreateDbContextAsync();
+        var log = await db.AnswerLogs
+            .Where(a => a.SessionId == sessionId && a.ItemId == wordId && a.ItemType == "Word")
+            .OrderByDescending(a => a.CreatedAt)
+            .FirstOrDefaultAsync();
+
+        if (log != null)
+        {
+            log.TrapType = trapType;
+            await db.SaveChangesAsync();
+        }
+    }
+
     #endregion
 
     #region Private Helpers

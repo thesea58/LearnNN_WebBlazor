@@ -1,3 +1,5 @@
+using LearnNN_WebBlazor.Models.Ai;
+
 namespace LearnNN_WebBlazor.Models.Study;
 
 /// <summary>
@@ -68,5 +70,21 @@ public class QuizQuestionDto
     /// </summary>
     public string Meaning { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Gets or sets the AI-generated explanation and trap detection analysis for this question.
+    /// </summary>
+    public QuizExplanationDto? Explanation { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the AI explanation card is expanded in the UI.
+    /// </summary>
+    public bool IsExplanationExpanded { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether an AI explanation request is currently loading for this question.
+    /// </summary>
+    public bool IsExplaining { get; set; }
+
     #endregion
 }
+

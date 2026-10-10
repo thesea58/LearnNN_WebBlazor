@@ -1,7 +1,13 @@
 @page "/study/quiz"
 @page "/study/quiz/{TopicIdRoute:int?}"
 @rendermode InteractiveServer
+@using Microsoft.Extensions.Options
+@using LearnNN_WebBlazor.Models.Ai
+@using LearnNN_WebBlazor.Services.Ai
 @inject IStudyService StudyService
+@inject IAiService AiService
+@inject IPromptBuilder PromptBuilder
+@inject IOptions<AiOptions> AiConfigOptions
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 
@@ -126,6 +132,38 @@
                 </a>
             </div>
 
+            <!-- AI Batch Explanation Banner -->
+            @if (incorrectQuestions.Count > 0)
+            {
+                <div class="card border-0 bg-warning-subtle bg-opacity-25 rounded-4 p-3 p-md-4 mb-4 text-start border-start border-4 border-warning shadow-sm">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <div>
+                            <div class="fw-bold text-dark fs-6 mb-1 d-flex align-items-center gap-2">
+                                <span class="fs-5">🤖</span>
+                                <span>Gia Sư AI Phân Tích Lỗi Sai & Bóc Bẫy</span>
+                            </div>
+                            <p class="text-muted small mb-0">
+                                Phát hiện bẫy trắc nghiệm, giải thích ngữ pháp và gợi ý mẹo nhớ cho <strong>@incorrectQuestions.Count câu</strong> bạn đã trả lời chưa chính xác.
+                            </p>
+                        </div>
+                        <button class="btn btn-warning text-dark fw-semibold px-4 py-2 shadow-sm d-inline-flex align-items-center gap-2"
+                                disabled="@isBatchExplaining"
+                                @onclick="ExplainAllIncorrectAsync">
+                            @if (isBatchExplaining)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status"></span>
+                                <span>AI đang phân tích...</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-lightning-charge-fill"></i>
+                                <span>Giải thích tất cả @incorrectQuestions.Count câu sai</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            }
+
             <!-- Detailed Review Accordion -->
             <div class="text-start mt-4 pt-4 border-top">
                 <h5 class="fw-bold text-dark mb-3">
@@ -137,19 +175,41 @@
                     {
                         var q = questions[i];
                         <div class="list-group-item p-3 @(q.IsCorrect ? "bg-light" : "bg-danger-subtle bg-opacity-25")">
-                            <div class="d-flex align-items-center justify-content-between mb-1">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-1">
                                 <span class="fw-bold text-dark">
                                     Câu @(i + 1): <span class="text-primary fs-5">@q.Term</span>
                                     <span class="text-muted small font-monospace">(@q.Phonetic)</span>
                                 </span>
-                                @if (q.IsCorrect)
-                                {
-                                    <span class="badge bg-success"><i class="bi bi-check2"></i> Đúng</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger"><i class="bi bi-x"></i> Sai</span>
-                                }
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (q.IsCorrect)
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check2"></i> Đúng</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger"><i class="bi bi-x"></i> Sai</span>
+                                    }
+
+                                    <button class="btn btn-sm @(q.Explanation != null ? "btn-outline-success" : "btn-outline-primary") shadow-sm d-inline-flex align-items-center gap-1"
+                                            disabled="@q.IsExplaining"
+                                            @onclick="() => ExplainQuestionAsync(q)">
+                                        @if (q.IsExplaining)
+                                        {
+                                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                                        }
+                                        else if (q.Explanation != null)
+                                        {
+                                            <i class="bi bi-robot"></i>
+                                            <span>@(q.IsExplanationExpanded ? "Thu gọn giải thích" : "Xem giải thích AI")</span>
+                                            <i class="bi @(q.IsExplanationExpanded ? "bi-chevron-up" : "bi-chevron-down")"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-robot"></i>
+                                            <span>Bóc bẫy AI</span>
+                                        }
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="small">
@@ -163,6 +223,12 @@
                                     <span>Bạn đã chọn: </span>
                                     <span>@q.Options[q.SelectedOptionIndex]</span>
                                 </div>
+                            }
+
+                            @* Embedded AI Explanation Card *@
+                            @if (q.Explanation != null)
+                            {
+                                <QuizExplanationCard Explanation="q.Explanation" @bind-IsExpanded="q.IsExplanationExpanded" />
                             }
                         </div>
                     }
@@ -262,18 +328,69 @@
                         </div>
                     }
 
-                    <div class="text-end">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                        <div>
+                            @if (currentQ.Explanation == null)
+                            {
+                                <button type="button"
+                                        class="btn btn-outline-primary btn-sm px-3 shadow-sm d-inline-flex align-items-center gap-1"
+                                        disabled="@currentQ.IsExplaining"
+                                        @onclick="() => ExplainQuestionAsync(currentQ)">
+                                    @if (currentQ.IsExplaining)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        <span>AI đang bóc bẫy...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-robot"></i>
+                                        <span>@(currentQ.IsCorrect ? "Giải thích câu này" : "Bóc trần bẫy & Giải thích AI")</span>
+                                    }
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button"
+                                        class="btn btn-primary-subtle text-primary border border-primary-subtle btn-sm px-3 shadow-sm d-inline-flex align-items-center gap-1"
+                                        @onclick="() => currentQ.IsExplanationExpanded = !currentQ.IsExplanationExpanded">
+                                    <i class="bi bi-robot"></i>
+                                    <span>@(currentQ.IsExplanationExpanded ? "Thu gọn giải thích AI" : "Xem giải thích AI")</span>
+                                    <i class="bi @(currentQ.IsExplanationExpanded ? "bi-chevron-up" : "bi-chevron-down") ms-1"></i>
+                                </button>
+                            }
+                        </div>
+
                         <button class="btn btn-primary px-4 py-2" @onclick="NextQuestion">
                             @(currentIndex < questions.Count - 1 ? "Câu tiếp theo" : "Xem kết quả bài test")
                             <i class="bi bi-arrow-right ms-1"></i>
                         </button>
                     </div>
+
+                    @* Inline AI Quiz Explanation Card *@
+                    @if (currentQ.Explanation != null)
+                    {
+                        <QuizExplanationCard Explanation="currentQ.Explanation" @bind-IsExpanded="currentQ.IsExplanationExpanded" />
+                    }
                 </div>
             }
         </div>
         <!-- #endregion: Active Question Card -->
     }
 </div>
+
+<!-- #region: Reusable AI Manual Bridge Modal -->
+<AiManualBridgeModal IsVisible="showAiModal"
+                     RequestId="@activeModalRequestId"
+                     PromptText="@activeModalPromptText"
+                     Title="@activeModalTitle"
+                     Subtitle="@activeModalSubtitle"
+                     ErrorMessage="@modalErrorMessage"
+                     FixPrompt="@activeModalFixPrompt"
+                     IsValidating="isModalValidating"
+                     OnSubmitJson="HandleManualBridgeSubmitAsync"
+                     OnDeferToInbox="HandleDeferToInbox"
+                     OnClose="HandleCloseAiModal" />
+<!-- #endregion: Reusable AI Manual Bridge Modal -->
 
 @code {
     #region Parameters
@@ -308,6 +425,19 @@
     private int scorePercentage => questions.Count > 0 ? (int)Math.Round((double)correctCount / questions.Count * 100) : 0;
     private int progressPercent => questions.Count > 0 ? (int)Math.Round((double)(currentIndex + 1) / questions.Count * 100) : 0;
 
+    // AI Explainer State
+    private bool showAiModal = false;
+    private bool isBatchMode = false;
+    private bool isBatchExplaining = false;
+    private bool isModalValidating = false;
+    private string activeModalRequestId = string.Empty;
+    private string activeModalPromptText = string.Empty;
+    private string? activeModalTitle;
+    private string? activeModalSubtitle;
+    private string? activeModalFixPrompt;
+    private string? modalErrorMessage;
+    private QuizQuestionDto? targetQuestionForManual;
+
     #endregion
 
     #region Lifecycle
@@ -341,6 +471,7 @@
             hasMarkedMastered = false;
             sessionId = Guid.NewGuid();
             questionStartTime = DateTime.UtcNow;
+            showAiModal = false;
         }
         finally
         {
@@ -413,6 +544,8 @@
         foreach (var q in wrongList)
         {
             q.SelectedOptionIndex = -1;
+            q.Explanation = null;
+            q.IsExplaining = false;
         }
 
         questions = wrongList;
@@ -434,6 +567,194 @@
             await JS.InvokeVoidAsync("studyInterop.speakWord", term, "en-US");
         }
         catch { }
+    }
+
+    #endregion
+
+    #region AI Explainer & Trap Detector Handlers
+
+    private async Task ExplainQuestionAsync(QuizQuestionDto q)
+    {
+        if (q.Explanation != null)
+        {
+            q.IsExplanationExpanded = !q.IsExplanationExpanded;
+            return;
+        }
+
+        q.IsExplaining = true;
+        StateHasChanged();
+
+        try
+        {
+            var prompt = PromptBuilder.BuildQuizExplanationPrompt(
+                q.Term,
+                q.Options,
+                q.CorrectOptionIndex,
+                q.SelectedOptionIndex >= 0 ? q.SelectedOptionIndex : q.CorrectOptionIndex,
+                q.Term);
+
+            var response = await AiService.RequestAsync<QuizExplanationDto>(prompt);
+
+            if (response.IsSuccess && response.Data != null)
+            {
+                q.Explanation = response.Data;
+                q.IsExplanationExpanded = true;
+                if (!string.IsNullOrWhiteSpace(response.Data.TrapType))
+                {
+                    await StudyService.UpdateAnswerLogTrapTypeAsync(sessionId, q.WordId, response.Data.TrapType);
+                }
+            }
+            else if (response.RequiresManualInput)
+            {
+                isBatchMode = false;
+                targetQuestionForManual = q;
+                activeModalRequestId = response.RequestId;
+                activeModalPromptText = response.PromptText ?? string.Empty;
+                activeModalTitle = $"Giải Thích & Bóc Bẫy AI – {q.Term}";
+                activeModalSubtitle = "Dán prompt vào chatbot web (Gemini/ChatGPT/Claude) và dán kết quả JSON vào đây.";
+                modalErrorMessage = null;
+                activeModalFixPrompt = null;
+                showAiModal = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            modalErrorMessage = $"Lỗi khi yêu cầu AI: {ex.Message}";
+        }
+        finally
+        {
+            q.IsExplaining = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ExplainAllIncorrectAsync()
+    {
+        var wrongUnexplained = incorrectQuestions.Where(q => q.Explanation == null).ToList();
+        if (wrongUnexplained.Count == 0)
+        {
+            foreach (var q in incorrectQuestions)
+            {
+                q.IsExplanationExpanded = true;
+            }
+            return;
+        }
+
+        isBatchExplaining = true;
+        StateHasChanged();
+
+        try
+        {
+            var batchPrompt = PromptBuilder.BuildBatchQuizExplanationPrompt(wrongUnexplained);
+            var response = await AiService.RequestAsync<BatchQuizExplanationDto>(batchPrompt);
+
+            if (response.IsSuccess && response.Data != null)
+            {
+                ApplyBatchExplanations(response.Data);
+            }
+            else if (response.RequiresManualInput)
+            {
+                isBatchMode = true;
+                targetQuestionForManual = null;
+                activeModalRequestId = response.RequestId;
+                activeModalPromptText = response.PromptText ?? string.Empty;
+                activeModalTitle = $"Giải Thích Hàng Loạt AI ({wrongUnexplained.Count} Câu Sai)";
+                activeModalSubtitle = "Prompt này đã gộp toàn bộ câu sai. Bạn chỉ cần copy/paste 1 lần duy nhất trên chatbot!";
+                modalErrorMessage = null;
+                activeModalFixPrompt = null;
+                showAiModal = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            modalErrorMessage = $"Lỗi khi phân tích hàng loạt: {ex.Message}";
+        }
+        finally
+        {
+            isBatchExplaining = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ApplyBatchExplanations(BatchQuizExplanationDto batchData)
+    {
+        foreach (var item in batchData.Items)
+        {
+            var q = questions.FirstOrDefault(x => x.WordId == item.WordId)
+                 ?? questions.FirstOrDefault(x => string.Equals(x.Term, item.Term, StringComparison.OrdinalIgnoreCase));
+            if (q != null)
+            {
+                q.Explanation = item.ToQuizExplanationDto(batchData.RequestId);
+                q.IsExplanationExpanded = true;
+                if (!string.IsNullOrWhiteSpace(item.TrapType))
+                {
+                    _ = StudyService.UpdateAnswerLogTrapTypeAsync(sessionId, q.WordId, item.TrapType);
+                }
+            }
+        }
+    }
+
+    private async Task HandleManualBridgeSubmitAsync(string pastedJson)
+    {
+        isModalValidating = true;
+        modalErrorMessage = null;
+        activeModalFixPrompt = null;
+        StateHasChanged();
+
+        try
+        {
+            if (isBatchMode)
+            {
+                var validation = await AiService.CompleteManualRequestAsync<BatchQuizExplanationDto>(activeModalRequestId, pastedJson);
+                if (validation.IsValid && validation.Data != null)
+                {
+                    ApplyBatchExplanations(validation.Data);
+                    showAiModal = false;
+                }
+                else
+                {
+                    modalErrorMessage = validation.ErrorMessage;
+                    activeModalFixPrompt = validation.FixPrompt;
+                }
+            }
+            else
+            {
+                var validation = await AiService.CompleteManualRequestAsync<QuizExplanationDto>(activeModalRequestId, pastedJson);
+                if (validation.IsValid && validation.Data != null)
+                {
+                    if (targetQuestionForManual != null)
+                    {
+                        targetQuestionForManual.Explanation = validation.Data;
+                        targetQuestionForManual.IsExplanationExpanded = true;
+                        if (!string.IsNullOrWhiteSpace(validation.Data.TrapType))
+                        {
+                            await StudyService.UpdateAnswerLogTrapTypeAsync(sessionId, targetQuestionForManual.WordId, validation.Data.TrapType);
+                        }
+                    }
+                    showAiModal = false;
+                }
+                else
+                {
+                    modalErrorMessage = validation.ErrorMessage;
+                    activeModalFixPrompt = validation.FixPrompt;
+                }
+            }
+        }
+        finally
+        {
+            isModalValidating = false;
+            StateHasChanged();
+        }
+    }
+
+    private void HandleDeferToInbox()
+    {
+        showAiModal = false;
+    }
+
+    private void HandleCloseAiModal()
+    {
+        showAiModal = false;
     }
 
     #endregion

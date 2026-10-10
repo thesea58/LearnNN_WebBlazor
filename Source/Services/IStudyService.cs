@@ -82,5 +82,13 @@ public interface IStudyService
     /// <param name="responseTimeMs">Time taken to submit in milliseconds.</param>
     Task RecordScrambleAnswerAsync(Guid sessionId, int wordId, bool isCorrect, long responseTimeMs);
 
+    /// <summary>
+    /// Updates the AI-classified trap type in the learner's answer log for a question in a quiz session.
+    /// </summary>
+    /// <param name="sessionId">The quiz session identifier.</param>
+    /// <param name="wordId">The word being tested.</param>
+    /// <param name="trapType">The classified trap type returned by the AI.</param>
+    Task UpdateAnswerLogTrapTypeAsync(Guid sessionId, int wordId, string trapType);
+
     #endregion
 }

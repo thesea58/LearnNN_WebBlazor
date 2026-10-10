@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using LearnNN_WebBlazor.Models.Ai;
+using LearnNN_WebBlazor.Models.Study;
 
 namespace LearnNN_WebBlazor.Services.Ai;
 
@@ -114,6 +115,77 @@ public class PromptBuilder : IPromptBuilder
             Instructions = instructions,
             ContextData = contextSb.ToString(),
             OutputSchemaSpec = "Cấu trúc JSON yêu cầu:",
+            ExampleJson = schemaSpec
+        };
+
+        return Render(def);
+    }
+
+    /// <inheritdoc/>
+    public RenderedAiPrompt BuildBatchQuizExplanationPrompt(
+        IReadOnlyList<QuizQuestionDto> questions)
+    {
+        string requestId = GenerateRequestId("BATCH-QUIZ");
+
+        var contextSb = new StringBuilder();
+        contextSb.AppendLine($"Danh sách {questions.Count} câu hỏi trắc nghiệm cần phân tích và giải thích:");
+        contextSb.AppendLine();
+
+        for (int qIdx = 0; qIdx < questions.Count; qIdx++)
+        {
+            var q = questions[qIdx];
+            char correctLetter = (char)('A' + q.CorrectOptionIndex);
+            char chosenLetter = q.SelectedOptionIndex >= 0 && q.SelectedOptionIndex < q.Options.Count
+                ? (char)('A' + q.SelectedOptionIndex)
+                : '?';
+            bool isCorrect = q.IsCorrect;
+
+            contextSb.AppendLine($"### CÂU HỎI {qIdx + 1} (word_id: {q.WordId}):");
+            contextSb.AppendLine($"- Từ vựng / Thuật ngữ: \"{q.Term}\"");
+            if (!string.IsNullOrWhiteSpace(q.PartOfSpeech)) contextSb.AppendLine($"- Từ loại: {q.PartOfSpeech}");
+            if (!string.IsNullOrWhiteSpace(q.ExampleSentence)) contextSb.AppendLine($"- Câu ví dụ ngữ cảnh: \"{q.ExampleSentence}\"");
+            contextSb.AppendLine("- Các phương án:");
+            for (int i = 0; i < q.Options.Count; i++)
+            {
+                char letter = (char)('A' + i);
+                contextSb.AppendLine($"    {letter}. {q.Options[i]}");
+            }
+            contextSb.AppendLine($"- Đáp án ĐÚNG: {correctLetter}. {(q.CorrectOptionIndex >= 0 && q.CorrectOptionIndex < q.Options.Count ? q.Options[q.CorrectOptionIndex] : q.Meaning)}");
+            contextSb.AppendLine($"- Người học ĐÃ CHỌN: {chosenLetter}. {(q.SelectedOptionIndex >= 0 && q.SelectedOptionIndex < q.Options.Count ? q.Options[q.SelectedOptionIndex] : "Chưa chọn")} ({(isCorrect ? "ĐÚNG" : "SAI")})");
+            contextSb.AppendLine();
+        }
+
+        string instructions =
+            "Hãy đóng vai trò một chuyên gia luyện thi TOEIC giàu kinh nghiệm, phân tích toàn bộ danh sách câu hỏi trên. Với mỗi câu hỏi, hãy chỉ ra: " +
+            "(1) Tại sao đáp án đúng lại chính xác, (2) Loại bẫy của câu hỏi (VD: Từ loại, Từ đồng âm, Dịch nghĩa nhầm, Ngữ cảnh công sở, hoặc 'Không có bẫy'), " +
+            "(3) Phân tích lý do các phương án nhiễu khác sai, (4) Điểm ngữ pháp / cấu trúc cốt lõi, (5) Lời khuyên sư phạm ngắn gọn cho người học.";
+
+        string schemaSpec =
+@"{
+  ""request_id"": """ + requestId + @""",
+  ""items"": [
+    {
+      ""word_id"": <word_id tương ứng của câu>,
+      ""term"": ""<từ vựng của câu>"",
+      ""is_correct"": <true|false>,
+      ""correct_answer_reason_vi"": ""<Giải thích tại sao đáp án đúng lại chính xác>"",
+      ""trap_type"": ""<Loại bẫy: Từ loại, Từ đồng âm, Dịch nghĩa nhầm, Cấu trúc, v.v.>"",
+      ""why_distractors_are_wrong_vi"": ""<Lý do các đáp án nhiễu khác sai>"",
+      ""grammar_rule_ref"": ""<Tên điểm ngữ pháp / cấu trúc cốt lõi>"",
+      ""advice_for_learner_vi"": ""<Lời khuyên ngắn gọn để không bao giờ sai lại lỗi này>""
+    }
+  ]
+}";
+
+        var def = new AiPromptDefinition
+        {
+            RequestId = requestId,
+            Kind = "BatchQuizExplanation",
+            PromptVersion = "v1.0",
+            SystemRole = DefaultRole,
+            Instructions = instructions,
+            ContextData = contextSb.ToString(),
+            OutputSchemaSpec = "Cấu trúc JSON yêu cầu (bắt buộc trả về đúng mảng items tương ứng):",
             ExampleJson = schemaSpec
         };
 

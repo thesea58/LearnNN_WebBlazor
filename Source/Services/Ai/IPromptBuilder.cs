@@ -1,4 +1,5 @@
 using LearnNN_WebBlazor.Models.Ai;
+using LearnNN_WebBlazor.Models.Study;
 
 namespace LearnNN_WebBlazor.Services.Ai;
 
@@ -22,6 +23,12 @@ public interface IPromptBuilder
         int correctIndex,
         int chosenIndex,
         string? relatedTerm = null);
+
+    /// <summary>
+    /// Constructs a standardized batch prompt for explaining multiple quiz questions and analyzing distractors/traps in a single interaction.
+    /// </summary>
+    RenderedAiPrompt BuildBatchQuizExplanationPrompt(
+        IReadOnlyList<QuizQuestionDto> questions);
 
     /// <summary>
     /// Constructs a standardized prompt for lexical enrichment (collocations, word family, business context, mnemonic).

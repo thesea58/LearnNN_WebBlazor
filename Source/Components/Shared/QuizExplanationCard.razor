@@ -1,0 +1,152 @@
+@using LearnNN_WebBlazor.Models.Ai
+
+@if (Explanation != null)
+{
+    <div class="card border-0 shadow-sm rounded-4 mt-3 overflow-hidden quiz-explanation-card animate__animated animate__fadeIn">
+        @* Card Header *@
+        <div class="card-header bg-gradient bg-light border-0 py-3 px-4 d-flex align-items-center justify-content-between cursor-pointer"
+             @onclick="ToggleExpandAsync">
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <span class="fs-5">🤖</span>
+                <span class="fw-bold text-dark">Gia Sư AI Giải Thích & Bóc Bẫy</span>
+
+                @* Trap Type Badge *@
+                @if (!string.IsNullOrWhiteSpace(Explanation.TrapType) && !Explanation.TrapType.Contains("Không có bẫy", StringComparison.OrdinalIgnoreCase))
+                {
+                    <span class="badge @GetTrapBadgeClass(Explanation.TrapType) rounded-pill px-3 py-1 shadow-sm">
+                        <i class="bi bi-shield-exclamation me-1"></i> @Explanation.TrapType
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-1">
+                        <i class="bi bi-info-circle me-1"></i> Kiến thức trọng tâm
+                    </span>
+                }
+            </div>
+
+            <button type="button" class="btn btn-sm btn-link text-muted p-0 text-decoration-none" title="@(IsExpanded ? "Thu gọn" : "Mở rộng")">
+                <i class="bi @(IsExpanded ? "bi-chevron-up" : "bi-chevron-down") fs-6"></i>
+            </button>
+        </div>
+
+        @* Card Body (Collapsible) *@
+        @if (IsExpanded)
+        {
+            <div class="card-body p-4 pt-2">
+                @* 1. Correct Answer Reasoning *@
+                <div class="mb-3 p-3 rounded-3 bg-success-subtle bg-opacity-25 border-start border-4 border-success">
+                    <div class="fw-bold text-success d-flex align-items-center gap-1 mb-1">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Tại sao đáp án này chính xác?</span>
+                    </div>
+                    <div class="text-dark small lh-base">
+                        @Explanation.CorrectAnswerReasonVi
+                    </div>
+                </div>
+
+                @* 2. Distractor & Trap Analysis *@
+                @if (!string.IsNullOrWhiteSpace(Explanation.WhyDistractorsAreWrongVi))
+                {
+                    <div class="mb-3 p-3 rounded-3 bg-warning-subtle bg-opacity-25 border-start border-4 border-warning">
+                        <div class="fw-bold text-dark d-flex align-items-center gap-1 mb-1">
+                            <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                            <span>Bóc trần bẫy & Vì sao các lựa chọn khác sai:</span>
+                        </div>
+                        <div class="text-secondary small lh-base">
+                            @Explanation.WhyDistractorsAreWrongVi
+                        </div>
+                    </div>
+                }
+
+                @* 3. Grammar Rule or Pattern Reference *@
+                @if (!string.IsNullOrWhiteSpace(Explanation.GrammarRuleRef))
+                {
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-primary text-white px-2 py-1 font-monospace">
+                            <i class="bi bi-bookmark-check me-1"></i> Điểm ngữ pháp / Quy tắc:
+                        </span>
+                        <span class="fw-semibold text-dark small">@Explanation.GrammarRuleRef</span>
+                    </div>
+                }
+
+                @* 4. Teacher's Advice / Mnemonic Tip *@
+                @if (!string.IsNullOrWhiteSpace(Explanation.AdviceForLearnerVi))
+                {
+                    <div class="p-3 rounded-3 bg-light border d-flex gap-2">
+                        <div class="fs-4 text-warning">💡</div>
+                        <div class="small">
+                            <strong class="text-primary d-block mb-1">Lời khuyên của Thầy giáo:</strong>
+                            <span class="text-muted fst-italic">"@Explanation.AdviceForLearnerVi"</span>
+                        </div>
+                    </div>
+                }
+
+                @* Request ID metadata footer *@
+                @if (!string.IsNullOrWhiteSpace(Explanation.RequestId))
+                {
+                    <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center text-muted" style="font-size: 0.75rem;">
+                        <span><i class="bi bi-cpu me-1"></i> AI Correlation ID: <code class="text-secondary">@Explanation.RequestId</code></span>
+                        <span><i class="bi bi-check2-all text-success me-1"></i> Đã kiểm định & lưu trữ tự động</span>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+
+@code {
+    #region Parameters
+
+    [Parameter]
+    public QuizExplanationDto? Explanation { get; set; }
+
+    [Parameter]
+    public bool IsExpanded { get; set; } = true;
+
+    [Parameter]
+    public EventCallback<bool> IsExpandedChanged { get; set; }
+
+    #endregion
+
+    #region Methods
+
+    private async Task ToggleExpandAsync()
+    {
+        IsExpanded = !IsExpanded;
+        await IsExpandedChanged.InvokeAsync(IsExpanded);
+    }
+
+    private static string GetTrapBadgeClass(string trapType)
+    {
+        if (string.IsNullOrWhiteSpace(trapType)) return "bg-secondary-subtle text-secondary";
+
+        if (trapType.Contains("từ loại", StringComparison.OrdinalIgnoreCase) ||
+            trapType.Contains("word form", StringComparison.OrdinalIgnoreCase))
+        {
+            return "bg-warning text-dark border border-warning-subtle";
+        }
+
+        if (trapType.Contains("đồng âm", StringComparison.OrdinalIgnoreCase) ||
+            trapType.Contains("sound", StringComparison.OrdinalIgnoreCase))
+        {
+            return "bg-info text-dark border border-info-subtle";
+        }
+
+        if (trapType.Contains("dịch", StringComparison.OrdinalIgnoreCase) ||
+            trapType.Contains("nghĩa", StringComparison.OrdinalIgnoreCase))
+        {
+            return "bg-danger-subtle text-danger border border-danger-subtle";
+        }
+
+        if (trapType.Contains("thì", StringComparison.OrdinalIgnoreCase) ||
+            trapType.Contains("tense", StringComparison.OrdinalIgnoreCase))
+        {
+            return "bg-primary-subtle text-primary border border-primary-subtle";
+        }
+
+        return "bg-dark-subtle text-dark border";
+    }
+
+    #endregion
+}

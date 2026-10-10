@@ -16,6 +16,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 ├── 📁 .agents/                             # ⚙️ Cấu hình AI Agent (rules, skills)
 │   └── 📁 rules/                           #    Các quy tắc hành vi cho AI
 │       ├── 📄 code-commenting.md           #    Quy ước comment code (EN, 5W1H, XML Docs)
+│       ├── 📄 git-commit-convention.md     #    Quy ước commit Git (Conventional Commits, semantic prefix)
 │       ├── 📄 project-architecture.md      #    Quy tắc kiến trúc & file conventions
 │       └── 📄 update-status-task.md
 │
@@ -53,6 +54,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📁 13_vocabulary_study_hub/     #    ✅ Task 13 – Vocabulary Study Hub, Games & Quizzes
 │       ├── 📁 16_personalization_core_srs/ #    ✅ Task 16 – Personalization Core & SRS Engine
 │       ├── 📁 17_ai_infrastructure_manual_bridge/ # ✅ Task 17 – AI Infrastructure & Manual Bridge
+│       ├── 📁 18_ai_quiz_explainer_trap_detector/ # ✅ Task 18 – AI Quiz Explainer & Trap Detector
 │       └── 📁 23_multi_view_mode/          #    ✅ Task 23 – Multi-View Mode (Table & Card Grid)
 │
 ├── 📁 Source/                              # 💻 MÃ NGUỒN CHÍNH (Blazor Web App)
@@ -154,13 +156,15 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │       ├── 📄 ConfirmDeleteModal.razor #    Modal xác nhận xóa tái sử dụng cho các trang
 │   │       ├── 📄 LoadingSpinner.razor     #    Component loading spinner tái sử dụng
 │   │       ├── 📄 ViewModeSwitcher.razor   #    Component chuyển đổi chế độ xem (Dòng / Thẻ icon)
-│   │       └── 📄 AiManualBridgeModal.razor #   Modal cầu nối thủ công copy/paste dùng chung
+│   │       ├── 📄 AiManualBridgeModal.razor #   Modal cầu nối thủ công copy/paste dùng chung
+│   │       └── 📄 QuizExplanationCard.razor #   Thẻ hiển thị giải thích AI & bóc bẫy trắc nghiệm chuyên biệt
 │   │
 │   ├── 📁 Migrations/                      # 🔄 EF Core Migration files (auto-generated)
 │   │   ├── 📄 20260922..._InitialCreate.Designer.cs
 │   │   ├── 📄 20260922..._InitialCreate.cs
 │   │   ├── 📄 20261008..._AddPersonalizationCoreAndSrs.cs
 │   │   ├── 📄 20261008..._AddAiInfrastructure.cs
+│   │   ├── 📄 20261008..._AddTrapTypeToAnswerLog.cs
 │   │   └── 📄 AppDbContextModelSnapshot.cs
 │   │
 │   ├── 📁 Properties/                      # ⚙️ Project properties
@@ -308,5 +312,8 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-10-09 | Task 16 – Personalization Core & SRS Engine | `Source/Data/Entities/LearnerProfile.cs`, `SkillTag.cs`, `TagMastery.cs`, `WordProgress.cs`, `AnswerLog.cs`, `Source/Data/AppDbContext.cs`, `Source/Migrations/*AddPersonalizationCoreAndSrs*`, `Source/Models/Personalization/*`, `Source/Services/ISrsEngineService.cs`, `SrsEngineService.cs`, `IMasteryTrackingService.cs`, `MasteryTrackingService.cs`, `Source/Services/StudyService.cs`, `Source/Components/Pages/Study/*`, `Source/wwwroot/study.css` | Triển khai hoàn chỉnh Xương sống cá nhân hóa & Thuật toán lặp lại ngắt quãng SuperMemo-2 (SM-2): 5 Entities mới, cây kỹ năng taxonomy, thuật toán SM-2 kèm bảo vệ chuỗi trong Game, lưu vết AnswerLog, bộ 4 nút Flashcard SRS Anki-style, banner Due Today trên Study Hub |
 | 2026-10-09 | Task 23 – Multi-View Mode (Table & Card Grid) | `Source/Models/ViewMode.cs`, `Source/Components/Shared/ViewModeSwitcher.razor`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/wwwroot/study.js`, `Source/wwwroot/app.css`, `docs/task/23_multi_view_mode/README.md` | Bổ sung tính năng xem danh sách theo 2 kiểu trình bày (Kiểu dòng & Kiểu thẻ icon), tối ưu màn hình cảm ứng Android & iPhone (touch target >= 42px, tự động nhận diện mobile < 768px, lưu localStorage, phát âm audio TTS trực tiếp trên thẻ) |
 | 2026-10-09 | Task 17 – AI Infrastructure & Manual Bridge | `Source/Data/Entities/AiRequest.cs`, `Source/Data/AppDbContext.cs`, `Source/Migrations/*AddAiInfrastructure*`, `Source/Models/Ai/*`, `Source/Services/Ai/*`, `Source/Components/Pages/Ai/*`, `Source/Components/Shared/AiManualBridgeModal.razor`, `Source/wwwroot/ai-bridge.js`, `Source/Components/Layout/NavMenu.razor`, `Source/Program.cs`, `Source/appsettings.json`, `docs/task/17_ai_infrastructure_manual_bridge/README.md` | Xây dựng hạ tầng tích hợp AI đa kênh: 3 chế độ (Auto, Manual, Hybrid tự động hạ cấp an toàn khi 429), bộ parser JSON khoan dung (LenientJsonParser), PromptBuilder băm SHA256 cache, modal copy/paste (AiManualBridgeModal), AI Inbox (/ai/inbox) kèm AI Sandbox và trang Cài đặt AI (/ai/settings) |
+| 2026-10-09 | Task 18 – AI Quiz Explainer & Trap Detector | `Source/Data/Entities/AnswerLog.cs`, `Source/Migrations/*AddTrapTypeToAnswerLog*`, `Source/Models/Ai/SandboxDto.cs`, `Source/Models/Study/QuizQuestionDto.cs`, `Source/Services/Ai/IPromptBuilder.cs`, `PromptBuilder.cs`, `Source/Services/IStudyService.cs`, `StudyService.cs`, `Source/Components/Shared/QuizExplanationCard.razor`, `Source/Components/Pages/Study/QuizPractice.razor`, `docs/task/18_ai_quiz_explainer_trap_detector/README.md` | Tích hợp AI giải thích câu hỏi và bóc trần bẫy trắc nghiệm trực tiếp trên Quiz (/study/quiz) với cả 3 chế độ (Auto, Manual, Hybrid). Hỗ trợ giải thích đơn lẻ & giải thích hàng loạt câu sai (Batch Explain), lưu vết TrapType vào AnswerLog, thẻ QuizExplanationCard chuyên biệt có nút thu gọn/mở rộng. |
+| 2026-10-09 | Thêm Rule Git Commit Convention | `[NEW] .agents/rules/git-commit-convention.md` | Chuẩn hóa quy ước thông điệp Git Commit (Conventional Commits, semantic prefix, task reference) cho AI Agent và nhà phát triển |
+
 
 

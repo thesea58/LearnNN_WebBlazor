@@ -54,6 +54,13 @@ public class AnswerLog
     public string? SelectedAnswer { get; set; }
 
     /// <summary>
+    /// AI-classified distractor trap type (e.g., "Word Form", "Phonetic Similarity", "Semantic Confusion")
+    /// for identifying recurring learner weaknesses and trap patterns.
+    /// </summary>
+    [MaxLength(100)]
+    public string? TrapType { get; set; }
+
+    /// <summary>
     /// Timestamp when this answer was recorded.
     /// </summary>
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

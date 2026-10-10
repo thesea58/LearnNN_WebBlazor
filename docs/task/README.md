@@ -28,7 +28,7 @@
 | 15 | [Feature Research Draft](../design/draft.md) | Nghiên cứu & phác thảo chức năng app học tiếng Anh cá nhân hóa (lấy gốc → TOEIC), AI Gemini, phỏng vấn /grill-me hoàn tất | 🔴 Cao | Task 13 | ✅ Hoàn thành |
 | 16 | [Personalization Core & SRS](16_personalization_core_srs/) | Bảng phân loại kỹ năng (SkillTag), nhật ký học (AnswerLog), thuật toán lặp lại ngắt quãng SM-2 (WordProgress) | 🔴 Cao nhất | Task 02, 13 | ✅ Hoàn thành |
 | 17 | [AI Infrastructure & Manual Bridge](17_ai_infrastructure_manual_bridge/) | Hạ tầng AI đa kênh: PromptBuilder, Manual AI Bridge Modal, AI Inbox, Parser khoan dung & bảo mật | 🔴 Cao | Task 16 | ✅ Hoàn thành |
-| 18 | AI Quiz Explainer & Trap Detector | Tích hợp AI giải thích câu sai và phân tích bẫy trực tiếp trên Quiz (/study/quiz) qua Manual Bridge | 🔴 Cao | Task 16, 17 | ⬜ Chưa bắt đầu |
+| 18 | [AI Quiz Explainer & Trap Detector](18_ai_quiz_explainer_trap_detector/) | Tích hợp AI giải thích câu sai và phân tích bẫy trực tiếp trên Quiz (/study/quiz) qua Manual Bridge & API | 🔴 Cao | Task 16, 17 | ✅ Hoàn thành |
 | 19 | Import Question Bank & Grammar | Chuẩn hóa định dạng CSV/JSON import đề thi chuẩn, cây bài học ngữ pháp nền tảng cho Part 5/6 | 🟡 TB | Task 16 | ⬜ Chưa bắt đầu |
 | 20 | TOEIC Reading Practice (Part 5-7) | Luyện tập phân hóa theo Part 5, 6, 7; giải thích đáp án & bóc trần bẫy, chế độ làm bài bấm giờ | 🟡 TB | Task 17, 18, 19 | ⬜ Chưa bắt đầu |
 | 21 | TOEIC Listening & Audio Practice | Luyện nghe Part 1-4, Luyện chép chính tả (Dictation) kèm chấm diff, nghe đa giọng (US/UK/AU) | 🟡 TB | Task 16, 20 | ⬜ Chưa bắt đầu |
