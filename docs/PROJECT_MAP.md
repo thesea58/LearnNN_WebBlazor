@@ -37,6 +37,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │   ├── 📄 01_project_overview.md       #    Tổng quan dự án
 │   │   ├── 📄 02_database_design.md        #    Thiết kế database
 │   │   ├── 📄 03_architecture.md           #    Kiến trúc phân tầng
+│   │   ├── 📄 04_deployment_guide.md       #    ★ Hướng dẫn Deploy ra Public & Truy cập Điện thoại
 │   │   ├── 📄 draft.md                     #    DRAFT phác thảo chức năng (lấy gốc → TOEIC, AI Gemini) – chờ review
 │   │   └── 📄 database_design.xml          #    Diagram database (XML)
 │   └── 📁 task/                            #    Quản lý tiến độ công việc
@@ -181,6 +182,11 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │           └── 📁 bootstrap/              #    Bootstrap 5
 │
 ├── 📄 LearnNN_WebBlazor.slnx               # Solution file định dạng XML (.NET 10 / Visual Studio 2022+)
+├── 📄 start-mobile.bat                     # Script 1-Click khởi chạy app & mở Dev Tunnel ra điện thoại (Windows)
+├── 📄 start-mobile.ps1                     # Script PowerShell xử lý Dev Tunnel persistent & sinh mã QR terminal
+├── 📄 Dockerfile                           # Docker multi-stage build cho .NET 10 Blazor Server
+├── 📄 docker-compose.yml                   # Docker Compose cấu hình container & persistent volume
+├── 📄 .dockerignore                        # Docker ignore rules
 ├── 📄 README.md                            # Tài liệu tổng quan dự án & hướng dẫn chạy
 ├── 📄 .gitignore                           # Git ignore rules
 └── 📁 .git/                                # Git repository data
@@ -317,6 +323,8 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-10-09 | Thêm Rule Git Commit Convention | `[NEW] .agents/rules/git-commit-convention.md` | Chuẩn hóa quy ước thông điệp Git Commit (Conventional Commits, semantic prefix, task reference) cho AI Agent và nhà phát triển |
 | 2026-10-11 | Task 18 – QA Audit & Hardening | `Source/Components/Pages/Study/QuizPractice.razor`, `Source/Services/IStudyService.cs`, `Source/Services/StudyService.cs`, `Source/Services/Ai/PromptBuilder.cs`, `docs/task/18_ai_quiz_explainer_trap_detector/README.md` | Gia cố hệ thống theo kết quả rà soát QA: xử lý SQLite batch concurrency transaction, guard click đúp, an toàn biên index & null-check, thông báo lỗi AI trực quan, bộ lọc ngoại lệ JS audio. |
 | 2026-10-11 | Vòng tròn tiến độ học từ vựng cho Topics | `Source/Components/Shared/TopicProgressCircle.razor`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/Services/VocabularyService.cs` | Thêm vòng tròn tỉ lệ học từ vựng dạng donut chart SVG (xám: chưa học/nền, xanh lá: đã thuộc, cam: cần ôn lại) ở góc thẻ và bảng chủ đề (/topics) theo yêu cầu người dùng. |
+| 2026-10-11 | Nghiên cứu Deploy Public & Mobile | `[NEW] docs/design/04_deployment_guide.md`, `[NEW] Dockerfile`, `[NEW] docker-compose.yml`, `[NEW] .dockerignore`, `Source/Program.cs` | Nghiên cứu & xây dựng cẩm nang deploy đa phương án (Cloudflare Tunnel, Wi-Fi LAN, VPS Docker Caddy 24/7, Fly.io) truy cập điện thoại di động (HTTPS, WebSockets, persistent SQLite storage, PWA Add-to-Home-Screen) và cấu hình ForwardedHeaders cho Reverse Proxy. |
+
 
 
 

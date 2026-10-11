@@ -1,0 +1,18 @@
+services:
+  learnnn-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: learnnn-app
+    restart: unless-stopped
+    ports:
+      - "5186:8080"
+    volumes:
+      # Mount thư mục lưu trữ SQLite database vĩnh viễn trên máy chủ
+      - ./data:/app/data
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/LearnNN_VocabDB.db
+      # Cấu hình Gemini API Key nếu dùng chế độ Auto hoặc Hybrid (tùy chọn)
+      # - GEMINI_API_KEY=your_gemini_api_key_here
