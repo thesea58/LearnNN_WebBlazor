@@ -238,29 +238,17 @@
 .quiz-option-btn {
     width: 100%;
     text-align: left;
-    padding: 0.65rem 0.85rem;
+    padding: 1.15rem 1.25rem;
     border-radius: var(--radius-md);
     border: 2px solid var(--border-color);
     background: #ffffff;
-    font-size: 0.95rem;
-    line-height: 1.35;
+    font-size: 1.05rem;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 0.65rem;
-    margin-bottom: 0.5rem;
+    gap: 0.85rem;
+    margin-bottom: 0.85rem;
     cursor: pointer;
-    min-height: 48px;
-    -webkit-tap-highlight-color: transparent;
-}
-
-@media (min-width: 768px) {
-    .quiz-option-btn {
-        padding: 1.1rem 1.25rem;
-        font-size: 1.05rem;
-        gap: 0.85rem;
-        margin-bottom: 0.85rem;
-    }
 }
 
 .quiz-option-btn:hover:not(:disabled) {
@@ -289,40 +277,32 @@
 }
 
 .option-badge {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     background: #f1f5f9;
     color: #475569;
     flex-shrink: 0;
-}
-
-@media (min-width: 768px) {
-    .option-badge {
-        width: 32px;
-        height: 32px;
-        font-size: 0.9rem;
-    }
 }
 
 /* ─── SRS 4-Rating Buttons ────────────────────────────────────────────── */
 .srs-btn-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0.4rem;
+    gap: 0.75rem;
     width: 100%;
     max-width: 580px;
     margin: 0 auto;
 }
 
-@media (min-width: 768px) {
+@media (max-width: 576px) {
     .srs-btn-grid {
-        gap: 0.75rem;
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -331,7 +311,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem 0.25rem;
+    padding: 0.75rem 0.5rem;
     border-radius: var(--radius-md);
     border: 2px solid transparent;
     font-weight: 600;
@@ -339,15 +319,6 @@
     box-shadow: var(--shadow-sm);
     text-align: center;
     cursor: pointer;
-    min-height: 52px;
-    -webkit-tap-highlight-color: transparent;
-}
-
-@media (min-width: 768px) {
-    .srs-rating-btn {
-        padding: 0.75rem 0.5rem;
-        min-height: 60px;
-    }
 }
 
 .srs-rating-btn:hover {
@@ -356,28 +327,16 @@
 }
 
 .srs-rating-btn .srs-interval-badge {
-    font-size: 0.72rem;
+    font-size: 0.78rem;
     font-weight: 500;
     opacity: 0.9;
-    margin-top: 0.15rem;
+    margin-top: 0.2rem;
 }
 
 .srs-rating-btn .srs-key-hint {
     font-size: 0.7rem;
     opacity: 0.75;
     margin-top: 0.15rem;
-    display: none;
-}
-
-@media (min-width: 768px) {
-    .srs-rating-btn .srs-interval-badge {
-        font-size: 0.78rem;
-        margin-top: 0.2rem;
-    }
-
-    .srs-rating-btn .srs-key-hint {
-        display: block;
-    }
 }
 
 .srs-btn-blackout {
@@ -418,85 +377,5 @@
 .srs-btn-easy:hover {
     background-color: #bae6fd;
     border-color: #0ea5e9;
-}
-
-/* ─── Mobile Viewport Responsiveness Overrides (< 768px) ────────────────── */
-@media (max-width: 767.98px) {
-    /* Hub Mode Card */
-    .study-mode-card {
-        padding: 1rem;
-    }
-    .study-mode-card .mode-icon-wrapper {
-        width: 44px;
-        height: 44px;
-        font-size: 1.35rem;
-        margin-bottom: 0.65rem;
-    }
-
-    /* 3D Flashcard */
-    .flashcard-inner {
-        min-height: 250px;
-    }
-    .flashcard-face {
-        padding: 1.25rem 1rem;
-        border-radius: var(--radius-md);
-    }
-    .flashcard-face h1 {
-        font-size: 1.85rem !important;
-        margin-bottom: 0.25rem !important;
-    }
-    .flashcard-face h2 {
-        font-size: 1.35rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-    .speaker-btn {
-        width: 38px;
-        height: 38px;
-    }
-
-    /* Matching Game Grid (2-column layout on phones) */
-    .matching-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 0.5rem !important;
-        margin: 0.75rem 0 !important;
-    }
-    .match-card {
-        min-height: 58px !important;
-        padding: 0.45rem 0.5rem !important;
-        font-size: 0.875rem !important;
-        border-width: 1.5px !important;
-        border-radius: var(--radius-sm) !important;
-    }
-    .match-card .badge {
-        font-size: 0.65rem !important;
-        padding: 0.15rem 0.35rem !important;
-        margin-bottom: 0.25rem !important;
-    }
-
-    /* Word Scramble Game */
-    .scramble-slots {
-        gap: 0.35rem !important;
-        margin: 0.75rem 0 !important;
-    }
-    .letter-slot {
-        width: 36px !important;
-        height: 42px !important;
-        font-size: 1.15rem !important;
-    }
-    .letter-chip {
-        width: 38px !important;
-        height: 42px !important;
-        font-size: 1.15rem !important;
-    }
-
-    /* Quiz Card Mobile */
-    .quiz-card {
-        padding: 1rem 0.85rem !important;
-        border-radius: var(--radius-md) !important;
-    }
-    .quiz-term {
-        font-size: 1.75rem !important;
-        margin-bottom: 0.25rem !important;
-    }
 }
 

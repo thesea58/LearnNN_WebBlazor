@@ -8,25 +8,25 @@
 
 <PageTitle>Flashcard 3D - Học Từ Vựng SRS 📘</PageTitle>
 
-<div class="container-fluid px-1 px-sm-3 py-1 py-md-3" style="max-width: 800px;" tabindex="0" @onkeydown="HandleKeyDown" @ref="containerRef">
+<div class="container py-3" style="max-width: 800px;" tabindex="0" @onkeydown="HandleKeyDown" @ref="containerRef">
     <!-- #region: Top Bar -->
-    <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
-        <a href="/study" class="btn btn-outline-secondary btn-sm py-1 px-2">
-            <i class="bi bi-arrow-left me-1"></i><span class="d-none d-sm-inline">Trở về Hub</span><span class="d-inline d-sm-none">Hub</span>
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <a href="/study" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Trở về Hub
         </a>
 
         <div class="d-flex align-items-center gap-2">
             @if (DueOnly == true)
             {
-                <span class="badge bg-warning-subtle text-dark border border-warning rounded-pill px-2 py-1 small">
-                    <i class="bi bi-lightning-charge-fill text-warning me-1"></i><span class="d-none d-sm-inline">Chế độ </span>SRS
+                <span class="badge bg-warning-subtle text-dark border border-warning rounded-pill px-3 py-2">
+                    <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Chế độ SRS Đến Hạn
                 </span>
             }
-            <span class="badge bg-white text-dark border px-2 py-1 shadow-sm small">
+            <span class="badge bg-light text-dark border px-3 py-2">
                 <i class="bi bi-card-text text-primary me-1"></i>
                 @if (words.Count > 0)
                 {
-                    <span>Thẻ <strong>@(currentIndex + 1)</strong>/@words.Count</span>
+                    <span>Thẻ <strong>@(currentIndex + 1)</strong> / @words.Count</span>
                 }
                 else
                 {
@@ -39,7 +39,7 @@
     @if (words.Count > 0)
     {
         <!-- Progress Bar -->
-        <div class="progress-container mb-2 mb-md-3" style="height: 4px;">
+        <div class="progress-container mb-4" style="height: 6px;">
             <div class="progress-bar-gradient h-100" style="width: @(progressPercent)%"></div>
         </div>
     }
@@ -203,17 +203,17 @@
         <!-- #region: Controls Toolbar -->
         @if (!isFlipped)
         {
-            <div class="d-flex align-items-center justify-content-center gap-2">
-                <button class="btn btn-outline-secondary btn-sm px-2 px-sm-3" disabled="@(currentIndex == 0)" @onclick="PrevCard">
-                    <i class="bi bi-chevron-left me-1"></i> <span class="d-none d-sm-inline">Từ trước</span>
+            <div class="d-flex flex-wrap align-items-center justify-content-center gap-3">
+                <button class="btn btn-outline-secondary px-3" disabled="@(currentIndex == 0)" @onclick="PrevCard">
+                    <i class="bi bi-chevron-left me-1"></i> Từ trước
                 </button>
 
-                <button class="btn btn-primary px-3 px-sm-4 py-2" @onclick="ToggleFlip">
-                    <i class="bi bi-arrow-repeat me-1"></i> Lật thẻ <span class="d-none d-sm-inline">xem nghĩa (Space)</span>
+                <button class="btn btn-primary px-4 py-2" @onclick="ToggleFlip">
+                    <i class="bi bi-arrow-repeat me-1"></i> Lật thẻ xem nghĩa (Space)
                 </button>
 
-                <button class="btn btn-outline-secondary btn-sm px-2 px-sm-3" @onclick="NextCard">
-                    <span class="d-none d-sm-inline">Bỏ qua</span> <i class="bi bi-chevron-right ms-1"></i>
+                <button class="btn btn-outline-secondary px-3" @onclick="NextCard">
+                    Bỏ qua <i class="bi bi-chevron-right ms-1"></i>
                 </button>
             </div>
         }

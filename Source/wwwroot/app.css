@@ -30,11 +30,6 @@ html, body {
     background-color: var(--bg-main);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
-}
-
-button, .btn, .quiz-option-btn, .match-card, .letter-chip, .flashcard-inner, .srs-rating-btn {
-    touch-action: manipulation;
 }
 
 /* Links & Buttons */

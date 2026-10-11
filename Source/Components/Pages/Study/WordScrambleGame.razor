@@ -7,36 +7,36 @@
 
 <PageTitle>Game Xếp Chữ - LearnNN 📘</PageTitle>
 
-<div class="container-fluid px-1 px-sm-3 py-1 py-md-3" style="max-width: 800px;">
+<div class="container py-3" style="max-width: 800px;">
     <!-- #region: Header & Scoreboard -->
-    <div class="d-flex align-items-center justify-content-between gap-1 gap-sm-2 mb-2 flex-wrap">
-        <a href="/study" class="btn btn-outline-secondary btn-sm py-1 px-2">
-            <i class="bi bi-arrow-left me-1"></i><span class="d-none d-sm-inline">Trở về Hub</span><span class="d-inline d-sm-none">Hub</span>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+        <a href="/study" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Trở về Hub
         </a>
 
-        <div class="d-flex align-items-center gap-1 gap-sm-2">
-            <div class="badge bg-white text-dark border px-2 py-1 shadow-sm small">
+        <div class="d-flex align-items-center gap-3">
+            <div class="badge bg-white text-dark border px-3 py-2 fs-6 shadow-sm">
                 <i class="bi bi-star-fill text-warning me-1"></i>
-                <span><strong>@score</strong> <span class="d-none d-sm-inline">điểm</span></span>
+                <span><strong>@score</strong> điểm</span>
             </div>
 
             @if (streakCount > 1)
             {
-                <div class="badge bg-danger text-white border px-2 py-1 shadow-sm small">
+                <div class="badge bg-danger text-white border px-3 py-2 fs-6 shadow-sm">
                     <i class="bi bi-fire me-1"></i>
-                    <span>x<strong>@streakCount</strong>!</span>
+                    <span>Chuỗi <strong>@streakCount</strong>!</span>
                 </div>
             }
 
-            <span class="badge bg-white text-dark border px-2 py-1 shadow-sm small">
-                <strong>@(currentIndex + 1)</strong>/@words.Count
+            <span class="badge bg-light text-dark border px-3 py-2">
+                Từ <strong>@(currentIndex + 1)</strong> / @words.Count
             </span>
         </div>
     </div>
 
     @if (words.Count > 0)
     {
-        <div class="progress-container mb-2 mb-md-3" style="height: 4px;">
+        <div class="progress-container mb-4" style="height: 6px;">
             <div class="progress-bar-gradient h-100" style="width: @(progressPercent)%"></div>
         </div>
     }
@@ -104,29 +104,29 @@
         var currentWord = words[currentIndex];
 
         <!-- #region: Puzzle Card -->
-        <div class="card border rounded-4 p-2 p-sm-3 p-md-4 bg-white shadow-sm mb-3 text-center scramble-card">
-            <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
-                <span class="badge bg-light text-secondary border rounded-pill px-2 py-1 small">
+        <div class="card border rounded-4 p-4 p-md-5 bg-white shadow-sm mb-4 text-center">
+            <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                <span class="badge bg-light text-secondary border rounded-pill px-3 py-1">
                     @(currentWord.Topic?.Name ?? "Chung")
                 </span>
                 @if (!string.IsNullOrWhiteSpace(currentWord.PartOfSpeech))
                 {
-                    <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2 py-1 small">
+                    <span class="badge bg-secondary-subtle text-secondary rounded-pill">
                         @currentWord.PartOfSpeech
                     </span>
                 }
             </div>
 
             <!-- Meaning Prompt -->
-            <div class="text-muted small text-uppercase fw-semibold mb-1" style="font-size: 0.75rem;">Nghĩa tiếng Việt</div>
-            <h3 class="fw-bold text-dark mb-2 fs-5 fs-md-4">@currentWord.Meaning</h3>
+            <div class="text-muted small text-uppercase fw-semibold mb-1">Nghĩa tiếng Việt</div>
+            <h3 class="fw-bold text-dark mb-3">@currentWord.Meaning</h3>
 
             @if (showHint)
             {
-                <div class="d-flex justify-content-center align-items-center gap-2 mb-2 animate__animated animate__fadeIn">
+                <div class="d-flex justify-content-center align-items-center gap-2 mb-3 animate__animated animate__fadeIn">
                     @if (!string.IsNullOrWhiteSpace(currentWord.Phonetic))
                     {
-                        <span class="badge bg-info-subtle text-info font-monospace small px-2 py-1">
+                        <span class="badge bg-info-subtle text-info font-monospace fs-6 px-3 py-1">
                             @currentWord.Phonetic
                         </span>
                     }
@@ -154,13 +154,13 @@
 
             @if (!string.IsNullOrEmpty(statusMessage))
             {
-                <div class="alert @statusMessageClass py-1 px-3 d-inline-block mx-auto mb-2 small animate__animated animate__fadeIn">
+                <div class="alert @statusMessageClass py-2 px-3 d-inline-block mx-auto mb-3 animate__animated animate__fadeIn">
                     @statusMessage
                 </div>
             }
 
             <!-- Scrambled Letter Tray -->
-            <div class="d-flex flex-wrap justify-content-center gap-1 gap-sm-2 my-2">
+            <div class="d-flex flex-wrap justify-content-center gap-2 my-3">
                 @foreach (var chip in availableChips)
                 {
                     <button type="button" class="letter-chip" disabled="@chip.IsUsed"
@@ -171,21 +171,21 @@
             </div>
 
             <!-- Action Controls -->
-            <div class="d-flex flex-wrap justify-content-center gap-1 gap-sm-2 mt-3 pt-2 border-top">
-                <button class="btn btn-outline-secondary btn-sm py-1 px-2" @onclick="ClearInput" disabled="@(userSlots.Count == 0)">
-                    <i class="bi bi-arrow-counterclockwise"></i> <span class="d-none d-sm-inline">Xóa hết</span>
+            <div class="d-flex flex-wrap justify-content-center gap-2 mt-4 pt-3 border-top">
+                <button class="btn btn-outline-secondary btn-sm" @onclick="ClearInput" disabled="@(userSlots.Count == 0)">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Xóa hết
                 </button>
 
-                <button class="btn btn-outline-secondary btn-sm py-1 px-2" @onclick="BackspaceInput" disabled="@(userSlots.Count == 0)">
-                    <i class="bi bi-backspace"></i> <span class="d-none d-sm-inline">Xóa cuối</span>
+                <button class="btn btn-outline-secondary btn-sm" @onclick="BackspaceInput" disabled="@(userSlots.Count == 0)">
+                    <i class="bi bi-backspace me-1"></i> Xóa chữ cuối
                 </button>
 
-                <button class="btn btn-outline-info btn-sm py-1 px-2" @onclick="ToggleHint">
-                    <i class="bi bi-lightbulb"></i> <span class="d-none d-sm-inline">Gợi ý</span>
+                <button class="btn btn-outline-info btn-sm" @onclick="ToggleHint">
+                    <i class="bi bi-lightbulb me-1"></i> Gợi ý
                 </button>
 
-                <button class="btn btn-outline-warning text-dark btn-sm py-1 px-2" @onclick="SkipWord">
-                    <i class="bi bi-skip-forward"></i> <span class="d-none d-sm-inline">Bỏ qua</span>
+                <button class="btn btn-outline-warning text-dark btn-sm" @onclick="SkipWord">
+                    <i class="bi bi-skip-forward me-1"></i> Bỏ qua
                 </button>
             </div>
         </div>
