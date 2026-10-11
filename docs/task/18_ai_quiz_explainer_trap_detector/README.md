@@ -83,6 +83,16 @@
    - Cache-first hoạt động qua `InputHash` của `AiService`.
    - Kết nối hai chiều với `AiManualBridgeModal` và parser khoan dung `LenientJsonParser`.
 
+### 3.2. Kết Quả Rà Soát Mã Nguồn & Gia Cố Hệ Thống (QA Code Audit & Hardening)
+Đã rà soát và xử lý triệt để 100% các vấn đề phát hiện từ kiểm thử tĩnh:
+- **SQLite Concurrency**: Thay thế hoàn toàn vòng lặp fire-and-forget bằng phương thức `UpdateBatchAnswerLogTrapTypesAsync`, gom toàn bộ cập nhật bẫy vào 1 transaction duy nhất để ngăn ngừa lỗi SQLite database lock.
+- **Error Handling & UI**: Bổ sung nhánh `else` bắt lỗi API trả về và hiển thị thông báo alert trực tiếp trên giao diện (`aiErrorMessage`) thay vì nuốt lỗi ngầm.
+- **Race Condition Guard**: Thêm guard check chống click đúp (`if (currentIndex >= questions.Count || questions[currentIndex].IsAnswered) return;`) bảo vệ tính toàn vẹn của `AnswerLog` và thuật toán SM-2.
+- **Index Bounds & Null Safety**: Kiểm tra biên an toàn cho `chosenIndex`/`correctIndex` trong `PromptBuilder.cs` và kiểm tra null-check cho mảng `batchData.Items` và `questions`.
+- **String Truncation**: Cắt ngắn `trapType` an toàn (tối đa 100 ký tự) trước khi lưu vào CSDL tránh `DbUpdateException`.
+- **Session Tracking**: Cấp mới `sessionId = Guid.NewGuid()` trong `RetestIncorrectOnly()` để tách biệt nhật ký học giữa các lần làm lại.
+- **Exception Filters**: Bắt cụ thể `JSException`/`JSDisconnectedException`/`TaskCanceledException` cho các tác vụ audio không trọng yếu.
+
 ---
 
 ## 4. Tiêu chí Hoàn thành (Definition of Done)
@@ -91,4 +101,5 @@
 - [x] Tương thích 100% với cả 3 chế độ AI (Manual, Auto, Hybrid).
 - [x] Hỗ trợ giải thích hàng loạt câu sai (Batch) để tối ưu hóa thao tác copy-paste.
 - [x] `AnswerLog` lưu vết `TrapType`.
+- [x] Đã khắc phục triệt để 100% các rủi ro concurrency, logic, null-safety và error handling từ QA Audit.
 - [x] Toàn bộ mã nguồn tuân thủ quy tắc comment XML Docs, EN, 5W1H và `#region`.

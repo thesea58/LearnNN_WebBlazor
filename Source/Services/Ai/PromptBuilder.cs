@@ -76,16 +76,18 @@ public class PromptBuilder : IPromptBuilder
             optSb.AppendLine($"  {letter}. {options[i]}");
         }
 
-        char correctLetter = (char)('A' + correctIndex);
-        char chosenLetter = (char)('A' + chosenIndex);
-        bool isCorrect = (correctIndex == chosenIndex);
+        char correctLetter = correctIndex >= 0 && correctIndex < options.Count ? (char)('A' + correctIndex) : '?';
+        char chosenLetter = chosenIndex >= 0 && chosenIndex < options.Count ? (char)('A' + chosenIndex) : '?';
+        string correctText = correctIndex >= 0 && correctIndex < options.Count ? options[correctIndex] : "Không xác định";
+        string chosenText = chosenIndex >= 0 && chosenIndex < options.Count ? options[chosenIndex] : "Chưa chọn";
+        bool isCorrect = correctIndex >= 0 && correctIndex == chosenIndex;
 
         var contextSb = new StringBuilder();
         contextSb.AppendLine($"- Câu hỏi: \"{questionStem}\"");
         contextSb.AppendLine("- Các lựa chọn:");
         contextSb.Append(optSb);
-        contextSb.AppendLine($"- Đáp án ĐÚNG: {correctLetter}. {options[correctIndex]}");
-        contextSb.AppendLine($"- Người học ĐÃ CHỌN: {chosenLetter}. {options[chosenIndex]} ({(isCorrect ? "ĐÚNG" : "SAI")})");
+        contextSb.AppendLine($"- Đáp án ĐÚNG: {correctLetter}. {correctText}");
+        contextSb.AppendLine($"- Người học ĐÃ CHỌN: {chosenLetter}. {chosenText} ({(isCorrect ? "ĐÚNG" : "SAI")})");
         if (!string.IsNullOrWhiteSpace(relatedTerm))
         {
             contextSb.AppendLine($"- Từ vựng trọng tâm liên quan: \"{relatedTerm}\"");
@@ -125,6 +127,12 @@ public class PromptBuilder : IPromptBuilder
     public RenderedAiPrompt BuildBatchQuizExplanationPrompt(
         IReadOnlyList<QuizQuestionDto> questions)
     {
+        ArgumentNullException.ThrowIfNull(questions);
+        if (questions.Count == 0)
+        {
+            throw new ArgumentException("Danh sách câu hỏi không được rỗng.", nameof(questions));
+        }
+
         string requestId = GenerateRequestId("BATCH-QUIZ");
 
         var contextSb = new StringBuilder();

@@ -90,5 +90,13 @@ public interface IStudyService
     /// <param name="trapType">The classified trap type returned by the AI.</param>
     Task UpdateAnswerLogTrapTypeAsync(Guid sessionId, int wordId, string trapType);
 
+    /// <summary>
+    /// Updates AI-classified trap types for multiple questions in a single database transaction,
+    /// avoiding concurrent write lock contention in SQLite.
+    /// </summary>
+    /// <param name="sessionId">The quiz session identifier.</param>
+    /// <param name="trapTypesByWordId">Dictionary mapping word IDs to their AI-classified trap types.</param>
+    Task UpdateBatchAnswerLogTrapTypesAsync(Guid sessionId, IReadOnlyDictionary<int, string> trapTypesByWordId);
+
     #endregion
 }

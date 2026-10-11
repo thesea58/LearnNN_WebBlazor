@@ -255,6 +255,12 @@ public class StudyService : IStudyService
     {
         if (string.IsNullOrWhiteSpace(trapType)) return;
 
+        string sanitizedTrapType = trapType.Trim();
+        if (sanitizedTrapType.Length > 100)
+        {
+            sanitizedTrapType = sanitizedTrapType[..100];
+        }
+
         await using var db = await _factory.CreateDbContextAsync();
         var log = await db.AnswerLogs
             .Where(a => a.SessionId == sessionId && a.ItemId == wordId && a.ItemType == "Word")
@@ -263,7 +269,42 @@ public class StudyService : IStudyService
 
         if (log != null)
         {
-            log.TrapType = trapType;
+            log.TrapType = sanitizedTrapType;
+            await db.SaveChangesAsync();
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateBatchAnswerLogTrapTypesAsync(Guid sessionId, IReadOnlyDictionary<int, string> trapTypesByWordId)
+    {
+        if (trapTypesByWordId == null || trapTypesByWordId.Count == 0) return;
+
+        await using var db = await _factory.CreateDbContextAsync();
+        var targetWordIds = trapTypesByWordId.Keys.ToList();
+
+        // Query all relevant answer logs for this session in a single database round-trip
+        var logs = await db.AnswerLogs
+            .Where(a => a.SessionId == sessionId && a.ItemType == "Word" && targetWordIds.Contains(a.ItemId))
+            .ToListAsync();
+
+        bool hasUpdates = false;
+        foreach (var log in logs)
+        {
+            if (trapTypesByWordId.TryGetValue(log.ItemId, out var trapType) && !string.IsNullOrWhiteSpace(trapType))
+            {
+                string sanitizedTrapType = trapType.Trim();
+                if (sanitizedTrapType.Length > 100)
+                {
+                    sanitizedTrapType = sanitizedTrapType[..100];
+                }
+
+                log.TrapType = sanitizedTrapType;
+                hasUpdates = true;
+            }
+        }
+
+        if (hasUpdates)
+        {
             await db.SaveChangesAsync();
         }
     }
