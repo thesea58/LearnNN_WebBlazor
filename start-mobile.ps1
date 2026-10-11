@@ -5,8 +5,12 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $ErrorActionPreference = "Stop"
 
-# Refresh Environment PATH in case devtunnel was recently installed
+# Refresh Environment PATH
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+$windowsAppsPath = Join-Path $env:LOCALAPPDATA "Microsoft\WindowsApps"
+if ($env:Path -notlike "*$windowsAppsPath*") {
+    $env:Path = "$env:Path;$windowsAppsPath"
+}
 
 Clear-Host
 Write-Host "==================================================================" -ForegroundColor Cyan
@@ -27,24 +31,31 @@ Write-Host "[*] Đang kiểm tra xác thực Dev Tunnels..." -ForegroundColor Gr
 $userShow = devtunnel user show 2>&1 | Out-String
 if ($userShow -match "Not logged in") {
     Write-Host "[!] Bạn cần đăng nhập tài khoản Microsoft hoặc GitHub 1 LẦN DUY NHẤT để tạo đường hầm riêng tư." -ForegroundColor Yellow
-    Write-Host "[*] Trình duyệt sẽ mở ra sau giây lát để bạn xác thực..." -ForegroundColor Cyan
+    Write-Host "[*] Vui lòng đăng nhập trên trình duyệt..." -ForegroundColor Cyan
     devtunnel user login
+    $userShow = devtunnel user show 2>&1 | Out-String
 }
+Write-Host "[+] $userShow".Trim() -ForegroundColor Green
 
 # 3. Quản lý Tunnel Cố định (Persistent Tunnel)
 $tunnelFile = Join-Path $PSScriptRoot ".devtunnel_id"
 $tunnelId = ""
 
+# Đọc từ file nếu đã lưu
 if (Test-Path $tunnelFile) {
     $tunnelId = (Get-Content $tunnelFile -Raw).Trim()
 }
 
+# Nếu chưa có ID hoặc cần xác thực lại, kiểm tra danh sách tunnel sẵn có của tài khoản
 $tunnelValid = $false
 if (-not [string]::IsNullOrWhiteSpace($tunnelId)) {
     try {
-        $showJson = devtunnel show $tunnelId -j 2>$null | ConvertFrom-Json
-        if ($showJson -and $showJson.tunnelId) {
-            $tunnelValid = $true
+        $showRaw = devtunnel show $tunnelId -j 2>$null
+        if ($showRaw) {
+            $showObj = $showRaw | ConvertFrom-Json
+            if ($showObj.tunnel -and $showObj.tunnel.tunnelId) {
+                $tunnelValid = $true
+            }
         }
     } catch {
         $tunnelValid = $false
@@ -52,61 +63,89 @@ if (-not [string]::IsNullOrWhiteSpace($tunnelId)) {
 }
 
 if (-not $tunnelValid) {
-    Write-Host "[*] Đang tạo đường hầm cố định vĩnh viễn (LearnNN Private Tunnel)..." -ForegroundColor Cyan
-    $createOutput = $null
+    # Kiểm tra xem tài khoản đã có sẵn tunnel learnnn-vocab chưa
     try {
-        $createOutput = devtunnel create learnnn-vocab -j 2>$null | ConvertFrom-Json
-    } catch {
-        # Nếu tên 'learnnn-vocab' đã trùng trong tenant, tạo ID ngẫu nhiên nhưng cố định
-        $createOutput = devtunnel create -j 2>$null | ConvertFrom-Json
+        $listRaw = devtunnel list -j 2>$null
+        if ($listRaw) {
+            $listObj = $listRaw | ConvertFrom-Json
+            if ($listObj.tunnels) {
+                $found = $listObj.tunnels | Where-Object { $_.tunnelId -like "learnnn-vocab*" } | Select-Object -First 1
+                if ($found) {
+                    $tunnelId = $found.tunnelId
+                    $tunnelValid = $true
+                    Write-Host "[+] Đã tìm thấy Tunnel sẵn có: $tunnelId" -ForegroundColor Green
+                }
+            }
+        }
+    } catch { }
+}
+
+# Nếu chưa có thì tạo mới
+if (-not $tunnelValid) {
+    Write-Host "[*] Đang khởi tạo Tunnel cố định cho LearnNN..." -ForegroundColor Cyan
+    $createJson = $null
+    try {
+        $createJson = devtunnel create learnnn-vocab -j 2>$null | ConvertFrom-Json
+    } catch { }
+
+    if (-not $createJson -or -not $createJson.tunnel) {
+        # Fallback tạo tunnel với ID ngẫu nhiên nhưng cố định
+        $createJson = devtunnel create -j | ConvertFrom-Json
     }
 
-    if ($createOutput -and $createOutput.tunnelId) {
-        $tunnelId = $createOutput.tunnelId
-        Set-Content -Path $tunnelFile -Value $tunnelId -Encoding UTF8
-        Write-Host "[+] Đã đăng ký Tunnel ID: $tunnelId" -ForegroundColor Green
-        
-        # Mở port 5186 cho web Blazor (Private: không kèm --allow-anonymous)
-        devtunnel port create $tunnelId -p 5186 --protocol http | Out-Null
-    } else {
-        Write-Host "[-] Không thể tạo Tunnel. Vui lòng kiểm tra kết nối mạng." -ForegroundColor Red
-        pause
-        exit 1
+    if ($createJson.tunnel -and $createJson.tunnel.tunnelId) {
+        $tunnelId = $createJson.tunnel.tunnelId
+    } elseif ($createJson.tunnelId) {
+        $tunnelId = $createJson.tunnelId
     }
 }
 
-# 4. Lấy URL cố định
-$showData = devtunnel show $tunnelId -j | ConvertFrom-Json
-$tunnelUrl = ""
+if ([string]::IsNullOrWhiteSpace($tunnelId)) {
+    Write-Host "[-] Không tìm thấy Tunnel ID hợp lệ. Đang dùng mặc định learnnn-vocab.asse" -ForegroundColor Yellow
+    $tunnelId = "learnnn-vocab.asse"
+}
 
-# Lấy URL của port 5186
-if ($showData.ports) {
-    $port5186 = $showData.ports | Where-Object { $_.portNumber -eq 5186 }
-    if ($port5186) {
-        $tunnelUrl = $port5186.portUri
+# Lưu ID cố định
+Set-Content -Path $tunnelFile -Value $tunnelId -Encoding UTF8
+
+# 4. Đảm bảo Port 5186 đã được mở trên Tunnel
+$showData = devtunnel show $tunnelId -j | ConvertFrom-Json
+$hasPort5186 = $false
+if ($showData.tunnel -and $showData.tunnel.ports) {
+    $foundPort = $showData.tunnel.ports | Where-Object { $_.portNumber -eq 5186 }
+    if ($foundPort) { $hasPort5186 = $true }
+}
+
+if (-not $hasPort5186) {
+    Write-Host "[*] Đang cấu hình mở cổng 5186 cho Tunnel..." -ForegroundColor Gray
+    devtunnel port create $tunnelId -p 5186 --protocol http 2>&1 | Out-Null
+    $showData = devtunnel show $tunnelId -j | ConvertFrom-Json
+}
+
+# Lấy URL của cổng 5186
+$tunnelUrl = ""
+if ($showData.tunnel -and $showData.tunnel.ports) {
+    $foundPort = $showData.tunnel.ports | Where-Object { $_.portNumber -eq 5186 }
+    if ($foundPort -and $foundPort.portUri) {
+        $tunnelUrl = $foundPort.portUri
     }
 }
 
 if ([string]::IsNullOrWhiteSpace($tunnelUrl)) {
-    # Format chuẩn Microsoft Dev Tunnels: https://<tunnelId>-5186.<clusterId>.devtunnels.ms
-    $clusterId = if ($showData.clusterId) { $showData.clusterId } else { "asse" }
-    $tunnelUrl = "https://$tunnelId-5186.$clusterId.devtunnels.ms"
+    $cleanId = $tunnelId.Split('.')[0]
+    $tunnelUrl = "https://$cleanId-5186.asse.devtunnels.ms"
 }
 
 # 5. Khởi động Web App Blazor (.NET 10) nếu chưa chạy
 $dotnetProc = $null
-$isAppRunning = $false
-
-# Kiểm tra port 5186 có đang lắng nghe không
 $tcpConn = Get-NetTCPConnection -LocalPort 5186 -State Listen -ErrorAction SilentlyContinue
 if ($tcpConn) {
     Write-Host "[+] Ứng dụng LearnNN_WebBlazor đã đang chạy trên cổng 5186." -ForegroundColor Green
-    $isAppRunning = $true
 } else {
     Write-Host "[*] Đang khởi chạy ứng dụng LearnNN_WebBlazor (.NET 10)..." -ForegroundColor Cyan
     $projectPath = Join-Path $PSScriptRoot "Source\LearnNN_WebBlazor.csproj"
     $dotnetProc = Start-Process -FilePath "dotnet" -ArgumentList "run --project `"$projectPath`"" -PassThru -WindowStyle Hidden
-    Start-Sleep -Seconds 3
+    Start-Sleep -Seconds 4
 }
 
 # 6. Hiển thị thông tin kết nối và Mã QR
@@ -116,25 +155,24 @@ Write-Host "   🎉 ĐƯỜNG HẦM CỐ ĐỊNH SẴN SÀNG - TRUY CẬP TỪ �
 Write-Host "==================================================================" -ForegroundColor Green
 Write-Host ""
 Write-Host " 🌐 LINK TRUY CẬP CỐ ĐỊNH (HTTPS):" -ForegroundColor Yellow
-Write-Host "    $tunnelUrl" -ForegroundColor Cyan -NoNewline
-Write-Host "  (Link này vĩnh viễn không bao giờ đổi!)" -ForegroundColor DarkGray
+Write-Host "    $tunnelUrl" -ForegroundColor Cyan
+Write-Host "    (Link này vĩnh viễn không bao giờ đổi, hãy Bookmark trên điện thoại!)" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host " 🔐 CHẾ ĐỘ BẢO MẬT: PRIVATE" -ForegroundColor Magenta
-Write-Host "    Khi mở trên điện thoại, đăng nhập cùng tài khoản Microsoft/GitHub" -ForegroundColor White
-Write-Host "    để bảo vệ dữ liệu học tập và số lượt AI của riêng bạn." -ForegroundColor White
+Write-Host " 🔐 BẢO MẬT: PRIVATE" -ForegroundColor Magenta
+Write-Host "    Khi mở trên điện thoại, đăng nhập cùng tài khoản Microsoft/GitHub:" -ForegroundColor White
+Write-Host "    $userShow" -ForegroundColor Gray
 Write-Host ""
 Write-Host " 📷 QUÉT MÃ QR DƯỚI ĐÂY BẰNG CAMERA ĐIỆN THOẠI ĐỂ MỞ:" -ForegroundColor Yellow
 Write-Host ""
 
 try {
-    # Sinh mã QR trực tiếp trong Console
     curl.exe -s "https://qrenco.de/$tunnelUrl"
 } catch {
     Write-Host "    (Gõ trực tiếp đường link trên vào Safari/Chrome điện thoại)" -ForegroundColor Gray
 }
 
 Write-Host ""
-Write-Host " 💡 Mẹo: Trên Safari (iOS) bấm 'Thêm vào MH chính', trên Android bấm 'Cài đặt' để dùng như App!" -ForegroundColor Cyan
+Write-Host " 💡 Mẹo: Trên Safari (iOS) chọn 'Thêm vào MH chính', trên Android chọn 'Cài đặt' để dùng như App!" -ForegroundColor Cyan
 Write-Host "------------------------------------------------------------------" -ForegroundColor DarkGray
 Write-Host " Đang duy trì kết nối... Nhấn Ctrl + C để dừng." -ForegroundColor Gray
 Write-Host ""
