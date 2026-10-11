@@ -28,6 +28,7 @@ public class VocabularyService : IVocabularyService
         await using var db = await _factory.CreateDbContextAsync();
         return await db.Topics
             .Include(t => t.Words)
+                .ThenInclude(w => w.WordProgress)
             .OrderBy(t => t.Name)
             .ToListAsync();
     }
@@ -38,6 +39,7 @@ public class VocabularyService : IVocabularyService
         await using var db = await _factory.CreateDbContextAsync();
         return await db.Topics
             .Include(t => t.Words)
+                .ThenInclude(w => w.WordProgress)
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 

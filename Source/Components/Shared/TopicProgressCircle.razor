@@ -1,0 +1,136 @@
+@namespace LearnNN_WebBlazor.Components.Shared
+
+@*
+    TopicProgressCircle component:
+    Renders an SVG multi-segment circular progress ring (donut chart) showing:
+    - Base circle in neutral light gray (#e2e8f0) representing total / unstudied words.
+    - Mastered ratio in green (#10b981) for words marked mastered or graduated via SRS.
+    - Review ratio in orange (#f59e0b) for words currently in the learning/review cycle.
+    - Mastered percentage text displayed in the center.
+*@
+
+@{
+    double masteredPct = TotalWords > 0 ? Math.Clamp((double)MasteredWords / TotalWords * 100.0, 0.0, 100.0) : 0.0;
+    double reviewPct = TotalWords > 0 ? Math.Clamp((double)ReviewWords / TotalWords * 100.0, 0.0, 100.0 - masteredPct) : 0.0;
+    int newWords = Math.Max(0, TotalWords - MasteredWords - ReviewWords);
+    double newPct = TotalWords > 0 ? Math.Max(0.0, 100.0 - masteredPct - reviewPct) : 100.0;
+
+    int roundedMastered = (int)Math.Round(masteredPct);
+    string percentDisplay = $"{roundedMastered}%";
+    string textColor = masteredPct > 0 ? "#059669" : "#64748b";
+    string fontSize = roundedMastered >= 100 ? "8px" : (roundedMastered >= 10 ? "8.5px" : "9.5px");
+
+    string tooltipText = BuildTooltip(masteredPct, reviewPct, newPct, newWords);
+}
+
+<div class="topic-progress-ring-container d-inline-flex align-items-center justify-content-center"
+     title="@tooltipText"
+     data-bs-toggle="tooltip"
+     role="progressbar"
+     aria-valuenow="@roundedMastered"
+     aria-valuemin="0"
+     aria-valuemax="100"
+     aria-label="@tooltipText"
+     style="width: @(Size)px; height: @(Size)px; cursor: help; position: relative; flex-shrink: 0;">
+    <svg width="@Size" height="@Size" viewBox="0 0 36 36" class="topic-progress-svg" style="overflow: visible;">
+        <!-- Base / Background track (vòng tròn màu xám) -->
+        <circle cx="18" cy="18" r="15.9155"
+                fill="none"
+                stroke="#e2e8f0"
+                stroke-width="@StrokeWidth"
+                pathLength="100" />
+
+        @if (TotalWords > 0)
+        {
+            <!-- Mastered Segment (tỉ lệ đã học thuộc là màu xanh lá cây) -->
+            @if (masteredPct > 0)
+            {
+                <circle cx="18" cy="18" r="15.9155"
+                        fill="none"
+                        stroke="#10b981"
+                        stroke-width="@StrokeWidth"
+                        stroke-dasharray="@($"{masteredPct:F1} {100.0 - masteredPct:F1}")"
+                        stroke-dashoffset="0"
+                        transform="rotate(-90 18 18)"
+                        pathLength="100"
+                        style="transition: stroke-dasharray 0.3s ease;" />
+            }
+
+            <!-- Needs Review Segment (từ cần ôn lại là màu cam) -->
+            @if (reviewPct > 0)
+            {
+                <circle cx="18" cy="18" r="15.9155"
+                        fill="none"
+                        stroke="#f59e0b"
+                        stroke-width="@StrokeWidth"
+                        stroke-dasharray="@($"{reviewPct:F1} {100.0 - reviewPct:F1}")"
+                        stroke-dashoffset="@($"{-masteredPct:F1}")"
+                        transform="rotate(-90 18 18)"
+                        pathLength="100"
+                        style="transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease;" />
+            }
+        }
+
+        <!-- Center percentage label (tỉ lệ đã thuộc ở giữa vòng tròn) -->
+        <text x="18" y="18"
+              text-anchor="middle"
+              dominant-baseline="central"
+              fill="@textColor"
+              font-size="@fontSize"
+              font-weight="700"
+              font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+              style="pointer-events: none; user-select: none;">
+            @percentDisplay
+        </text>
+    </svg>
+</div>
+
+@code {
+    /// <summary>Total number of words registered under this topic.</summary>
+    [Parameter] public int TotalWords { get; set; }
+
+    /// <summary>Number of words that have been mastered (IsMastered == true or SRS interval >= 21).</summary>
+    [Parameter] public int MasteredWords { get; set; }
+
+    /// <summary>Number of words currently in the learning or spaced review queue.</summary>
+    [Parameter] public int ReviewWords { get; set; }
+
+    /// <summary>Number of words due for review today specifically.</summary>
+    [Parameter] public int DueTodayWords { get; set; }
+
+    /// <summary>Diameter in pixels for the circular progress ring (default: 32px).</summary>
+    [Parameter] public int Size { get; set; } = 32;
+
+    /// <summary>Stroke thickness for the progress ring arcs (default: 3.0).</summary>
+    [Parameter] public double StrokeWidth { get; set; } = 3.0;
+
+    /// <summary>Optional topic name to enrich the accessibility tooltip.</summary>
+    [Parameter] public string? TopicName { get; set; }
+
+    #region Private Helpers
+
+    /// <summary>
+    /// Builds a multi-line informative tooltip breaking down mastery, review, and new words.
+    /// </summary>
+    private string BuildTooltip(double masteredPct, double reviewPct, double newPct, int newWords)
+    {
+        var prefix = !string.IsNullOrWhiteSpace(TopicName) ? $"{TopicName} ({TotalWords} từ):\n" : "";
+        if (TotalWords == 0)
+        {
+            return $"{prefix}Chưa có từ vựng nào trong chủ đề này";
+        }
+
+        var sb = new System.Text.StringBuilder();
+        sb.Append(prefix);
+        sb.Append($"• Đã thuộc: {MasteredWords} từ ({masteredPct:0.#}%)\n");
+        sb.Append($"• Cần ôn lại: {ReviewWords} từ ({reviewPct:0.#}%)");
+        if (DueTodayWords > 0)
+        {
+            sb.Append($" ({DueTodayWords} từ đến hạn hôm nay)");
+        }
+        sb.Append($"\n• Chưa học: {newWords} từ ({newPct:0.#}%)");
+        return sb.ToString();
+    }
+
+    #endregion
+}

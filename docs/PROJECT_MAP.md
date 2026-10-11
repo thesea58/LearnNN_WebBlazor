@@ -156,6 +156,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │       ├── 📄 ConfirmDeleteModal.razor #    Modal xác nhận xóa tái sử dụng cho các trang
 │   │       ├── 📄 LoadingSpinner.razor     #    Component loading spinner tái sử dụng
 │   │       ├── 📄 ViewModeSwitcher.razor   #    Component chuyển đổi chế độ xem (Dòng / Thẻ icon)
+│   │       ├── 📄 TopicProgressCircle.razor #   Vòng tròn tỉ lệ tiến độ học từ vựng SVG (Đã thuộc, Cần ôn lại, Chưa học)
 │   │       ├── 📄 AiManualBridgeModal.razor #   Modal cầu nối thủ công copy/paste dùng chung
 │   │       └── 📄 QuizExplanationCard.razor #   Thẻ hiển thị giải thích AI & bóc bẫy trắc nghiệm chuyên biệt
 │   │
@@ -315,6 +316,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-10-09 | Task 18 – AI Quiz Explainer & Trap Detector | `Source/Data/Entities/AnswerLog.cs`, `Source/Migrations/*AddTrapTypeToAnswerLog*`, `Source/Models/Ai/SandboxDto.cs`, `Source/Models/Study/QuizQuestionDto.cs`, `Source/Services/Ai/IPromptBuilder.cs`, `PromptBuilder.cs`, `Source/Services/IStudyService.cs`, `StudyService.cs`, `Source/Components/Shared/QuizExplanationCard.razor`, `Source/Components/Pages/Study/QuizPractice.razor`, `docs/task/18_ai_quiz_explainer_trap_detector/README.md` | Tích hợp AI giải thích câu hỏi và bóc trần bẫy trắc nghiệm trực tiếp trên Quiz (/study/quiz) với cả 3 chế độ (Auto, Manual, Hybrid). Hỗ trợ giải thích đơn lẻ & giải thích hàng loạt câu sai (Batch Explain), lưu vết TrapType vào AnswerLog, thẻ QuizExplanationCard chuyên biệt có nút thu gọn/mở rộng. |
 | 2026-10-09 | Thêm Rule Git Commit Convention | `[NEW] .agents/rules/git-commit-convention.md` | Chuẩn hóa quy ước thông điệp Git Commit (Conventional Commits, semantic prefix, task reference) cho AI Agent và nhà phát triển |
 | 2026-10-11 | Task 18 – QA Audit & Hardening | `Source/Components/Pages/Study/QuizPractice.razor`, `Source/Services/IStudyService.cs`, `Source/Services/StudyService.cs`, `Source/Services/Ai/PromptBuilder.cs`, `docs/task/18_ai_quiz_explainer_trap_detector/README.md` | Gia cố hệ thống theo kết quả rà soát QA: xử lý SQLite batch concurrency transaction, guard click đúp, an toàn biên index & null-check, thông báo lỗi AI trực quan, bộ lọc ngoại lệ JS audio. |
+| 2026-10-11 | Vòng tròn tiến độ học từ vựng cho Topics | `Source/Components/Shared/TopicProgressCircle.razor`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/Services/VocabularyService.cs` | Thêm vòng tròn tỉ lệ học từ vựng dạng donut chart SVG (xám: chưa học/nền, xanh lá: đã thuộc, cam: cần ôn lại) ở góc thẻ và bảng chủ đề (/topics) theo yêu cầu người dùng. |
 
 
 
