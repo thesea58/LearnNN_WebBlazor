@@ -8,35 +8,35 @@
 
 <PageTitle>Game Nối Từ - LearnNN 📘</PageTitle>
 
-<div class="container py-3" style="max-width: 900px;">
+<div class="container-fluid px-1 px-sm-3 py-1 py-md-3" style="max-width: 900px;">
     <!-- #region: Top Navigation & Game Stats -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-        <a href="/study" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left me-1"></i> Trở về Hub
+    <div class="d-flex align-items-center justify-content-between gap-1 gap-sm-2 mb-2 flex-wrap">
+        <a href="/study" class="btn btn-outline-secondary btn-sm py-1 px-2">
+            <i class="bi bi-arrow-left me-1"></i><span class="d-none d-sm-inline">Trở về Hub</span><span class="d-inline d-sm-none">Hub</span>
         </a>
 
         <!-- Scoreboard Bar -->
-        <div class="d-flex align-items-center gap-3">
-            <div class="badge bg-white text-dark border px-3 py-2 fs-6 shadow-sm">
+        <div class="d-flex align-items-center gap-1 gap-sm-2">
+            <div class="badge bg-white text-dark border px-2 py-1 shadow-sm small">
                 <i class="bi bi-stopwatch text-primary me-1"></i>
                 <span>@FormatTime(secondsElapsed)</span>
             </div>
 
-            <div class="badge bg-white text-dark border px-3 py-2 fs-6 shadow-sm">
+            <div class="badge bg-white text-dark border px-2 py-1 shadow-sm small">
                 <i class="bi bi-hand-index-thumb text-info me-1"></i>
-                <span><strong>@movesCount</strong> lượt chọn</span>
+                <span><strong>@movesCount</strong> <span class="d-none d-sm-inline">lượt chọn</span></span>
             </div>
 
             @if (comboCount > 1)
             {
-                <div class="badge bg-warning text-dark border px-3 py-2 fs-6 shadow-sm animate__animated animate__pulse">
+                <div class="badge bg-warning text-dark border px-2 py-1 shadow-sm small animate__animated animate__pulse">
                     <i class="bi bi-fire text-danger me-1"></i>
-                    <span>Combo <strong>x@comboCount</strong>!</span>
+                    <span>x<strong>@comboCount</strong>!</span>
                 </div>
             }
 
-            <button class="btn btn-outline-primary btn-sm" @onclick="RestartGameAsync" title="Chơi ván mới">
-                <i class="bi bi-arrow-repeat me-1"></i> Ván mới
+            <button class="btn btn-outline-primary btn-sm py-1 px-2" @onclick="RestartGameAsync" title="Chơi ván mới">
+                <i class="bi bi-arrow-repeat"></i> <span class="d-none d-sm-inline">Ván mới</span>
             </button>
         </div>
     </div>
@@ -111,13 +111,13 @@
     else
     {
         <!-- #region: Matching Game Board -->
-        <div class="card border rounded-3 p-4 bg-white shadow-sm">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="text-muted small">
-                    <i class="bi bi-info-circle me-1"></i> Hãy nhấp vào 1 từ tiếng Anh và 1 nghĩa tiếng Việt tương ứng để nối chúng!
+        <div class="card border rounded-3 p-2 p-sm-3 p-md-4 bg-white shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted small d-none d-sm-inline">
+                    <i class="bi bi-info-circle me-1"></i> Ghép 1 từ tiếng Anh và 1 nghĩa tiếng Việt tương ứng!
                 </span>
-                <span class="badge bg-light text-primary border">
-                    Đã ghép: @(matchedPairsCount) / @pairCount cặp
+                <span class="badge bg-light text-primary border small ms-auto">
+                    Ghép: @(matchedPairsCount)/@pairCount
                 </span>
             </div>
 

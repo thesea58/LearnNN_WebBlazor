@@ -13,22 +13,22 @@
 
 <PageTitle>Kiểm tra Trắc nghiệm - LearnNN 📘</PageTitle>
 
-<div class="container py-3" style="max-width: 800px;">
+<div class="container-fluid px-1 px-sm-3 py-1 py-md-3 quiz-page-container" style="max-width: 800px;">
     <!-- #region: Top Navigation & Progress Bar -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-        <a href="/study" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left me-1"></i> Trở về Hub
+    <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+        <a href="/study" class="btn btn-outline-secondary btn-sm py-1 px-2">
+            <i class="bi bi-arrow-left me-1"></i><span class="d-none d-sm-inline">Trở về Hub</span><span class="d-inline d-sm-none">Hub</span>
         </a>
 
         @if (questions.Count > 0 && !isCompleted)
         {
-            <div class="d-flex align-items-center gap-3">
-                <span class="badge bg-white text-dark border px-3 py-2 shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-white text-dark border px-2 py-1 shadow-sm small">
                     <i class="bi bi-patch-question text-primary me-1"></i>
-                    Câu <strong>@(currentIndex + 1)</strong> / @questions.Count
+                    Câu <strong>@(currentIndex + 1)</strong>/@questions.Count
                 </span>
 
-                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 shadow-sm">
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 shadow-sm small">
                     <i class="bi bi-check-circle me-1"></i>
                     Đúng: <strong>@correctCount</strong>
                 </span>
@@ -38,7 +38,7 @@
 
     @if (questions.Count > 0 && !isCompleted)
     {
-        <div class="progress-container mb-4" style="height: 6px;">
+        <div class="progress-container mb-2 mb-md-3" style="height: 4px;">
             <div class="progress-bar-gradient h-100" style="width: @(progressPercent)%"></div>
         </div>
     }
@@ -255,10 +255,10 @@
         var currentQ = questions[currentIndex];
 
         <!-- #region: Active Question Card -->
-        <div class="card border rounded-4 p-4 p-md-5 bg-white shadow-sm mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">
-                    Câu hỏi trắc nghiệm
+        <div class="card border rounded-4 p-3 p-md-4 bg-white shadow-sm mb-3 quiz-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1 small">
+                    <i class="bi bi-patch-question-fill me-1"></i>Trắc nghiệm
                 </span>
 
                 <button type="button" class="speaker-btn btn-sm" title="Phát âm từ"
@@ -268,23 +268,25 @@
             </div>
 
             <!-- Question Prompt -->
-            <div class="text-center my-3">
-                <h1 class="display-5 fw-bold text-primary mb-1">@currentQ.Term</h1>
-                @if (!string.IsNullOrWhiteSpace(currentQ.Phonetic))
-                {
-                    <div class="text-muted font-monospace fs-6 mb-2">@currentQ.Phonetic</div>
-                }
-                @if (!string.IsNullOrWhiteSpace(currentQ.PartOfSpeech))
-                {
-                    <span class="badge bg-secondary-subtle text-secondary rounded-pill mb-3">
-                        @currentQ.PartOfSpeech
-                    </span>
-                }
-                <div class="text-muted">Chọn nghĩa tiếng Việt chính xác nhất:</div>
+            <div class="text-center my-1 my-md-2">
+                <h2 class="quiz-term fw-bold text-primary mb-1">@currentQ.Term</h2>
+                <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap mb-1">
+                    @if (!string.IsNullOrWhiteSpace(currentQ.Phonetic))
+                    {
+                        <span class="text-muted font-monospace small">@currentQ.Phonetic</span>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(currentQ.PartOfSpeech))
+                    {
+                        <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2 py-0 small">
+                            @currentQ.PartOfSpeech
+                        </span>
+                    }
+                </div>
+                <div class="text-muted small">Chọn nghĩa tiếng Việt chính xác nhất:</div>
             </div>
 
             <!-- Options Grid -->
-            <div class="mt-4">
+            <div class="mt-2 mt-md-3">
                 @for (int optIndex = 0; optIndex < currentQ.Options.Count; optIndex++)
                 {
                     int capturedIndex = optIndex;
@@ -326,17 +328,17 @@
             <!-- Explanation & Next Button (after answered) -->
             @if (currentQ.IsAnswered)
             {
-                <div class="mt-4 pt-3 border-top animate__animated animate__fadeIn">
+                <div class="mt-3 pt-2 border-top animate__animated animate__fadeIn">
                     @if (!string.IsNullOrWhiteSpace(currentQ.ExampleSentence))
                     {
-                        <div class="p-3 bg-light rounded-3 mb-3 small">
-                            <span class="fw-bold text-primary d-block mb-1">
+                        <div class="p-2 bg-light rounded-3 mb-2 small">
+                            <span class="fw-bold text-primary d-block mb-1 small">
                                 <i class="bi bi-chat-quote me-1"></i> Ví dụ câu:
                             </span>
                             <div class="fst-italic text-dark mb-1">"@currentQ.ExampleSentence"</div>
                             @if (!string.IsNullOrWhiteSpace(currentQ.Meaning))
                             {
-                                <div class="text-muted">→ Nghĩa: @currentQ.Meaning</div>
+                                <div class="text-muted small">→ Nghĩa: @currentQ.Meaning</div>
                             }
                         </div>
                     }
@@ -346,35 +348,35 @@
                             @if (currentQ.Explanation == null)
                             {
                                 <button type="button"
-                                        class="btn btn-outline-primary btn-sm px-3 shadow-sm d-inline-flex align-items-center gap-1"
+                                        class="btn btn-outline-primary btn-sm px-2 px-sm-3 shadow-sm d-inline-flex align-items-center gap-1"
                                         disabled="@currentQ.IsExplaining"
                                         @onclick="() => ExplainQuestionAsync(currentQ)">
                                     @if (currentQ.IsExplaining)
                                     {
                                         <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-                                        <span>AI đang bóc bẫy...</span>
+                                        <span>AI bóc bẫy...</span>
                                     }
                                     else
                                     {
                                         <i class="bi bi-robot"></i>
-                                        <span>@(currentQ.IsCorrect ? "Giải thích câu này" : "Bóc trần bẫy & Giải thích AI")</span>
+                                        <span>@(currentQ.IsCorrect ? "Giải thích câu" : "Bóc bẫy AI")</span>
                                     }
                                 </button>
                             }
                             else
                             {
                                 <button type="button"
-                                        class="btn btn-primary-subtle text-primary border border-primary-subtle btn-sm px-3 shadow-sm d-inline-flex align-items-center gap-1"
+                                        class="btn btn-primary-subtle text-primary border border-primary-subtle btn-sm px-2 px-sm-3 shadow-sm d-inline-flex align-items-center gap-1"
                                         @onclick="() => currentQ.IsExplanationExpanded = !currentQ.IsExplanationExpanded">
                                     <i class="bi bi-robot"></i>
-                                    <span>@(currentQ.IsExplanationExpanded ? "Thu gọn giải thích AI" : "Xem giải thích AI")</span>
+                                    <span>@(currentQ.IsExplanationExpanded ? "Thu gọn" : "Giải thích AI")</span>
                                     <i class="bi @(currentQ.IsExplanationExpanded ? "bi-chevron-up" : "bi-chevron-down") ms-1"></i>
                                 </button>
                             }
                         </div>
 
-                        <button class="btn btn-primary px-4 py-2" @onclick="NextQuestion">
-                            @(currentIndex < questions.Count - 1 ? "Câu tiếp theo" : "Xem kết quả bài test")
+                        <button class="btn btn-primary px-3 px-sm-4 py-2" @onclick="NextQuestion">
+                            <span>@(currentIndex < questions.Count - 1 ? "Câu tiếp theo" : "Xem kết quả")</span>
                             <i class="bi bi-arrow-right ms-1"></i>
                         </button>
                     </div>

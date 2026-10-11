@@ -19,12 +19,13 @@ main {
 .top-row {
     background-color: #ffffff;
     border-bottom: 1px solid var(--border-color, #e2e8f0);
-    height: 4rem;
+    height: 3.5rem;
+    display: none;
 }
 
 .app-footer {
     background-color: #ffffff;
-    font-size: 0.875rem;
+    font-size: 0.825rem;
 }
 
 @media (min-width: 768px) {
@@ -40,6 +41,7 @@ main {
     }
 
     .top-row {
+        display: flex;
         position: sticky;
         top: 0;
         z-index: 10;
