@@ -1,7 +1,7 @@
 # 📓 Task 25 – Progress Log
 
 ## Trạng thái
-- **Sub-task đang làm**: Hoàn thành 25.04; chuyển sang 25.05 (JS Interop đúng chỗ) · **Vòng**: 4 · **Fail liên tiếp**: 0
+- **Sub-task đang làm**: Hoàn thành 25.05; chuyển sang 25.06 ([Parameter] bất biến) · **Vòng**: 5 · **Fail liên tiếp**: 0
 
 ## Bảng vi phạm (từ 25.01)
 | # | File | Dòng | Nhóm | Rủi ro | Mô tả vi phạm & giải pháp | TT |
@@ -27,8 +27,8 @@
 | 19 | `Source/Components/Pages/Words/WordList.razor` | 547 | Nhóm 25.03 | TB | `debounceTimer.Elapsed += async (sender, args) => ...` tạo `async void` tiềm ẩn crash circuit. Tách named handler kèm try/catch. | ✅ |
 | 20 | `Source/Components/Pages/Words/WordList.razor` | 547, 917 | Nhóm 25.04 | TB | `debounceTimer.Elapsed` lambda ẩn danh không thể `debounceTimer.Elapsed -=` trong `Dispose()`. Tách named handler để unregister. | ✅ |
 | 21 | `Source/Components/Shared/AiManualBridgeModal.razor` | 174-196 | Nhóm 25.04 | Thấp | `CopyPromptAsync` có `await Task.Delay(2000)` rồi gọi `StateHasChanged()` không CancellationToken khi modal đóng. Implement IDisposable + CTS. | ✅ |
-| 22 | `Source/Components/Pages/Topics/TopicManage.razor` | 344 | Nhóm 25.05 | Thấp | `viewModeHelper.getViewMode` kiểm tra `< 768px` thay vì breakpoint thống nhất `< 1024px`. Đồng bộ với Task 24. | ⬜ |
-| 23 | `Source/Components/Pages/Words/WordList.razor` | 574 | Nhóm 25.05 | Thấp | Tương tự dòng 344 của TopicManage. Đồng bộ với Task 24. | ⬜ |
+| 22 | `Source/Components/Pages/Topics/TopicManage.razor` | 344 | Nhóm 25.05 | Thấp | `viewModeHelper.getViewMode` kiểm tra `< 768px` thay vì breakpoint thống nhất `< 1024px`. Đồng bộ với Task 24. | ✅ |
+| 23 | `Source/Components/Pages/Words/WordList.razor` | 574 | Nhóm 25.05 | Thấp | Tương tự dòng 344 của TopicManage. Đồng bộ với Task 24. | ✅ |
 | 24 | `Source/Components/Shared/QuizExplanationCard.razor` | 105, 116 | Nhóm 25.06 | Cao | `[Parameter] public bool IsExpanded` bị gán đột biến `IsExpanded = !IsExpanded;`. Đổi sang chỉ emit `IsExpandedChanged.InvokeAsync`. | ⬜ |
 | 25 | `Source/Components/Shared/ViewModeSwitcher.razor` | 28, 42 | Nhóm 25.06 | Cao | `[Parameter] public ViewMode CurrentMode` bị gán `CurrentMode = newMode;`. Đổi sang chỉ emit `CurrentModeChanged.InvokeAsync`. | ⬜ |
 | 26 | `Source/Components/Layout/MainLayout.razor` | 22-24 | Nhóm 25.07 | Cao | `@Body` chưa được bọc `<ErrorBoundary>`. Bọc `<ErrorBoundary>` kèm fallback UI thân thiện và nút Thử lại. | ⬜ |
@@ -46,4 +46,5 @@
 | 1 | 2026-10-19 01:14 | 25.01 | Khảo sát kiểm kê 33 vi phạm kiến trúc thuộc 7 nhóm (25.02 -> 25.08) trên toàn bộ codebase; không sửa code | N/A (chỉ đọc) | `7a95f9b` |
 | 2 | 2026-10-19 01:23 | 25.02 | Bổ sung `@key` duy nhất cho toàn bộ 18 vòng lặp `@foreach`/`@for` tại 10 file Razor component | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | `be19925` |
 | 3 | 2026-10-19 01:31 | 25.03 | Thay thế lambda ẩn danh async void của debounceTimer trong WordList.razor bằng named handler OnDebounceTimerElapsed bọc try/catch an toàn | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | `1b96f68` |
-| 4 | 2026-10-19 01:37 | 25.04 | Hủy đăng ký debounceTimer.Elapsed trong WordList.razor Dispose(); triển khai IDisposable và CancellationTokenSource hủy Task.Delay khi đóng modal trong AiManualBridgeModal.razor | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | pending |
+| 4 | 2026-10-19 01:37 | 25.04 | Hủy đăng ký debounceTimer.Elapsed trong WordList.razor Dispose(); triển khai IDisposable và CancellationTokenSource hủy Task.Delay khi đóng modal trong AiManualBridgeModal.razor | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | `88d8495` |
+| 5 | 2026-10-19 01:43 | 25.05 | Đồng bộ breakpoint tự động phát hiện ViewMode (card < 1024px, table >= 1024px) trong study.js và Razor components theo mobile-desktop-lock.md | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | pending |

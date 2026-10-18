@@ -562,7 +562,7 @@
         {
             try
             {
-                // Auto-detect mobile devices (< 768px -> card) or restore user's saved preference
+                // Auto-detect mobile devices (< 1024px -> card) or restore user's saved preference
                 var modeStr = await JS.InvokeAsync<string>("viewModeHelper.getViewMode", "learnnn_word_view_mode");
                 var detectedMode = modeStr == "card" ? ViewMode.Card : ViewMode.Table;
                 if (currentViewMode != detectedMode)

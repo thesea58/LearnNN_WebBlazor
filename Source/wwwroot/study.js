@@ -78,7 +78,7 @@ window.studyInterop = {
  */
 window.viewModeHelper = {
     /**
-     * Retrieves the stored view mode or defaults based on viewport width (< 768px -> card, >= 768px -> table).
+     * Retrieves the stored view mode or defaults based on viewport width (< 1024px -> card, >= 1024px -> table).
      * @param {string} storageKey - localStorage key.
      * @returns {string} 'table' or 'card'.
      */
@@ -92,8 +92,8 @@ window.viewModeHelper = {
             // Fall through if localStorage is inaccessible
         }
 
-        // Auto-detect mobile phones & tablets (Android / iPhone / iPad portrait < 768px)
-        return window.innerWidth < 768 ? 'card' : 'table';
+        // Auto-detect mobile phones & tablets (< 1024px -> card, >= 1024px -> table)
+        return window.innerWidth < 1024 ? 'card' : 'table';
     },
 
     /**
