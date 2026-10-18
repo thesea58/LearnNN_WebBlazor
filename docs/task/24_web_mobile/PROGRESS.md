@@ -15,6 +15,6 @@
 | Vòng | Thời gian | Sub-task | Việc đã làm | Kết quả test | Commit |
 |---|---|---|---|---|---|
 | 1 | 2026-10-19 01:05 | 24.01 | Thiết lập test harness Playwright .NET (`Tests/LearnNN_WebBlazor.Tests/`), SkiaSharp image diff, SQLite DB test riêng (`Tests/TestData/test_vocab.db`), script overflow chuẩn, khởi tạo 20 baseline screenshots PC (1366x768 & 1920x1080) cho 10 routes | Passed 73/73 tests (Chromium, WebKit, Firefox, 10 routes PC baselines khớp 100%, 5 mobile viewports) | `b2f43b0` |
-| 2 | 2026-10-19 02:06 | 24.02 | Nâng breakpoint layout từ 768px sang 1024px trong MainLayout.razor.css và NavMenu.razor.css (giữ nguyên khai báo khối PC); thêm viewport-fit=cover vào App.razor; cấu hình 100dvh, safe-area utilities và overflow guard trong app.css | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | pending |
+| 2 | 2026-10-19 02:06 | 24.02 | Nâng breakpoint layout từ 768px sang 1024px trong MainLayout.razor.css và NavMenu.razor.css (giữ nguyên khai báo khối PC); thêm viewport-fit=cover vào App.razor; cấu hình 100dvh, safe-area utilities và overflow guard trong app.css | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | `a861c7b` |
 
 
