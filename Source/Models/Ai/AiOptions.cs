@@ -19,14 +19,14 @@ public class AiOptions
     public string? ApiKey { get; set; }
 
     /// <summary>
-    /// Model used for lightweight/fast tasks such as quiz explanations and word enrichment (e.g. "gemini-2.5-flash-lite").
+    /// Model used for lightweight/fast tasks such as quiz explanations and word enrichment (e.g. "gemini-3.5-flash-lite").
     /// </summary>
-    public string FastModel { get; set; } = "gemini-2.5-flash-lite";
+    public string FastModel { get; set; } = "gemini-3.5-flash-lite";
 
     /// <summary>
-    /// Model used for complex reasoning tasks such as study plan generation and writing feedback (e.g. "gemini-2.5-flash").
+    /// Model used for complex reasoning tasks such as study plan generation and writing feedback (e.g. "gemini-3.5-flash").
     /// </summary>
-    public string SmartModel { get; set; } = "gemini-2.5-flash";
+    public string SmartModel { get; set; } = "gemini-3.5-flash";
 
     /// <summary>
     /// Web chatbot URL opened when the user clicks 'Open Chatbot' in the Manual Bridge modal.

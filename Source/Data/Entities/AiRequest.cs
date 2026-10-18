@@ -63,7 +63,7 @@ public class AiRequest
     public string? ResponseJson { get; set; }
 
     /// <summary>
-    /// Specific AI model label or provider identifier (e.g., "gemini-2.5-flash-lite", "manual-web-gemini").
+    /// Specific AI model label or provider identifier (e.g., "gemini-3.5-flash-lite", "manual-web-gemini").
     /// </summary>
     [MaxLength(100)]
     public string? ModelLabel { get; set; }
