@@ -115,7 +115,7 @@
                                 </div>
 
                                 <div class="d-flex justify-content-end gap-2">
-                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteRequestAsync(req.Id)">
+                                    <button class="btn btn-sm btn-outline-danger" disabled="@isDeleting" @onclick="() => DeleteRequestAsync(req.Id)">
                                         <i class="bi bi-trash me-1"></i> Xóa
                                     </button>
                                     <button class="btn btn-sm btn-primary shadow-sm" @onclick="() => OpenBridgeForRequest(req)">
@@ -483,10 +483,22 @@
         expandedRequestId = (expandedRequestId == requestId) ? null : requestId;
     }
 
+    private bool isDeleting = false;
+
     private async Task DeleteRequestAsync(int id)
     {
-        await AiService.DeleteRequestAsync(id);
-        await LoadDataAsync();
+        if (isDeleting) return;
+        isDeleting = true;
+
+        try
+        {
+            await AiService.DeleteRequestAsync(id);
+            await LoadDataAsync();
+        }
+        finally
+        {
+            isDeleting = false;
+        }
     }
 
     private void OpenBridgeForRequest(AiRequest req)
@@ -503,6 +515,7 @@
 
     private async Task RunSandboxTestAsync()
     {
+        if (isExecutingSandbox) return;
         isExecutingSandbox = true;
         sandboxQuizResult = null;
         sandboxEnrichResult = null;
@@ -606,6 +619,7 @@
 
     private async Task HandleBridgeSubmitAsync(string pastedRawText)
     {
+        if (isBridgeValidating) return;
         isBridgeValidating = true;
         bridgeErrorMessage = null;
         bridgeFixPrompt = null;

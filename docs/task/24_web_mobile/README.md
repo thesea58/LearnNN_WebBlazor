@@ -32,8 +32,8 @@ Agent KHÔNG được làm 24.02+ trước khi Task 25 hoàn thành (hoặc ch�
 | 24.04 | **Words & Topics mobile** | <1024px mặc định Card view nếu chưa lưu lựa chọn (vẫn đổi được Table); Table dùng `data-label` (thead ẩn ≤767.98px); chữ nhỏ/gọn để hiển thị nhiều từ; filter thu gọn; phân trang ≥44px; PC không đổi | 24.03 | ✅ |
 | 24.05 | **Study mobile & Flashcard touch** | Tap lật + 4 nút SRS dính đáy trong tầm ngón cái; swipe là tùy chọn (mặc định TẮT) trong cài đặt; Match/Scramble/Quiz không tràn ở 360px | 24.03 | ✅ |
 | 24.06 | **Modals & AI pages mobile** | `WordFormModal`, `ConfirmDeleteModal`, `AiManualBridgeModal`: `calc(100vw-24px)`, `max-height:90dvh`, header/footer sticky, Lưu/Đóng thấy được khi bàn phím mở (visualViewport nếu cần); `/ai/inbox`, `/ai/settings` không tràn | 24.02 | ✅ |
-| 24.07 | **Chống double-submit** | Mọi nút async lưu/xóa/import/AI/chấm SRS có `isBusy` + `disabled` + guard đầu handler; test bấm đúp nhanh chỉ gọi service 1 lần | 24.04–24.06 | 🔄 |
-| 24.08 | **Công thái học input & hover** | Input ≤767.98px `font-size:16px`; `inputmode`/`type` đúng; touch target ≥44px & gap ≥8px (test tự động); `:hover` bọc `(hover:hover) and (pointer:fine)` | 24.04–24.06 | ⬜ |
+| 24.07 | **Chống double-submit** | Mọi nút async lưu/xóa/import/AI/chấm SRS có `isBusy` + `disabled` + guard đầu handler; test bấm đúp nhanh chỉ gọi service 1 lần | 24.04–24.06 | ✅ |
+| 24.08 | **Công thái học input & hover** | Input ≤767.98px `font-size:16px`; `inputmode`/`type` đúng; touch target ≥44px & gap ≥8px (test tự động); `:hover` bọc `(hover:hover) and (pointer:fine)` | 24.04–24.06 | 🔄 |
 
 ## Pha B – Nâng cao (làm sau Pha A)
 

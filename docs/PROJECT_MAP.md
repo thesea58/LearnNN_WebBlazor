@@ -199,6 +199,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📄 WordsAndTopicsMobileTests.cs # Kiểm thử giao diện di động Words & Topics (stack table, touch target)
 │       ├── 📄 StudyMobileTests.cs          # Kiểm thử học từ vựng mobile (tap lật flashcard, sticky SRS, chống tràn)
 │       ├── 📄 ModalAndAiMobileTests.cs     # Kiểm thử công thái học modal & chống tràn các trang AI (Task 24.06)
+│       ├── 📄 DoubleSubmitGuardTests.cs    # Kiểm thử cơ chế chống double-submit khi click nhanh (Task 24.07)
 │       ├── 📁 Helpers/                     # Tiện ích test (Blazor readiness, Image comparison, Overflow check)
 │       └── 📁 Baselines/                   # 20 ảnh chụp màn hình PC chuẩn cho 10 routes
 │
@@ -355,6 +356,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-10-19 | Task 24.04 – Words & Topics Mobile | `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/wwwroot/app.css` | Bổ sung mẫu table-responsive-stack với data-label cho bảng từ vựng và chủ đề trên mobile (<=767.98px), tối ưu touch target phân trang >=44px, nút hành động >=44px, cỡ chữ 16px cho form input và padding compact trên điện thoại |
 | 2026-10-19 | Task 24.05 – Study Mobile & Flashcard Touch | `Source/Components/Pages/Study/FlashcardStudy.razor`, `Source/wwwroot/study.css`, `Source/wwwroot/study.js` | Tối ưu tap lật thẻ, 4 nút SRS dính đáy (sticky bottom) trong tầm ngón cái, hỗ trợ cử chỉ vuốt tùy chọn (mặc định tắt), tối ưu Match/Scramble/Quiz hiển thị gọn gàng không tràn ở viewport 360px |
 | 2026-10-19 | Task 24.06 – Modals & AI Pages Mobile | `Source/wwwroot/app.css`, `Source/Components/App.razor`, `Source/Components/Shared/AiManualBridgeModal.razor`, `Source/Components/Pages/Ai/AiInbox.razor`, `Source/Components/Pages/Ai/AiSettings.razor`, `[NEW] Tests/LearnNN_WebBlazor.Tests/ModalAndAiMobileTests.cs` | Tối ưu công thái học Modal trên mobile (calc(100vw-24px), max-height: 90dvh hoặc visualViewport khi mở bàn phím ảo, header/footer sticky, body cuộn cảm ứng, touch target >= 44px), xử lý chống tràn ngang 360px cho các trang AI (/ai/inbox, /ai/settings) và code blocks, bổ sung bộ test tự động 6/6 test xanh |
+| 2026-10-19 | Task 24.07 – Chống Double-Submit | `Source/Components/Pages/**`, `[NEW] Tests/LearnNN_WebBlazor.Tests/DoubleSubmitGuardTests.cs` | Triển khai cơ chế phòng chống double-submit 2 lớp (UI disabled + early-return guard trong handler) cho toàn bộ các nút gọi async (Flashcard SRS rating, WordFormModal, TopicManage save/delete, WordList delete/import, QuizPractice batch mastery/AI explainer, WordScrambleGame answer/skip, AiInbox delete/sandbox, AiSettings test connection), bổ sung bộ test tự động Playwright |
 
 
 

@@ -426,6 +426,7 @@
     /// </summary>
     private async Task SaveTopicAsync()
     {
+        if (isSubmitting) return;
         var trimmedName = formModel.Name?.Trim() ?? string.Empty;
 
         // A. Client-side validation
@@ -518,7 +519,7 @@
 
     private async Task ConfirmDeleteTopicAsync()
     {
-        if (topicToDelete == null) return;
+        if (isDeleting || topicToDelete == null) return;
 
         isDeleting = true;
         try

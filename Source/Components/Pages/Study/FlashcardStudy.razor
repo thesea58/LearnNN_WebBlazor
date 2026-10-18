@@ -231,28 +231,28 @@
                 <!-- 4 SRS Rating Buttons -->
                 <div class="srs-btn-grid animate__animated animate__fadeIn">
                     <!-- 0: Quên (Blackout) -->
-                    <button type="button" class="srs-rating-btn srs-btn-blackout" @onclick="() => RateSrsAsync(0)">
+                    <button type="button" class="srs-rating-btn srs-btn-blackout" disabled="@isRating" @onclick="() => RateSrsAsync(0)">
                         <span><i class="bi bi-x-circle me-1"></i> Quên</span>
                         <span class="srs-interval-badge">@intervalPreview.BlackoutDays ngày</span>
                         <span class="srs-key-hint">(Phím 1)</span>
                     </button>
 
                     <!-- 3: Khó (Difficult) -->
-                    <button type="button" class="srs-rating-btn srs-btn-difficult" @onclick="() => RateSrsAsync(3)">
+                    <button type="button" class="srs-rating-btn srs-btn-difficult" disabled="@isRating" @onclick="() => RateSrsAsync(3)">
                         <span><i class="bi bi-question-circle me-1"></i> Khó</span>
                         <span class="srs-interval-badge">@intervalPreview.DifficultDays ngày</span>
                         <span class="srs-key-hint">(Phím 2)</span>
                     </button>
 
                     <!-- 4: Tốt (Good) -->
-                    <button type="button" class="srs-rating-btn srs-btn-good" @onclick="() => RateSrsAsync(4)">
+                    <button type="button" class="srs-rating-btn srs-btn-good" disabled="@isRating" @onclick="() => RateSrsAsync(4)">
                         <span><i class="bi bi-check-circle me-1"></i> Tốt</span>
                         <span class="srs-interval-badge">@intervalPreview.GoodDays ngày</span>
                         <span class="srs-key-hint">(Phím 3 / Space)</span>
                     </button>
 
                     <!-- 5: Dễ (Easy) -->
-                    <button type="button" class="srs-rating-btn srs-btn-easy" @onclick="() => RateSrsAsync(5)">
+                    <button type="button" class="srs-rating-btn srs-btn-easy" disabled="@isRating" @onclick="() => RateSrsAsync(5)">
                         <span><i class="bi bi-stars me-1"></i> Dễ</span>
                         <span class="srs-interval-badge">@intervalPreview.EasyDays ngày</span>
                         <span class="srs-key-hint">(Phím 4)</span>
@@ -301,6 +301,7 @@
 
     private int progressPercent => words.Count > 0 ? (int)Math.Round((double)(currentIndex + 1) / words.Count * 100) : 0;
     private bool isSwipeEnabled = false;
+    private bool isRating = false;
     private DotNetObjectReference<FlashcardStudy>? dotNetRef;
 
     #endregion
@@ -391,40 +392,48 @@
 
     private async Task RateSrsAsync(int rating)
     {
-        if (currentIndex >= words.Count) return;
+        if (isRating || currentIndex >= words.Count) return;
+        isRating = true;
 
-        var currentWord = words[currentIndex];
-        long responseTimeMs = (long)(DateTime.UtcNow - cardStartTime).TotalMilliseconds;
-
-        // Apply SuperMemo-2 algorithm via SrsEngineService
-        var result = await SrsEngineService.RecordReviewResultAsync(currentWord.Id, rating, sessionId, responseTimeMs);
-
-        if (result.IsMastered)
+        try
         {
-            sessionMasteredCount++;
-        }
+            var currentWord = words[currentIndex];
+            long responseTimeMs = (long)(DateTime.UtcNow - cardStartTime).TotalMilliseconds;
 
-        // Anki-style Intra-session Re-queueing: If rated 0 (Forgot), re-queue word at end of current deck
-        if (rating == 0)
-        {
-            words.Add(currentWord);
-            requeuedCount++;
-            try
+            // Apply SuperMemo-2 algorithm via SrsEngineService
+            var result = await SrsEngineService.RecordReviewResultAsync(currentWord.Id, rating, sessionId, responseTimeMs);
+
+            if (result.IsMastered)
             {
-                await JS.InvokeVoidAsync("studyInterop.playSound", "error");
+                sessionMasteredCount++;
             }
-            catch { }
-        }
-        else
-        {
-            try
-            {
-                await JS.InvokeVoidAsync("studyInterop.playSound", "success");
-            }
-            catch { }
-        }
 
-        await NextCardAsync();
+            // Anki-style Intra-session Re-queueing: If rated 0 (Forgot), re-queue word at end of current deck
+            if (rating == 0)
+            {
+                words.Add(currentWord);
+                requeuedCount++;
+                try
+                {
+                    await JS.InvokeVoidAsync("studyInterop.playSound", "error");
+                }
+                catch { }
+            }
+            else
+            {
+                try
+                {
+                    await JS.InvokeVoidAsync("studyInterop.playSound", "success");
+                }
+                catch { }
+            }
+
+            await NextCardAsync();
+        }
+        finally
+        {
+            isRating = false;
+        }
     }
 
     private async Task HandleKeyDown(KeyboardEventArgs e)

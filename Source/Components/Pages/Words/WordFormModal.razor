@@ -218,6 +218,7 @@
     /// </summary>
     private async Task HandleValidSubmit()
     {
+        if (isSubmitting) return;
         isAttemptedSubmit = true;
         if (model.TopicId <= 0)
         {

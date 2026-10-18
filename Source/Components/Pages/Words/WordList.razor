@@ -777,7 +777,7 @@
 
     private async Task ConfirmDeleteWordAsync()
     {
-        if (wordToDelete == null) return;
+        if (isDeleting || wordToDelete == null) return;
         isDeleting = true;
 
         try
@@ -887,7 +887,7 @@
 
     private async Task ProcessImportAsync()
     {
-        if (importBrowserFile == null) return;
+        if (isImporting || importBrowserFile == null) return;
         isImporting = true;
         try
         {

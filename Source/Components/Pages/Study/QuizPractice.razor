@@ -116,7 +116,7 @@
             @if (correctCount > 0 && !hasMarkedMastered)
             {
                 <div class="mb-4">
-                    <button class="btn btn-success px-4 py-2" @onclick="MarkAllCorrectAsMasteredAsync">
+                    <button class="btn btn-success px-4 py-2" disabled="@isMarkingMastered" @onclick="MarkAllCorrectAsMasteredAsync">
                         <i class="bi bi-check-all me-1"></i> Đánh dấu @correctCount từ đã làm đúng là "Đã thuộc"
                     </button>
                 </div>
@@ -439,6 +439,7 @@
     private int progressPercent => questions.Count > 0 ? (int)Math.Round((double)(currentIndex + 1) / questions.Count * 100) : 0;
 
     // AI Explainer State
+    private bool isMarkingMastered = false;
     private bool showAiModal = false;
     private bool isBatchMode = false;
     private bool isBatchExplaining = false;
@@ -554,11 +555,21 @@
 
     private async Task MarkAllCorrectAsMasteredAsync()
     {
-        var correctWordIds = questions.Where(q => q.IsCorrect).Select(q => q.WordId).ToList();
-        if (correctWordIds.Count > 0)
+        if (isMarkingMastered || hasMarkedMastered) return;
+        isMarkingMastered = true;
+
+        try
         {
-            await StudyService.SetBatchWordsMasteryAsync(correctWordIds, true);
-            hasMarkedMastered = true;
+            var correctWordIds = questions.Where(q => q.IsCorrect).Select(q => q.WordId).ToList();
+            if (correctWordIds.Count > 0)
+            {
+                await StudyService.SetBatchWordsMasteryAsync(correctWordIds, true);
+                hasMarkedMastered = true;
+            }
+        }
+        finally
+        {
+            isMarkingMastered = false;
         }
     }
 
@@ -605,6 +616,8 @@
 
     private async Task ExplainQuestionAsync(QuizQuestionDto q)
     {
+        if (q.IsExplaining) return;
+
         if (q.Explanation != null)
         {
             q.IsExplanationExpanded = !q.IsExplanationExpanded;
@@ -666,6 +679,8 @@
 
     private async Task ExplainAllIncorrectAsync()
     {
+        if (isBatchExplaining) return;
+
         var wrongUnexplained = incorrectQuestions.Where(q => q.Explanation == null).ToList();
         if (wrongUnexplained.Count == 0)
         {
