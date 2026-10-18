@@ -34,7 +34,8 @@
 | 21 | TOEIC Listening & Audio Practice | Luyện nghe Part 1-4, Luyện chép chính tả (Dictation) kèm chấm diff, nghe đa giọng (US/UK/AU) | 🟡 TB | Task 16, 20 | ⬜ Chưa bắt đầu |
 | 22 | Mock Test & Score Prediction | Thi thử trắc nghiệm Full (200 câu)/Mini (100 câu), quy đổi điểm TOEIC, radar kỹ năng & dự đoán điểm | 🟢 Thấp | Task 20, 21 | ⬜ Chưa bắt đầu |
 | 23 | [Multi-View Mode (Table & Card Grid)](23_multi_view_mode/) | Chế độ xem đa dạng (Kiểu dòng & Kiểu thẻ icon), tối ưu cảm ứng Android/iPhone, phát âm TTS trực tiếp trên thẻ, lưu tùy chọn localStorage | 🔴 Cao | Task 05, 06 | ✅ Hoàn thành |
-| 24 | [Web Mobile (Responsive + PWA)](24_web_mobile/) | Tối ưu web cho điện thoại: bottom-nav, touch UX, PWA cài được, resilience Blazor Server, Lighthouse; chạy tự động bằng Agy CLI loop ([prompt](24_web_mobile/AGENT_PROMPT.md)) trên nhánh `web_mobile` | 🔴 Cao | Task 13, 23 | ⬜ Chưa bắt đầu |
+| 24 | [Web Mobile (Responsive + PWA)](24_web_mobile/) | Tối ưu web cho điện thoại/tablet (<1024px): bottom-nav, Card view, modal, touch UX; PWA, resilience, Lighthouse. Khóa giao diện PC theo `mobile-desktop-lock.md`; chạy bằng Agy CLI ([prompt](24_web_mobile/AGENT_PROMPT.md)) trên nhánh `web_mobile` | 🔴 Cao | Task 13, 23, 25 (sau 24.01) | ⬜ Chưa bắt đầu |
+| 25 | [Blazor Architecture Refactor](25_blazor_refactor/) | Refactor toàn codebase theo chuẩn Blazor (`@key`, Dispose, JS interop, ErrorBoundary...) không đổi giao diện/hành vi PC; chạy sau 24.01 (baseline) và trước 24.02 ([prompt](25_blazor_refactor/AGENT_PROMPT.md)) | 🔴 Cao | Task 24.01 | ⬜ Chưa bắt đầu |
 
 
 ---

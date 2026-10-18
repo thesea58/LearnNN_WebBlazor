@@ -12,7 +12,8 @@ Bạn là **Orchestrator** của dự án LearnNN_WebBlazor (Blazor Server .NET 
 
 ### 0. Khởi động (chỉ 1 lần)
 1. `git branch --show-current` phải là `web_mobile`; nếu không, `git checkout web_mobile` (tạo mới nếu chưa có).
-2. Đọc BẮT BUỘC: `.agents/rules/*.md`, `docs/PROJECT_MAP.md`, `docs/task/24_web_mobile/README.md`, `docs/task/24_web_mobile/PROGRESS.md`.
+2. Đọc BẮT BUỘC: `AGENTS.md`, `.agents/rules/*.md` (đặc biệt **`mobile-desktop-lock.md`** – khóa PC ≥1024px, breakpoint 1024, chỉ bottom-nav), `docs/PROJECT_MAP.md`, `docs/task/24_web_mobile/README.md`, `docs/task/24_web_mobile/PROGRESS.md`.
+   **Thứ tự bắt buộc**: 24.01 (harness + baseline PC) → chạy Task 25 (`docs/task/25_blazor_refactor/AGENT_PROMPT.md`) → 24.02…24.08 → 24.09…24.13. Không làm 24.02+ khi Task 25 chưa xong (trừ khi người dùng cho phép).
 3. `git status`: nếu có thay đổi không thuộc task (vd. `Source/*.db`, `bin/`, `obj/`), KHÔNG commit chúng; thêm vào `.gitignore` nếu hợp lý.
 4. Xác minh `dotnet build` chạy được trước khi bắt đầu (baseline).
 
@@ -41,26 +42,33 @@ Mỗi vòng:
 6. Quay lại bước 1 của vòng kế tiếp.
 
 ### 2. Quy tắc kỹ thuật cố định
-- Mobile-first: viết CSS cho ≤430px trước, dùng breakpoint Bootstrap (`<768px` = mobile). Ưu tiên scoped CSS `.razor.css`; CSS dùng chung vào `Source/wwwroot/app.css` / `study.css`.
-- Không thêm thư viện nặng khi CSS/JS thuần làm được. Package mới (Playwright, bUnit) chỉ đặt trong project `Tests/`, không vào project web.
-- Project test mới: `Tests/LearnNN_WebBlazor.Tests/`, add vào `LearnNN_WebBlazor.slnx`; phải cập nhật `PROJECT_MAP.md`.
-- Test không được phụ thuộc DB thật của người dùng: dùng SQLite file tạm/in-memory và seed riêng. TUYỆT ĐỐI không sửa/commit `Source/LearnNN_VocabDB.db`.
-- Không phá tính năng desktop: mỗi sub-task phải chạy lại smoke test ở 1280×800.
-- Không làm thay đổi schema DB trừ khi bắt buộc; nếu có, tạo migration và ghi rõ trong log.
-- Không hard-code secret/API key. Không đụng cơ chế nạp key AI hiện có.
+- **Desktop-lock, KHÔNG mobile-first**: giữ nguyên khối PC; phần mobile/tablet thêm bằng `@media (max-width: 1023.98px)` / `(max-width: 767.98px)` ở **cuối file**. Breakpoint layout = **1024px** (chỉ đổi con số trong `MainLayout.razor.css`/`NavMenu.razor.css`). Chi tiết: `.agents/rules/mobile-desktop-lock.md`.
+- Điều hướng mobile = **bottom-nav** (không drawer), ẩn trong 4 trang phiên học.
+- CSS: ưu tiên `.razor.css` (dùng `::deep` cho component con); rule chung mới vào `app.css`/`study.css`. `!important` chỉ cho input 16px và kích thước modal mobile.
+- Không thêm thư viện nặng khi CSS/JS thuần làm được. Package test (Playwright, bUnit) chỉ trong `Tests/`.
+- Project test: `Tests/LearnNN_WebBlazor.Tests/`, add vào `LearnNN_WebBlazor.slnx`; cập nhật `PROJECT_MAP.md`.
+- Test không dùng DB thật: SQLite file tạm + seed riêng. TUYỆT ĐỐI không sửa/commit `Source/LearnNN_VocabDB.db`.
+- **Điều kiện chặn**: so ảnh baseline PC (1366×768, 1920×1080) phải khớp sau MỖI sub-task. Không được cập nhật baseline để "cho pass" trừ ngoại lệ đã duyệt (breakpoint 768→1024 ở vùng 768–1023px; guard double-submit không đổi UI).
+- Không đổi schema DB trừ khi bắt buộc (ghi rõ trong log). Không hard-code secret/API key; không đụng cơ chế nạp key AI.
 - Comment code theo `.agents/rules/code-commenting.md`.
 
 ### 3. Chuẩn "Tester" tối thiểu cho mỗi sub-task
+Ma trận engine/viewport: xem README Task 24 (Chromium desktop, WebKit iPhone SE/14, Chromium Pixel 7, biên 360/320/768/landscape).
+
 | Kiểm tra | Cách đo |
 |---|---|
-| Không scroll ngang | `document.documentElement.scrollWidth <= window.innerWidth` ở từng route × viewport |
-| Touch target | Mọi `a, button, input, select, [role=button]` hiển thị có `boundingBox` ≥ 44×44 (loại trừ link inline trong đoạn văn) |
-| Console sạch | Không có `console.error` / `pageerror` / request 4xx-5xx |
-| Blazor hoạt động | Chờ `blazor` circuit kết nối trước khi thao tác (không dùng sleep cứng) |
-| Hồi quy desktop | Smoke: `/`, `/words`, `/topics`, `/study`, `/ai/inbox` tải OK ở 1280×800 |
-| Lighthouse (24.07, 24.09, 24.10) | `npx lighthouse <url> --form-factor=mobile --only-categories=...` hoặc chrome-devtools MCP; lưu JSON/tóm tắt vào `evidence/` |
+| Hồi quy PC | `toHaveScreenshot` (≤0.1%) mọi route ở 1366×768 & 1920×1080 so với baseline |
+| Không tràn ngang | Script overflow trong `mobile-desktop-lock.md` mục 5 (`isOverflowing=false`, `offenders` rỗng) ở 360/375/390/412/768 (320 & landscape: chỉ không vỡ) |
+| Touch target | Mọi `a, button, input, select, [role=button]` hiển thị trên mobile có `boundingBox` ≥ 44×44, gap ≥ 8px (loại link inline trong đoạn văn) |
+| Bottom-nav | Hiện <1024px, ẩn ≥1024px; ẩn ở `/study/flashcards,match,scramble,quiz`; không che nội dung |
+| Modal | Lưu/Đóng nằm trong viewport & bấm được ở 375×667 (kể cả khi mở bàn phím giả lập) |
+| Double-submit | Bấm đúp nhanh nút lưu/xóa chỉ gọi service 1 lần |
+| Console sạch | Không `console.error`/`pageerror`/request 4xx-5xx |
+| Blazor sẵn sàng | Chờ circuit kết nối trước khi thao tác (không sleep cứng) |
+| Lighthouse (24.09, 24.11, 24.12) | `npx lighthouse <url> --form-factor=mobile` hoặc chrome-devtools MCP; lưu tóm tắt vào `evidence/` |
 
 Routes cần phủ: `/`, `/words`, `/topics`, `/study`, `/study/flashcards`, `/study/match`, `/study/scramble`, `/study/quiz`, `/ai/inbox`, `/ai/settings`.
+
 
 ### 4. Quy tắc làm việc của sub-agents
 - Mỗi sub-agent nhận prompt tự chứa: mục tiêu, file liên quan, Acceptance Criteria của sub-task, định dạng kết quả trả về (danh sách file đổi / lệnh đã chạy / kết quả / lỗi còn lại).
@@ -71,7 +79,7 @@ Routes cần phủ: `/`, `/words`, `/topics`, `/study`, `/study/flashcards`, `/s
 Cuối MỖI vòng, cập nhật `PROGRESS.md`: sub-task hiện tại, số vòng, kết quả test (pass/fail + số lượng), lỗi còn mở, hash commit. Nếu ngữ cảnh dài, dùng `/compact` rồi tiếp tục từ `PROGRESS.md`.
 
 ### 6. Điều kiện dừng
-- **Thành công**: tất cả sub-task `✅` (hoặc `🚫` có lý do) → chạy 24.11 lần cuối, cập nhật `docs/task/README.md` (thêm dòng Task 24 với trạng thái), báo cáo tổng kết (bảng sub-task, số test, điểm Lighthouse, danh sách `🚫`).
+- **Thành công**: tất cả sub-task `✅` (hoặc `🚫` có lý do) → chạy 24.13 lần cuối, cập nhật `docs/task/README.md` (thêm dòng Task 24 với trạng thái), báo cáo tổng kết (bảng sub-task, số test, điểm Lighthouse, danh sách `🚫`).
 - **Dừng khẩn & báo người dùng**: cần quyết định có rủi ro (xóa dữ liệu, đổi schema phá dữ liệu, thêm dịch vụ trả phí), thiếu quyền/công cụ không thể cài (vd. không tải được trình duyệt Playwright sau 2 lần thử), hoặc ≥3 sub-task liên tiếp `🚫`.
 - Không dừng chỉ vì một lỗi đơn lẻ — phân tích nguyên nhân gốc, sửa và chạy lại.
 

@@ -1,43 +1,54 @@
 # 📱 Task 24 – Web Mobile (Responsive + PWA + Mobile UX)
 
 > **Nhánh Git**: `web_mobile`
-> **Mục tiêu**: Biến LearnNN thành web dùng mượt trên điện thoại (360–430px), cài được như app (PWA), thao tác cảm ứng tốt, chịu được mạng chập chờn (Blazor Server).
-> **Cách chạy**: Agy CLI đọc [`AGENT_PROMPT.md`](AGENT_PROMPT.md) và lặp chu trình Sửa → Test → Ghi log → Commit cho từng sub-task bên dưới.
-> **Nhật ký thực thi**: [`PROGRESS.md`](PROGRESS.md) (agent ghi mỗi vòng lặp).
+> **Rule bắt buộc**: [`.agents/rules/mobile-desktop-lock.md`](../../../.agents/rules/mobile-desktop-lock.md) (PC ≥1024px được khóa; breakpoint layout = 1024px; chỉ bottom-nav, không drawer).
+> **Cách chạy**: Agy CLI đọc [`AGENT_PROMPT.md`](AGENT_PROMPT.md) và lặp Sửa → Test → Ghi log → Commit.
+> **Nhật ký**: [`PROGRESS.md`](PROGRESS.md)
+
+## Thứ tự thực thi (QUAN TRỌNG)
+```
+24.01 (harness + baseline PC)  →  Task 25 (refactor Blazor, có baseline bảo vệ)  →  24.02 … 24.08 (Pha A: responsive)  →  24.09 … 24.13 (Pha B)
+```
+Agent KHÔNG được làm 24.02+ trước khi Task 25 hoàn thành (hoặc chủ dự án cho phép bỏ qua).
 
 ## Quy ước trạng thái
 `⬜` chưa làm · `🔄` đang làm · `✅` xong (đã qua test) · `🚫` bị chặn (ghi lý do vào PROGRESS.md)
 
-## Viewport kiểm thử chuẩn
-| Tên | Kích thước | Ghi chú |
+## Ma trận kiểm thử chuẩn
+| Engine | Thiết bị / Viewport | Mục đích |
 |---|---|---|
-| iPhone SE | 375×667 | Màn nhỏ nhất cần hỗ trợ (cũng kiểm tra 360×640 Android) |
-| iPhone 14 | 390×844 | Có safe-area / notch |
-| Pixel 7 | 412×915 | Android phổ biến |
-| iPad Mini | 768×1024 | Breakpoint tablet |
-| Desktop | 1280×800 | Không được hồi quy |
+| Chromium desktop | 1366×768, 1920×1080 | **Hồi quy PC (so ảnh baseline)** |
+| WebKit (iPhone) | 375×667 (SE), 390×844 (14) | Safari iOS: auto-zoom, dvh, safe-area |
+| Chromium (Pixel 7) | 412×915 | Android |
+| Chromium | 360×640 (chuẩn tối thiểu), 320×568 (chỉ không vỡ), 768×1024 (tablet = giao diện mobile), landscape 667×375 (chỉ không vỡ) | Biên |
 
-## Danh sách Sub-task
+## Pha A – Responsive
 
-| ID | Sub-task | Tiêu chí hoàn thành (Acceptance Criteria) | Ưu tiên | Phụ thuộc | TT |
-|---|---|---|---|---|---|
-| 24.01 | **Baseline Audit & Test Harness** | Có project test (`Tests/`) dùng Playwright .NET chạy được headless; script chụp screenshot mọi route ở 5 viewport; báo cáo lỗi tràn ngang/overflow/touch target <44px vào `PROGRESS.md` | 🔴 | — | ⬜ |
-| 24.02 | **Viewport, Safe-area & Global CSS** | `<meta viewport viewport-fit=cover>`, `env(safe-area-inset-*)`, không có scroll ngang ở bất kỳ route nào ≤ 430px, font input ≥16px (chặn iOS zoom), `touch-action` hợp lý | 🔴 | 24.01 | ⬜ |
-| 24.03 | **Mobile Navigation** | Dưới 768px: thanh bottom-nav (Home, Study, Words, Topics, AI) cố định, active state rõ; NavMenu cũ ẩn; không che nội dung cuối trang; desktop giữ nguyên sidebar | 🔴 | 24.02 | ⬜ |
-| 24.04 | **Words & Topics mobile** | `/words`, `/topics`: filter thu gọn (collapse/offcanvas), mặc định Card view trên mobile, modal thêm/sửa full-screen, nút ≥44px, phân trang gọn | 🔴 | 24.02, 24.03 | ⬜ |
-| 24.05 | **Study Hub & Flashcard touch** | `/study/*`: flashcard hỗ trợ tap lật + swipe trái/phải (đánh giá SRS), 4 nút SRS dính đáy màn hình trong tầm ngón cái, game Match/Scramble/Quiz không tràn màn 360px | 🔴 | 24.02, 24.03 | ⬜ |
-| 24.06 | **AI pages mobile** | `/ai/inbox`, `/ai/settings`, `AiManualBridgeModal`: modal full-screen, nút Copy 1 chạm hiển thị rõ, textarea không bị bàn phím che (visualViewport) | 🟡 | 24.02 | ⬜ |
-| 24.07 | **PWA (Installable)** | `manifest.webmanifest`, icon 192/512 + maskable, `apple-touch-icon`, theme-color, service worker cache static assets; Lighthouse PWA installable pass; Add-to-Home-Screen chạy fullscreen | 🔴 | 24.02 | ⬜ |
-| 24.08 | **Resilience Blazor Server trên mobile** | Reconnect modal thân thiện mobile (không chặn UI vô hạn), tự reconnect khi quay lại tab/đổi mạng, trang offline fallback từ service worker, không mất state quan trọng (phiên học) khi mất kết nối ngắn | 🟡 | 24.07 | ⬜ |
-| 24.09 | **Performance mobile** | Lighthouse Mobile (throttled 4G): Performance ≥ 85, LCP < 2.5s, CLS < 0.1 trên `/`, `/words`, `/study`; bật nén Brotli/Gzip, cache header static, lazy-load phần nặng | 🟡 | 24.02 | ⬜ |
-| 24.10 | **Accessibility & Touch QA** | Lighthouse A11y ≥ 90, contrast AA, focus-visible, aria-label cho nút icon, mọi tap target ≥ 44×44px (test tự động bằng Playwright) | 🟡 | 24.04, 24.05 | ⬜ |
-| 24.11 | **Regression & Docs & Release** | Toàn bộ test xanh ở 5 viewport; desktop không hồi quy; cập nhật `README.md`, `docs/design/04_deployment_guide.md` (mục PWA), `PROJECT_MAP.md`, `docs/task/README.md`; merge-ready | 🔴 | tất cả | ⬜ |
+| ID | Sub-task | Tiêu chí hoàn thành | Phụ thuộc | TT |
+|---|---|---|---|---|
+| 24.01 | **Test harness & Baseline PC** | Project `Tests/LearnNN_WebBlazor.Tests/` (Playwright .NET, 3 engine), DB test riêng (SQLite tạm + seed), screenshot baseline mọi route ở 1366×768 & 1920×1080 lưu `Tests/.../Baselines/`; test so ảnh `toHaveScreenshot` (≤0.1%); script overflow chuẩn trong rule; chạy được headless | — | ⬜ |
+| 24.02 | **Breakpoint 1024 + Viewport/Safe-area** | `MainLayout.razor.css`/`NavMenu.razor.css` đổi 768→1024 (chỉ số, giữ nguyên khối PC); `viewport-fit=cover`; `100dvh`; safe-area; không scroll ngang ở ≤1023px; PC baseline khớp ở 1366/1920 | 24.01, Task 25 | ⬜ |
+| 24.03 | **Bottom-nav** | 5 mục (Home, Study, Words, Topics, AI→Inbox), active state, ẩn ở `/study/flashcards,match,scramble,quiz` kèm nút thoát ở topbar; nút ⚙ Settings trong trang AI; nội dung không bị che; ẩn hoàn toàn ≥1024px; sidebar PC giữ nguyên | 24.02 | ⬜ |
+| 24.04 | **Words & Topics mobile** | <1024px mặc định Card view nếu chưa lưu lựa chọn (vẫn đổi được Table); Table dùng `data-label` (thead ẩn ≤767.98px); chữ nhỏ/gọn để hiển thị nhiều từ; filter thu gọn; phân trang ≥44px; PC không đổi | 24.03 | ⬜ |
+| 24.05 | **Study mobile & Flashcard touch** | Tap lật + 4 nút SRS dính đáy trong tầm ngón cái; swipe là tùy chọn (mặc định TẮT) trong cài đặt; Match/Scramble/Quiz không tràn ở 360px | 24.03 | ⬜ |
+| 24.06 | **Modals & AI pages mobile** | `WordFormModal`, `ConfirmDeleteModal`, `AiManualBridgeModal`: `calc(100vw-24px)`, `max-height:90dvh`, header/footer sticky, Lưu/Đóng thấy được khi bàn phím mở (visualViewport nếu cần); `/ai/inbox`, `/ai/settings` không tràn | 24.02 | ⬜ |
+| 24.07 | **Chống double-submit** | Mọi nút async lưu/xóa/import/AI/chấm SRS có `isBusy` + `disabled` + guard đầu handler; test bấm đúp nhanh chỉ gọi service 1 lần | 24.04–24.06 | ⬜ |
+| 24.08 | **Công thái học input & hover** | Input ≤767.98px `font-size:16px`; `inputmode`/`type` đúng; touch target ≥44px & gap ≥8px (test tự động); `:hover` bọc `(hover:hover) and (pointer:fine)` | 24.04–24.06 | ⬜ |
 
-## Definition of Done (áp dụng cho MỌI sub-task)
-1. `dotnet build` không lỗi, không warning mới.
-2. `dotnet test` xanh (gồm test mới của sub-task).
-3. Playwright: không có overflow ngang và không có lỗi console ở viewport liên quan.
-4. Desktop 1280×800 không hồi quy.
-5. Đã cập nhật checklist ở bảng trên + ghi `PROGRESS.md`.
-6. Đã commit theo quy ước: `feat(mobile): [Task 24.XX] <subject>`.
-7. Có file mới/đổi cấu trúc → cập nhật `docs/PROJECT_MAP.md` (cây + Change Log).
+## Pha B – Nâng cao (làm sau Pha A)
+
+| ID | Sub-task | Tiêu chí hoàn thành | Phụ thuộc | TT |
+|---|---|---|---|---|
+| 24.09 | **PWA** | `manifest.webmanifest`, icon 192/512 + maskable, `apple-touch-icon`, theme-color, service worker cache static; Lighthouse installable pass | Pha A | ⬜ |
+| 24.10 | **Resilience Blazor Server** | Reconnect modal thân thiện mobile, tự reconnect khi quay lại tab/đổi mạng, trang offline fallback, không mất phiên học khi mất kết nối ngắn | 24.09 | ⬜ |
+| 24.11 | **Performance mobile** | Lighthouse Mobile Perf ≥85, LCP<2.5s, CLS<0.1 trên `/`, `/words`, `/study`; Brotli/Gzip, cache static | Pha A | ⬜ |
+| 24.12 | **Accessibility** | Lighthouse A11y ≥90, contrast AA, focus-visible, aria-label nút icon | Pha A | ⬜ |
+| 24.13 | **Regression, Docs & Release** | Toàn bộ test xanh ở ma trận; PC baseline khớp; cập nhật `README.md`, `04_deployment_guide.md`, `PROJECT_MAP.md`, `docs/task/README.md`; checklist thử tay điện thoại thật (`start-mobile.bat`) giao cho chủ dự án | tất cả | ⬜ |
+
+## Definition of Done (mọi sub-task)
+1. `dotnet build` không lỗi/warning mới; `dotnet test` xanh.
+2. **So ảnh PC baseline khớp** (1366×768 & 1920×1080) – điều kiện chặn.
+3. Mobile: không tràn ngang, không lỗi console, touch target ≥44px ở viewport liên quan (WebKit + Chromium).
+4. Cập nhật bảng này + `PROGRESS.md`.
+5. Commit: `feat(mobile): [Task 24.XX] <subject>`.
+6. File mới/đổi cấu trúc → cập nhật `docs/PROJECT_MAP.md` (cây + Change Log).

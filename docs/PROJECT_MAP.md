@@ -1,4 +1,4 @@
-# 🗺️ PROJECT_MAP – Bản đồ Kiến trúc Dự án LearnNN_WebBlazor
+﻿# 🗺️ PROJECT_MAP – Bản đồ Kiến trúc Dự án LearnNN_WebBlazor
 
 > **Phiên bản**: 1.0
 > **Ngày khởi tạo**: 2026-09-22
@@ -17,6 +17,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   └── 📁 rules/                           #    Các quy tắc hành vi cho AI
 │       ├── 📄 code-commenting.md           #    Quy ước comment code (EN, 5W1H, XML Docs)
 │       ├── 📄 git-commit-convention.md     #    Quy ước commit Git (Conventional Commits, semantic prefix)
+│       ├── 📄 mobile-desktop-lock.md       #    Quy tắc thích ứng mobile & khóa giao diện PC (breakpoint 1024, bottom-nav, test Playwright)
 │       ├── 📄 project-architecture.md      #    Quy tắc kiến trúc & file conventions
 │       └── 📄 update-status-task.md
 │
@@ -57,7 +58,8 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📁 17_ai_infrastructure_manual_bridge/ # ✅ Task 17 – AI Infrastructure & Manual Bridge
 │       ├── 📁 18_ai_quiz_explainer_trap_detector/ # ✅ Task 18 – AI Quiz Explainer & Trap Detector
 │       ├── 📁 23_multi_view_mode/          #    ✅ Task 23 – Multi-View Mode (Table & Card Grid)
-│       └── 📁 24_web_mobile/               #    ⬜ Task 24 – Web Mobile (README backlog, AGENT_PROMPT.md vòng lặp Agy CLI, PROGRESS.md nhật ký, evidence/)
+│       ├── 📁 24_web_mobile/               #    ⬜ Task 24 – Web Mobile (README backlog, AGENT_PROMPT.md vòng lặp Agy CLI, PROGRESS.md nhật ký, evidence/)
+│       └── 📁 25_blazor_refactor/          #    ⬜ Task 25 – Blazor Architecture Refactor (README, AGENT_PROMPT.md, PROGRESS.md)
 │
 ├── 📁 Source/                              # 💻 MÃ NGUỒN CHÍNH (Blazor Web App)
 │   ├── 📄 LearnNN_WebBlazor.csproj         #    Project file (.NET 10)
@@ -183,6 +185,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │           └── 📁 bootstrap/              #    Bootstrap 5
 │
 ├── 📄 LearnNN_WebBlazor.slnx               # Solution file định dạng XML (.NET 10 / Visual Studio 2022+)
+├── 📄 AGENTS.md                            # Điểm vào cho AI Agent: trỏ tới PROJECT_MAP & các rule
 ├── 📄 start-mobile.bat                     # Script 1-Click khởi chạy app & mở Dev Tunnel ra điện thoại (Windows)
 ├── 📄 start-mobile.ps1                     # Script PowerShell xử lý Dev Tunnel persistent & sinh mã QR terminal
 ├── 📄 Dockerfile                           # Docker multi-stage build cho .NET 10 Blazor Server
@@ -328,6 +331,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-10-12 | Fix AI API Key Detection & Settings Enhancement | `Source/Program.cs`, `Source/LearnNN_WebBlazor.csproj`, `Source/Services/Ai/GeminiApiExecutor.cs`, `Source/Components/Pages/Ai/AiSettings.razor`, `docs/PROJECT_MAP.md` | Tối ưu cơ chế nạp API Key đa nguồn (User/Machine Registry, .env, aliases GEMINI/GOOGLE/AI_API_KEY, tự động trim quotes, auto chuyển Hybrid), thêm UserSecretsId, thêm ô nhập trực tiếp API key & nút kiểm tra kết nối tức thì trên /ai/settings |
 | 2026-10-12 | Upgrade Gemini Models to 3.5 | `Source/appsettings.json`, `Source/Models/Ai/AiOptions.cs`, `Source/Data/Entities/AiRequest.cs`, `docs/PROJECT_MAP.md` | Nâng cấp mô hình Gemini mặc định từ 2.5 lên `gemini-3.5-flash-lite` và `gemini-3.5-flash` theo chính sách cập nhật mới nhất của Google AI Studio |
 | 2026-10-18 | Task 24 – Web Mobile (lập kế hoạch) | `[NEW] docs/task/24_web_mobile/README.md`, `AGENT_PROMPT.md`, `PROGRESS.md`, `docs/task/README.md`, nhánh git `web_mobile` | Tạo nhánh `web_mobile`, backlog 11 sub-task (responsive, PWA, mobile UX) và prompt orchestrator + sub-agents để Agy CLI lặp Sửa → Test → Commit liên tục; trạng thái lưu trong `PROGRESS.md` |
+| 2026-10-19 | Task 24/25 – Chuẩn hóa rule mobile & kế hoạch | `[NEW] .agents/rules/mobile-desktop-lock.md`, `[NEW] AGENTS.md`, `[NEW] docs/task/25_blazor_refactor/*`, `docs/task/24_web_mobile/README.md`, `AGENT_PROMPT.md`, `docs/task/README.md` | Chốt rule khóa PC (breakpoint 1024, bottom-nav, Card view mặc định, modal sticky, guard double-submit, test Playwright 3 engine + so ảnh baseline); tách Task 25 refactor Blazor chạy sau 24.01 và trước 24.02; Task 24 chia 2 pha |
 
 
 
