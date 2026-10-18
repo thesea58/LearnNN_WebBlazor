@@ -26,7 +26,7 @@ Agent KHÔNG được làm 24.02+ trước khi Task 25 hoàn thành (hoặc ch�
 
 | ID | Sub-task | Tiêu chí hoàn thành | Phụ thuộc | TT |
 |---|---|---|---|---|
-| 24.01 | **Test harness & Baseline PC** | Project `Tests/LearnNN_WebBlazor.Tests/` (Playwright .NET, 3 engine), DB test riêng (SQLite tạm + seed), screenshot baseline mọi route ở 1366×768 & 1920×1080 lưu `Tests/.../Baselines/`; test so ảnh `toHaveScreenshot` (≤0.1%); script overflow chuẩn trong rule; chạy được headless | — | ⬜ |
+| 24.01 | **Test harness & Baseline PC** | Project `Tests/LearnNN_WebBlazor.Tests/` (Playwright .NET, 3 engine), DB test riêng (SQLite tạm + seed), screenshot baseline mọi route ở 1366×768 & 1920×1080 lưu `Tests/.../Baselines/`; test so ảnh `toHaveScreenshot` (≤0.1%); script overflow chuẩn trong rule; chạy được headless | — | ✅ |
 | 24.02 | **Breakpoint 1024 + Viewport/Safe-area** | `MainLayout.razor.css`/`NavMenu.razor.css` đổi 768→1024 (chỉ số, giữ nguyên khối PC); `viewport-fit=cover`; `100dvh`; safe-area; không scroll ngang ở ≤1023px; PC baseline khớp ở 1366/1920 | 24.01, Task 25 | ⬜ |
 | 24.03 | **Bottom-nav** | 5 mục (Home, Study, Words, Topics, AI→Inbox), active state, ẩn ở `/study/flashcards,match,scramble,quiz` kèm nút thoát ở topbar; nút ⚙ Settings trong trang AI; nội dung không bị che; ẩn hoàn toàn ≥1024px; sidebar PC giữ nguyên | 24.02 | ⬜ |
 | 24.04 | **Words & Topics mobile** | <1024px mặc định Card view nếu chưa lưu lựa chọn (vẫn đổi được Table); Table dùng `data-label` (thead ẩn ≤767.98px); chữ nhỏ/gọn để hiển thị nhiều từ; filter thu gọn; phân trang ≥44px; PC không đổi | 24.03 | ⬜ |

@@ -82,6 +82,8 @@ coverage/
 # EF migration bundles (generated)
 efbundle
 efbundle.exe
+*.db
+Tests/TestData/
 
 # ===========================
 # Docker

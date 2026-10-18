@@ -315,14 +315,19 @@ public class StudyService : IStudyService
 
     /// <summary>
     /// Shuffles elements of a list in-place using the Fisher-Yates algorithm.
+    /// Supports a deterministic random generator when TEST_DETERMINISTIC_SEED is configured for regression testing.
     /// </summary>
     private static void ShuffleList<T>(IList<T> list)
     {
+        var rng = Environment.GetEnvironmentVariable("TEST_DETERMINISTIC_SEED") == "true"
+            ? new Random(42)
+            : Random.Shared;
+
         int n = list.Count;
         while (n > 1)
         {
             n--;
-            int k = Random.Shared.Next(n + 1);
+            int k = rng.Next(n + 1);
             (list[k], list[n]) = (list[n], list[k]);
         }
     }

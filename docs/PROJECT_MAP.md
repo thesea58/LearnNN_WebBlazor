@@ -1,4 +1,4 @@
-﻿# 🗺️ PROJECT_MAP – Bản đồ Kiến trúc Dự án LearnNN_WebBlazor
+# 🗺️ PROJECT_MAP – Bản đồ Kiến trúc Dự án LearnNN_WebBlazor
 
 > **Phiên bản**: 1.0
 > **Ngày khởi tạo**: 2026-09-22
@@ -187,6 +187,15 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 ├── 📄 LearnNN_WebBlazor.slnx               # Solution file định dạng XML (.NET 10 / Visual Studio 2022+)
 ├── 📄 AGENTS.md                            # Điểm vào cho AI Agent: trỏ tới PROJECT_MAP & các rule
 ├── 📄 start-mobile.bat                     # Script 1-Click khởi chạy app & mở Dev Tunnel ra điện thoại (Windows)
+├── 📁 Tests/                               # 🧪 AUTOMATED TESTS & BASELINES
+│   └── 📁 LearnNN_WebBlazor.Tests/         #    Project test Playwright .NET + NUnit + SkiaSharp (.NET 10)
+│       ├── 📄 LearnNN_WebBlazor.Tests.csproj # File cấu hình test project
+│       ├── 📄 TestServerFixture.cs         # Quản lý vòng đời web server cổng 5099 + test DB
+│       ├── 📄 PcBaselineTests.cs           # Kiểm thử hồi quy thị giác PC (1366x768 & 1920x1080)
+│       ├── 📄 MultiEngineHarnessTests.cs   # Kiểm thử đa engine (Chromium, WebKit, Firefox) & mobile viewports
+│       ├── 📁 Helpers/                     # Tiện ích test (Blazor readiness, Image comparison, Overflow check)
+│       └── 📁 Baselines/                   # 20 ảnh chụp màn hình PC chuẩn cho 10 routes
+│
 ├── 📄 start-mobile.ps1                     # Script PowerShell xử lý Dev Tunnel persistent & sinh mã QR terminal
 ├── 📄 Dockerfile                           # Docker multi-stage build cho .NET 10 Blazor Server
 ├── 📄 docker-compose.yml                   # Docker Compose cấu hình container & persistent volume
@@ -208,6 +217,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | `.agents/` | Cấu hình AI Agent | Rules (.md), Skills, Plugins | Source code, tài liệu dự án |
 | `docs/` | Tài liệu dự án | Tài liệu thiết kế, task management, `PROJECT_MAP.md` | Source code, file cấu hình ứng dụng |
 | `Source/` | Mã nguồn ứng dụng Blazor | Toàn bộ C#/.razor source code | Tài liệu, scripts DevOps, file không liên quan |
+| `Tests/` | Tự động hóa kiểm thử & Baselines | Project test Playwright, test DB riêng, ảnh chụp baseline | Mã nguồn ứng dụng chính, dữ liệu thật |
 
 ### 2.2 Thư mục `docs/`
 
@@ -332,6 +342,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-10-12 | Upgrade Gemini Models to 3.5 | `Source/appsettings.json`, `Source/Models/Ai/AiOptions.cs`, `Source/Data/Entities/AiRequest.cs`, `docs/PROJECT_MAP.md` | Nâng cấp mô hình Gemini mặc định từ 2.5 lên `gemini-3.5-flash-lite` và `gemini-3.5-flash` theo chính sách cập nhật mới nhất của Google AI Studio |
 | 2026-10-18 | Task 24 – Web Mobile (lập kế hoạch) | `[NEW] docs/task/24_web_mobile/README.md`, `AGENT_PROMPT.md`, `PROGRESS.md`, `docs/task/README.md`, nhánh git `web_mobile` | Tạo nhánh `web_mobile`, backlog 11 sub-task (responsive, PWA, mobile UX) và prompt orchestrator + sub-agents để Agy CLI lặp Sửa → Test → Commit liên tục; trạng thái lưu trong `PROGRESS.md` |
 | 2026-10-19 | Task 24/25 – Chuẩn hóa rule mobile & kế hoạch | `[NEW] .agents/rules/mobile-desktop-lock.md`, `[NEW] AGENTS.md`, `[NEW] docs/task/25_blazor_refactor/*`, `docs/task/24_web_mobile/README.md`, `AGENT_PROMPT.md`, `docs/task/README.md` | Chốt rule khóa PC (breakpoint 1024, bottom-nav, Card view mặc định, modal sticky, guard double-submit, test Playwright 3 engine + so ảnh baseline); tách Task 25 refactor Blazor chạy sau 24.01 và trước 24.02; Task 24 chia 2 pha |
+| 2026-10-19 | Task 24.01 – Test harness & Baseline PC | `[NEW] Tests/LearnNN_WebBlazor.Tests/*`, `Source/Services/StudyService.cs`, `LearnNN_WebBlazor.slnx`, `.gitignore` | Xây dựng test harness Playwright .NET (NUnit, SkiaSharp) kiểm thử 3 engine (Chromium, WebKit, Firefox), tạo 20 ảnh screenshot baseline PC chuẩn (1366x768 & 1920x1080) cho 10 routes với kiểm tra sai lệch pixel ≤ 0.1%, kiểm tra console và script chống tràn ngang |
 
 
 
