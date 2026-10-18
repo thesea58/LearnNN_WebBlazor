@@ -70,6 +70,64 @@ window.studyInterop = {
         } catch (e) {
             // Audio context might fail on un-interacted pages, ignore safely
         }
+    },
+
+    /**
+     * Initializes optional touch swipe detection on target element.
+     * @param {string} elementId - ID of element to listen for touch events.
+     * @param {object} dotNetRef - Blazor component reference.
+     */
+    initSwipe: function (elementId, dotNetRef) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+
+        let startX = 0;
+        let startY = 0;
+        let isTouching = false;
+
+        el.addEventListener('touchstart', function (e) {
+            if (localStorage.getItem('learnnn_flashcard_swipe') !== 'true') return;
+            const touch = e.changedTouches[0];
+            startX = touch.screenX;
+            startY = touch.screenY;
+            isTouching = true;
+        }, { passive: true });
+
+        el.addEventListener('touchend', function (e) {
+            if (!isTouching || localStorage.getItem('learnnn_flashcard_swipe') !== 'true') return;
+            isTouching = false;
+
+            const touch = e.changedTouches[0];
+            const diffX = touch.screenX - startX;
+            const diffY = touch.screenY - startY;
+
+            // Minimum 50px horizontal distance and predominantly horizontal movement
+            if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+                if (diffX < 0) {
+                    dotNetRef.invokeMethodAsync('OnSwipeLeft');
+                } else {
+                    dotNetRef.invokeMethodAsync('OnSwipeRight');
+                }
+            }
+        }, { passive: true });
+    },
+
+    /**
+     * Checks if flashcard swipe is enabled in settings (default OFF).
+     * @returns {boolean}
+     */
+    isSwipeEnabled: function () {
+        return localStorage.getItem('learnnn_flashcard_swipe') === 'true';
+    },
+
+    /**
+     * Persists flashcard swipe setting.
+     * @param {boolean} enabled
+     */
+    setSwipeEnabled: function (enabled) {
+        try {
+            localStorage.setItem('learnnn_flashcard_swipe', enabled ? 'true' : 'false');
+        } catch (e) { }
     }
 };
 

@@ -74,8 +74,20 @@ public static class OverflowHelper
     /// <returns>A structured <see cref="OverflowResult"/>.</returns>
     public static async Task<OverflowResult> CheckOverflowAsync(IPage page)
     {
-        var result = await page.EvaluateAsync<OverflowResult>(CheckOverflowScript);
-        return result ?? new OverflowResult();
+        var json = await page.EvaluateAsync<System.Text.Json.JsonElement>(CheckOverflowScript);
+        bool isOverflowing = json.TryGetProperty("isOverflowing", out var p) && p.GetBoolean();
+        var offenders = new List<OverflowOffender>();
+        if (json.TryGetProperty("offenders", out var arr) && arr.ValueKind == System.Text.Json.JsonValueKind.Array)
+        {
+            foreach (var item in arr.EnumerateArray())
+            {
+                var tag = item.TryGetProperty("tag", out var t) ? t.ToString() : "";
+                var cls = item.TryGetProperty("cls", out var c) ? c.ToString() : "";
+                var px = item.TryGetProperty("overflowPx", out var x) && x.TryGetDouble(out var d) ? d : 0;
+                offenders.Add(new OverflowOffender { Tag = tag, Cls = cls, OverflowPx = px });
+            }
+        }
+        return new OverflowResult { IsOverflowing = isOverflowing, Offenders = offenders };
     }
 
     #endregion

@@ -5,6 +5,7 @@
 @inject ISrsEngineService SrsEngineService
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
+@implements IDisposable
 
 <PageTitle>Flashcard 3D - Học Từ Vựng SRS 📘</PageTitle>
 
@@ -16,6 +17,13 @@
         </a>
 
         <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-sm @(isSwipeEnabled ? "btn-primary" : "btn-outline-secondary") rounded-pill px-2 py-1 d-inline-flex d-lg-none align-items-center gap-1 shadow-xs"
+                    @onclick="ToggleSwipeSettingAsync"
+                    title="@(isSwipeEnabled ? "Vuốt màn hình: Đang BẬT" : "Vuốt màn hình: Đang TẮT (Bấm để bật)")">
+                <i class="bi bi-hand-index-thumb"></i>
+                <span class="small d-none d-sm-inline">Vuốt: @(isSwipeEnabled ? "Bật" : "Tắt")</span>
+            </button>
+
             @if (DueOnly == true)
             {
                 <span class="badge bg-warning-subtle text-dark border border-warning rounded-pill px-3 py-2">
@@ -128,7 +136,7 @@
 
         <!-- #region: 3D Flashcard Presentation -->
         <div class="flashcard-scene mb-4">
-            <div class="@(isFlipped ? "flashcard-inner is-flipped" : "flashcard-inner")" @onclick="ToggleFlip">
+            <div id="flashcard-flip-target" class="@(isFlipped ? "flashcard-inner is-flipped" : "flashcard-inner")" @onclick="ToggleFlip">
                 <!-- Front Side -->
                 <div class="flashcard-face flashcard-front">
                     <div class="d-flex justify-content-between align-items-center">
@@ -201,55 +209,57 @@
         <!-- #endregion: 3D Flashcard Presentation -->
 
         <!-- #region: Controls Toolbar -->
-        @if (!isFlipped)
-        {
-            <div class="d-flex flex-wrap align-items-center justify-content-center gap-3">
-                <button class="btn btn-outline-secondary px-3" disabled="@(currentIndex == 0)" @onclick="PrevCard">
-                    <i class="bi bi-chevron-left me-1"></i> Từ trước
-                </button>
+        <div class="flashcard-controls-container">
+            @if (!isFlipped)
+            {
+                <div class="d-flex flex-wrap align-items-center justify-content-center gap-3">
+                    <button class="btn btn-outline-secondary px-3" disabled="@(currentIndex == 0)" @onclick="PrevCard">
+                        <i class="bi bi-chevron-left me-1"></i> Từ trước
+                    </button>
 
-                <button class="btn btn-primary px-4 py-2" @onclick="ToggleFlip">
-                    <i class="bi bi-arrow-repeat me-1"></i> Lật thẻ xem nghĩa (Space)
-                </button>
+                    <button class="btn btn-primary px-4 py-2" @onclick="ToggleFlip">
+                        <i class="bi bi-arrow-repeat me-1"></i> Lật thẻ xem nghĩa (Space)
+                    </button>
 
-                <button class="btn btn-outline-secondary px-3" @onclick="NextCard">
-                    Bỏ qua <i class="bi bi-chevron-right ms-1"></i>
-                </button>
-            </div>
-        }
-        else
-        {
-            <!-- 4 SRS Rating Buttons -->
-            <div class="srs-btn-grid animate__animated animate__fadeIn">
-                <!-- 0: Quên (Blackout) -->
-                <button type="button" class="srs-rating-btn srs-btn-blackout" @onclick="() => RateSrsAsync(0)">
-                    <span><i class="bi bi-x-circle me-1"></i> Quên</span>
-                    <span class="srs-interval-badge">@intervalPreview.BlackoutDays ngày</span>
-                    <span class="srs-key-hint">(Phím 1)</span>
-                </button>
+                    <button class="btn btn-outline-secondary px-3" @onclick="NextCard">
+                        Bỏ qua <i class="bi bi-chevron-right ms-1"></i>
+                    </button>
+                </div>
+            }
+            else
+            {
+                <!-- 4 SRS Rating Buttons -->
+                <div class="srs-btn-grid animate__animated animate__fadeIn">
+                    <!-- 0: Quên (Blackout) -->
+                    <button type="button" class="srs-rating-btn srs-btn-blackout" @onclick="() => RateSrsAsync(0)">
+                        <span><i class="bi bi-x-circle me-1"></i> Quên</span>
+                        <span class="srs-interval-badge">@intervalPreview.BlackoutDays ngày</span>
+                        <span class="srs-key-hint">(Phím 1)</span>
+                    </button>
 
-                <!-- 3: Khó (Difficult) -->
-                <button type="button" class="srs-rating-btn srs-btn-difficult" @onclick="() => RateSrsAsync(3)">
-                    <span><i class="bi bi-question-circle me-1"></i> Khó</span>
-                    <span class="srs-interval-badge">@intervalPreview.DifficultDays ngày</span>
-                    <span class="srs-key-hint">(Phím 2)</span>
-                </button>
+                    <!-- 3: Khó (Difficult) -->
+                    <button type="button" class="srs-rating-btn srs-btn-difficult" @onclick="() => RateSrsAsync(3)">
+                        <span><i class="bi bi-question-circle me-1"></i> Khó</span>
+                        <span class="srs-interval-badge">@intervalPreview.DifficultDays ngày</span>
+                        <span class="srs-key-hint">(Phím 2)</span>
+                    </button>
 
-                <!-- 4: Tốt (Good) -->
-                <button type="button" class="srs-rating-btn srs-btn-good" @onclick="() => RateSrsAsync(4)">
-                    <span><i class="bi bi-check-circle me-1"></i> Tốt</span>
-                    <span class="srs-interval-badge">@intervalPreview.GoodDays ngày</span>
-                    <span class="srs-key-hint">(Phím 3 / Space)</span>
-                </button>
+                    <!-- 4: Tốt (Good) -->
+                    <button type="button" class="srs-rating-btn srs-btn-good" @onclick="() => RateSrsAsync(4)">
+                        <span><i class="bi bi-check-circle me-1"></i> Tốt</span>
+                        <span class="srs-interval-badge">@intervalPreview.GoodDays ngày</span>
+                        <span class="srs-key-hint">(Phím 3 / Space)</span>
+                    </button>
 
-                <!-- 5: Dễ (Easy) -->
-                <button type="button" class="srs-rating-btn srs-btn-easy" @onclick="() => RateSrsAsync(5)">
-                    <span><i class="bi bi-stars me-1"></i> Dễ</span>
-                    <span class="srs-interval-badge">@intervalPreview.EasyDays ngày</span>
-                    <span class="srs-key-hint">(Phím 4)</span>
-                </button>
-            </div>
-        }
+                    <!-- 5: Dễ (Easy) -->
+                    <button type="button" class="srs-rating-btn srs-btn-easy" @onclick="() => RateSrsAsync(5)">
+                        <span><i class="bi bi-stars me-1"></i> Dễ</span>
+                        <span class="srs-interval-badge">@intervalPreview.EasyDays ngày</span>
+                        <span class="srs-key-hint">(Phím 4)</span>
+                    </button>
+                </div>
+            }
+        </div>
         <!-- #endregion: Controls Toolbar -->
     }
 </div>
@@ -290,6 +300,8 @@
     private DateTime cardStartTime = DateTime.UtcNow;
 
     private int progressPercent => words.Count > 0 ? (int)Math.Round((double)(currentIndex + 1) / words.Count * 100) : 0;
+    private bool isSwipeEnabled = false;
+    private DotNetObjectReference<FlashcardStudy>? dotNetRef;
 
     #endregion
 
@@ -307,6 +319,9 @@
             try
             {
                 await containerRef.FocusAsync();
+                isSwipeEnabled = await JS.InvokeAsync<bool>("studyInterop.isSwipeEnabled");
+                dotNetRef = DotNetObjectReference.Create(this);
+                await JS.InvokeVoidAsync("studyInterop.initSwipe", "flashcard-flip-target", dotNetRef);
             }
             catch { }
         }
@@ -497,6 +512,43 @@
     private async Task RestartSessionAsync()
     {
         await LoadWordsAsync();
+    }
+
+    private async Task ToggleSwipeSettingAsync()
+    {
+        isSwipeEnabled = !isSwipeEnabled;
+        try
+        {
+            await JS.InvokeVoidAsync("studyInterop.setSwipeEnabled", isSwipeEnabled);
+        }
+        catch { }
+    }
+
+    [JSInvokable]
+    public async Task OnSwipeLeft()
+    {
+        if (!isSwipeEnabled) return;
+        await InvokeAsync(async () =>
+        {
+            await NextCardAsync();
+            StateHasChanged();
+        });
+    }
+
+    [JSInvokable]
+    public void OnSwipeRight()
+    {
+        if (!isSwipeEnabled) return;
+        InvokeAsync(() =>
+        {
+            PrevCard();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        dotNetRef?.Dispose();
     }
 
     #endregion

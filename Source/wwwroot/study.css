@@ -379,3 +379,92 @@
     border-color: #0ea5e9;
 }
 
+/* ==========================================================================
+   Mobile Flashcard & Study Touch Optimizations (Task 24.05)
+   ========================================================================== */
+@media (max-width: 767.98px) {
+    .flashcard-controls-container {
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        padding: 0.75rem 0.5rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+        border-top: 1px solid var(--border-color, #e2e8f0);
+        margin-top: 1rem;
+        z-index: 100;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .srs-btn-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 0.35rem !important;
+        max-width: 100% !important;
+    }
+
+    .srs-rating-btn {
+        min-height: 52px;
+        padding: 0.45rem 0.2rem;
+        font-size: 0.8125rem;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .srs-rating-btn .srs-interval-badge {
+        font-size: 0.7rem;
+    }
+
+    .srs-rating-btn .srs-key-hint {
+        display: none;
+    }
+
+    .flashcard-scene {
+        max-width: 100%;
+    }
+
+    .flashcard-inner {
+        min-height: 320px;
+    }
+
+    .flashcard-face {
+        padding: 1.25rem 1rem;
+    }
+
+    /* Matching Game on Mobile */
+    .matching-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem !important;
+    }
+
+    .match-card {
+        min-height: 84px !important;
+        padding: 0.75rem 0.4rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Word Scramble on Mobile */
+    .scramble-slots {
+        gap: 0.35rem !important;
+    }
+
+    .letter-slot {
+        width: 38px !important;
+        height: 46px !important;
+        font-size: 1.15rem !important;
+    }
+
+    .letter-chip {
+        width: 44px !important;
+        height: 46px !important;
+        font-size: 1.15rem !important;
+    }
+
+    /* Quiz Option Button Touch Target on Mobile */
+    .quiz-option-btn {
+        min-height: 48px;
+        padding: 0.875rem 1rem !important;
+        font-size: 0.95rem !important;
+    }
+}
+

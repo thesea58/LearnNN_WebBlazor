@@ -22,7 +22,7 @@
 
         @if (questions.Count > 0 && !isCompleted)
         {
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex flex-wrap align-items-center gap-2 gap-sm-3">
                 <span class="badge bg-white text-dark border px-3 py-2 shadow-sm">
                     <i class="bi bi-patch-question text-primary me-1"></i>
                     Câu <strong>@(currentIndex + 1)</strong> / @questions.Count
