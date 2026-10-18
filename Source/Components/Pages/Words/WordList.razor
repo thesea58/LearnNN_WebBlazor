@@ -160,7 +160,7 @@
             @if (currentViewMode == ViewMode.Table)
             {
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0 table-responsive-stack">
                         <thead class="table-light">
                             <tr>
                                 <th class="ps-4" style="width: 55px;">#</th>
@@ -180,8 +180,8 @@
                                 var word = words[i];
                                 var stt = (currentPage - 1) * pageSize + i + 1;
                                 <tr @key="word.Id">
-                                    <td class="ps-4 text-muted fw-semibold">@stt</td>
-                                    <td>
+                                    <td data-label="#" class="ps-4 text-muted fw-semibold">@stt</td>
+                                    <td data-label="Từ vựng">
                                         <div class="d-flex align-items-center gap-2">
                                             <button type="button" class="btn btn-sm btn-link p-0 text-primary border-0" title="Nghe phát âm" @onclick="() => SpeakWordAsync(word.Term)">
                                                 <i class="bi bi-volume-up-fill fs-6"></i>
@@ -191,7 +191,7 @@
                                             </span>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td data-label="Phiên âm">
                                         @if (!string.IsNullOrWhiteSpace(word.Phonetic))
                                         {
                                             <span class="font-monospace text-muted fst-italic small">
@@ -203,7 +203,7 @@
                                             <span class="text-muted small">—</span>
                                         }
                                     </td>
-                                    <td>
+                                    <td data-label="Từ loại">
                                         @if (!string.IsNullOrWhiteSpace(word.PartOfSpeech))
                                         {
                                             <span class="badge @GetPartOfSpeechBadgeClass(word.PartOfSpeech) rounded-pill small">
@@ -215,12 +215,12 @@
                                             <span class="text-muted small">—</span>
                                         }
                                     </td>
-                                    <td>
+                                    <td data-label="Nghĩa">
                                         <span class="text-dark" title="@word.Meaning">
                                             @Truncate(word.Meaning, 80)
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-label="Ví dụ">
                                         @if (!string.IsNullOrWhiteSpace(word.ExampleSentence))
                                         {
                                             <div class="small text-secondary" title="@($"{word.ExampleSentence}\n→ {word.ExampleTranslation}")">
@@ -238,13 +238,13 @@
                                             <span class="text-muted small">—</span>
                                         }
                                     </td>
-                                    <td>
+                                    <td data-label="Chủ đề">
                                         <span class="badge bg-light text-secondary border">
                                             <i class="bi bi-folder me-1 text-primary"></i>
                                             @(word.Topic?.Name ?? "Chung")
                                         </span>
                                     </td>
-                                    <td class="text-center">
+                                    <td data-label="Trạng thái" class="text-center">
                                         <button class="btn btn-sm border-0 p-0" 
                                                 @onclick="() => ToggleMasteredAsync(word)" 
                                                 title="Bấm để đổi trạng thái" 
@@ -263,7 +263,7 @@
                                             }
                                         </button>
                                     </td>
-                                    <td class="text-end pe-4">
+                                    <td data-label="Hành động" class="text-end pe-4">
                                         <div class="btn-group btn-group-sm">
                                             <button class="btn btn-outline-primary" title="Sửa từ vựng" @onclick="() => OpenEditModal(word)">
                                                 <i class="bi bi-pencil-square"></i>

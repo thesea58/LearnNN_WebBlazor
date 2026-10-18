@@ -66,7 +66,7 @@
             @if (currentViewMode == ViewMode.Table)
             {
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0 table-responsive-stack">
                         <thead class="table-light">
                             <tr>
                                 <th class="ps-4" style="width: 60px;">#</th>
@@ -84,8 +84,8 @@
                                 var index = i + 1;
                                 var wordCount = topic.Words?.Count ?? 0;
                                 <tr @key="topic.Id">
-                                    <td class="ps-4 text-muted fw-semibold">@index</td>
-                                    <td>
+                                    <td data-label="#" class="ps-4 text-muted fw-semibold">@index</td>
+                                    <td data-label="Tên chủ đề">
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="p-2 rounded bg-primary-subtle text-primary d-inline-flex">
                                                 <i class="bi bi-folder-fill"></i>
@@ -93,12 +93,12 @@
                                             <span class="fw-bold text-dark">@topic.Name</span>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td data-label="Mô tả">
                                         <span class="text-secondary">
                                             @(string.IsNullOrWhiteSpace(topic.Description) ? "—" : topic.Description)
                                         </span>
                                     </td>
-                                    <td class="text-center">
+                                    <td data-label="Số từ" class="text-center">
                                         @{
                                             var tableStats = GetTopicStats(topic);
                                         }
@@ -115,13 +115,13 @@
                                                                  StrokeWidth="3.0" />
                                         </div>
                                     </td>
-                                    <td>
+                                    <td data-label="Ngày tạo">
                                         <span class="text-muted small">
                                             <i class="bi bi-calendar3 me-1"></i>
                                             @topic.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")
                                         </span>
                                     </td>
-                                    <td class="text-end pe-4">
+                                    <td data-label="Hành động" class="text-end pe-4">
                                         <div class="btn-group btn-group-sm">
                                             <button class="btn btn-outline-primary" title="Sửa chủ đề" @onclick="() => OpenEditModal(topic)">
                                                 <i class="bi bi-pencil-square"></i>

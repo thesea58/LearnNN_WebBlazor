@@ -302,5 +302,96 @@ a:hover {
         overflow-x: hidden;
         min-height: 100dvh;
     }
+
+    /* Mobile & Tablet (< 1024px) Pagination & Touch Target Enhancements (Task 24.04) */
+    .pagination .page-link {
+        min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem;
+        font-size: 0.875rem;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .pagination .page-item {
+        margin: 0 2px;
+    }
+
+    .btn-action-touch {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .table-responsive-stack .btn-group .btn {
+        min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Smartphone (<= 767.98px) Responsive Stack Table & Form Inputs (Task 24.04) */
+@media (max-width: 767.98px) {
+    /* Prevent iOS auto-zoom on input focus */
+    input.form-control,
+    select.form-select,
+    textarea.form-control {
+        font-size: 16px !important;
+    }
+
+    /* data-label Table Stack Pattern */
+    .table-responsive-stack thead {
+        display: none;
+    }
+
+    .table-responsive-stack tr {
+        display: block;
+        margin-bottom: 0.875rem;
+        background: #ffffff;
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: var(--radius-md, 12px);
+        padding: 0.75rem 1rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .table-responsive-stack td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.45rem 0 !important;
+        border: none !important;
+        border-bottom: 1px dashed rgba(226, 232, 240, 0.8) !important;
+        font-size: 0.84rem;
+        text-align: right;
+    }
+
+    .table-responsive-stack td:last-child {
+        border-bottom: none !important;
+        padding-top: 0.6rem !important;
+    }
+
+    .table-responsive-stack td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-muted, #64748b);
+        text-align: left;
+        padding-right: 0.75rem;
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+
+    /* Compact Word Card Spacing */
+    .word-card .card-body {
+        padding: 0.75rem !important;
+    }
+
+    .word-card .fs-5 {
+        font-size: 1.05rem !important;
+    }
 }
 
