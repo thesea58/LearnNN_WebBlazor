@@ -324,7 +324,7 @@ pre {
     }
 
     .pagination .page-item {
-        margin: 0 2px;
+        margin: 0 4px;
     }
 
     .btn-action-touch {
@@ -409,6 +409,35 @@ pre {
         align-items: center;
         justify-content: center;
     }
+
+    /* Input & Checkbox ergonomics: virtual keyboard visibility & touch target (Task 24.08) */
+    input.form-control,
+    select.form-select,
+    textarea.form-control,
+    .form-check-input {
+        scroll-margin-bottom: 24px;
+    }
+
+    .form-check {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-check-input {
+        width: 2.25rem !important;
+        height: 1.25rem !important;
+        margin-top: 0 !important;
+        flex-shrink: 0;
+    }
+
+    .form-check-label {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
 }
 
 /* Smartphone (<= 767.98px) Responsive Stack Table & Form Inputs (Task 24.04) */
@@ -470,6 +499,38 @@ pre {
 
     .word-card .fs-5 {
         font-size: 1.05rem !important;
+    }
+}
+
+/* Touch device ergonomics: prevent sticky hover state on tap (Task 24.08) */
+@media (hover: none) {
+    .btn:hover {
+        transform: none !important;
+    }
+    .card-stat:hover,
+    .word-card:hover,
+    .topic-card:hover {
+        transform: none !important;
+        box-shadow: var(--shadow-sm) !important;
+    }
+    .study-mode-card:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    .study-mode-card:hover .mode-icon-wrapper {
+        transform: none !important;
+    }
+    .speaker-btn:hover {
+        transform: none !important;
+    }
+    .match-card:hover:not(.matched):not(.disabled) {
+        transform: none !important;
+    }
+    .letter-chip:hover:not(:disabled) {
+        transform: none !important;
+    }
+    .quiz-option-btn:hover:not(:disabled) {
+        transform: none !important;
     }
 }
 

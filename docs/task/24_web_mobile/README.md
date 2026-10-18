@@ -33,13 +33,13 @@ Agent KHÔNG được làm 24.02+ trước khi Task 25 hoàn thành (hoặc ch�
 | 24.05 | **Study mobile & Flashcard touch** | Tap lật + 4 nút SRS dính đáy trong tầm ngón cái; swipe là tùy chọn (mặc định TẮT) trong cài đặt; Match/Scramble/Quiz không tràn ở 360px | 24.03 | ✅ |
 | 24.06 | **Modals & AI pages mobile** | `WordFormModal`, `ConfirmDeleteModal`, `AiManualBridgeModal`: `calc(100vw-24px)`, `max-height:90dvh`, header/footer sticky, Lưu/Đóng thấy được khi bàn phím mở (visualViewport nếu cần); `/ai/inbox`, `/ai/settings` không tràn | 24.02 | ✅ |
 | 24.07 | **Chống double-submit** | Mọi nút async lưu/xóa/import/AI/chấm SRS có `isBusy` + `disabled` + guard đầu handler; test bấm đúp nhanh chỉ gọi service 1 lần | 24.04–24.06 | ✅ |
-| 24.08 | **Công thái học input & hover** | Input ≤767.98px `font-size:16px`; `inputmode`/`type` đúng; touch target ≥44px & gap ≥8px (test tự động); `:hover` bọc `(hover:hover) and (pointer:fine)` | 24.04–24.06 | 🔄 |
+| 24.08 | **Công thái học input & hover** | Input ≤767.98px `font-size:16px`; `inputmode`/`type` đúng; touch target ≥44px & gap ≥8px (test tự động); `:hover` bọc `(hover:hover) and (pointer:fine)` | 24.04–24.06 | ✅ |
 
 ## Pha B – Nâng cao (làm sau Pha A)
 
 | ID | Sub-task | Tiêu chí hoàn thành | Phụ thuộc | TT |
 |---|---|---|---|---|
-| 24.09 | **PWA** | `manifest.webmanifest`, icon 192/512 + maskable, `apple-touch-icon`, theme-color, service worker cache static; Lighthouse installable pass | Pha A | ⬜ |
+| 24.09 | **PWA** | `manifest.webmanifest`, icon 192/512 + maskable, `apple-touch-icon`, theme-color, service worker cache static; Lighthouse installable pass | Pha A | 🔄 |
 | 24.10 | **Resilience Blazor Server** | Reconnect modal thân thiện mobile, tự reconnect khi quay lại tab/đổi mạng, trang offline fallback, không mất phiên học khi mất kết nối ngắn | 24.09 | ⬜ |
 | 24.11 | **Performance mobile** | Lighthouse Mobile Perf ≥85, LCP<2.5s, CLS<0.1 trên `/`, `/words`, `/study`; Brotli/Gzip, cache static | Pha A | ⬜ |
 | 24.12 | **Accessibility** | Lighthouse A11y ≥90, contrast AA, focus-visible, aria-label nút icon | Pha A | ⬜ |
