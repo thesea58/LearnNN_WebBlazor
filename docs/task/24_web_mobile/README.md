@@ -39,7 +39,7 @@ Agent KHÔNG được làm 24.02+ trước khi Task 25 hoàn thành (hoặc ch�
 
 | ID | Sub-task | Tiêu chí hoàn thành | Phụ thuộc | TT |
 |---|---|---|---|---|
-| 24.09 | **PWA** | `manifest.webmanifest`, icon 192/512 + maskable, `apple-touch-icon`, theme-color, service worker cache static; Lighthouse installable pass | Pha A | 🔄 |
+| 24.09 | **PWA** | `manifest.webmanifest`, icon 192/512 + maskable, `apple-touch-icon`, theme-color, service worker cache static; Lighthouse installable pass | Pha A | ✅ |
 | 24.10 | **Resilience Blazor Server** | Reconnect modal thân thiện mobile, tự reconnect khi quay lại tab/đổi mạng, trang offline fallback, không mất phiên học khi mất kết nối ngắn | 24.09 | ⬜ |
 | 24.11 | **Performance mobile** | Lighthouse Mobile Perf ≥85, LCP<2.5s, CLS<0.1 trên `/`, `/words`, `/study`; Brotli/Gzip, cache static | Pha A | ⬜ |
 | 24.12 | **Accessibility** | Lighthouse A11y ≥90, contrast AA, focus-visible, aria-label nút icon | Pha A | ⬜ |

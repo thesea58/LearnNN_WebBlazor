@@ -15,6 +15,11 @@
     <link rel="stylesheet" href="@Assets["LearnNN_WebBlazor.styles.css"]" />
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <HeadOutlet />
 </head>
 
@@ -24,6 +29,15 @@
     <script src="@Assets["_framework/blazor.web.js"]"></script>
     <script src="@Assets["study.js"]"></script>
     <script src="@Assets["ai-bridge.js"]"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/service-worker.js').catch(function (err) {
+                    console.warn('Service worker registration failed:', err);
+                });
+            });
+        }
+    </script>
     <script>
         window.downloadFileFromBase64 = function (fileName, base64Url) {
             const a = document.createElement('a');

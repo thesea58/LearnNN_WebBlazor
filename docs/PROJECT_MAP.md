@@ -178,6 +178,14 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │   └── 📄 launchSettings.json          #    Cấu hình launch (ports, profiles)
 │   │
 │   └── 📁 wwwroot/                         # 🌐 Static files (served publicly)
+│       ├── 📄 manifest.webmanifest         #    PWA Web App Manifest (tên, màu theme, biểu tượng)
+│       ├── 📄 service-worker.js            #    Service Worker (cache static shell, bypass SignalR circuits, offline fallback)
+│       ├── 📁 icons/                       #    PWA Icons & Favicons
+│       │   ├── 📄 icon-192.png             #    PWA standard icon (192x192)
+│       │   ├── 📄 icon-512.png             #    PWA standard icon (512x512)
+│       │   ├── 📄 icon-maskable-192.png    #    PWA maskable icon cho Android (192x192)
+│       │   ├── 📄 icon-maskable-512.png    #    PWA maskable icon cho Android (512x512)
+│       │   └── 📄 apple-touch-icon.png     #    iOS Apple Touch Icon (180x180)
 │       ├── 📄 app.css                      #    Custom CSS styles
 │       ├── 📄 study.css                    #    CSS 3D flip card, matching game, scramble, quiz
 │       ├── 📄 study.js                     #    JS Interop phát âm Web Speech API & audio effects
@@ -201,6 +209,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📄 ModalAndAiMobileTests.cs     # Kiểm thử công thái học modal & chống tràn các trang AI (Task 24.06)
 │       ├── 📄 DoubleSubmitGuardTests.cs    # Kiểm thử cơ chế chống double-submit khi click nhanh (Task 24.07)
 │       ├── 📄 InputAndTouchErgonomicsTests.cs # Kiểm thử công thái học input, scroll-margin, touch gaps (Task 24.08)
+│       ├── 📄 PwaMobileTests.cs            # Kiểm thử tính hợp lệ của PWA (manifest, icons, service worker, meta tags) (Task 24.09)
 │       ├── 📁 Helpers/                     # Tiện ích test (Blazor readiness, Image comparison, Overflow check)
 │       └── 📁 Baselines/                   # 20 ảnh chụp màn hình PC chuẩn cho 10 routes
 │
@@ -359,6 +368,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-10-19 | Task 24.06 – Modals & AI Pages Mobile | `Source/wwwroot/app.css`, `Source/Components/App.razor`, `Source/Components/Shared/AiManualBridgeModal.razor`, `Source/Components/Pages/Ai/AiInbox.razor`, `Source/Components/Pages/Ai/AiSettings.razor`, `[NEW] Tests/LearnNN_WebBlazor.Tests/ModalAndAiMobileTests.cs` | Tối ưu công thái học Modal trên mobile (calc(100vw-24px), max-height: 90dvh hoặc visualViewport khi mở bàn phím ảo, header/footer sticky, body cuộn cảm ứng, touch target >= 44px), xử lý chống tràn ngang 360px cho các trang AI (/ai/inbox, /ai/settings) và code blocks, bổ sung bộ test tự động 6/6 test xanh |
 | 2026-10-19 | Task 24.07 – Chống Double-Submit | `Source/Components/Pages/**`, `[NEW] Tests/LearnNN_WebBlazor.Tests/DoubleSubmitGuardTests.cs` | Triển khai cơ chế phòng chống double-submit 2 lớp (UI disabled + early-return guard trong handler) cho toàn bộ các nút gọi async (Flashcard SRS rating, WordFormModal, TopicManage save/delete, WordList delete/import, QuizPractice batch mastery/AI explainer, WordScrambleGame answer/skip, AiInbox delete/sandbox, AiSettings test connection), bổ sung bộ test tự động Playwright |
 | 2026-10-19 | Task 24.08 – Công thái học Input & Hover | `Source/wwwroot/app.css`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Ai/AiSettings.razor`, `[NEW] Tests/LearnNN_WebBlazor.Tests/InputAndTouchErgonomicsTests.cs` | Tối ưu công thái học nhập liệu & cảm ứng: inputmode="search" trên WordList, type/inputmode="url" trên AiSettings, scroll-margin-bottom 24px chống bàn phím ảo che input, form-check touch target >= 44px, khoảng cách phân trang 8px, @media (hover: none) loại bỏ hoàn toàn sticky hover trên mobile |
+| 2026-10-19 | Task 24.09 – PWA Manifest & Service Worker | `Source/Components/App.razor`, `[NEW] Source/wwwroot/manifest.webmanifest`, `[NEW] Source/wwwroot/service-worker.js`, `[NEW] Source/wwwroot/icons/*`, `[NEW] Tests/LearnNN_WebBlazor.Tests/PwaMobileTests.cs` | Cấu hình PWA hoàn chỉnh: tạo manifest.webmanifest (standalone, theme-color #4f46e5), bộ 5 icons PNG chuẩn (192, 512, maskable 192/512, apple-touch-icon 180), liên kết thẻ meta/link trong App.razor, service-worker.js (cache-first static, offline navigation fallback, bypass SignalR circuits), bộ test tự động PwaMobileTests (4/4 test xanh) |
 
 
 
