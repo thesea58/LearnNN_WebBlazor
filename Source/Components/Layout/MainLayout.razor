@@ -1,16 +1,31 @@
 @inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@implements IDisposable
 
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
 
-    <main class="d-flex flex-column min-vh-100">
+    <main class="d-flex flex-column min-vh-100 @(isStudySession ? "study-session" : "")">
         <header class="top-row px-4 d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-semibold">
-                    <i class="bi bi-mortarboard-fill me-1"></i> Không gian học tập
-                </span>
+                @if (isStudySession)
+                {
+                    <a href="/study" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 d-inline-flex d-lg-none align-items-center gap-1 shadow-xs">
+                        <i class="bi bi-x-lg"></i>
+                        <span>Thoát</span>
+                    </a>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-semibold d-none d-lg-inline-flex align-items-center">
+                        <i class="bi bi-mortarboard-fill me-1"></i> Không gian học tập
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-semibold">
+                        <i class="bi bi-mortarboard-fill me-1"></i> Không gian học tập
+                    </span>
+                }
             </div>
             <div class="d-flex align-items-center gap-3">
                 <span class="text-muted small d-none d-sm-inline">
@@ -56,6 +71,8 @@
                 </span>
             </div>
         </footer>
+
+        <MobileBottomNav />
     </main>
 </div>
 
@@ -67,11 +84,35 @@
 
 @code {
     private ErrorBoundary? errorBoundary;
+    private string currentUri = string.Empty;
+
+    private bool isStudySession =>
+        currentUri.Contains("/study/flashcards", StringComparison.OrdinalIgnoreCase) ||
+        currentUri.Contains("/study/match", StringComparison.OrdinalIgnoreCase) ||
+        currentUri.Contains("/study/scramble", StringComparison.OrdinalIgnoreCase) ||
+        currentUri.Contains("/study/quiz", StringComparison.OrdinalIgnoreCase);
+
+    protected override void OnInitialized()
+    {
+        currentUri = Navigation.Uri;
+        Navigation.LocationChanged += OnLocationChanged;
+    }
 
     protected override void OnParametersSet()
     {
         // Automatically reset the error boundary whenever routing or parameters update
         errorBoundary?.Recover();
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        currentUri = e.Location;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
     }
 }
 

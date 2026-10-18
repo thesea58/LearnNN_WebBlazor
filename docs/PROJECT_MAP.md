@@ -130,6 +130,8 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   │   ├── 📁 Layout/                      #    Layout components
 │   │   │   ├── 📄 MainLayout.razor         #    Layout chính của ứng dụng
 │   │   │   ├── 📄 MainLayout.razor.css     #    Scoped CSS cho MainLayout
+│   │   │   ├── 📄 MobileBottomNav.razor    #    Thanh điều hướng đáy màn hình cho mobile (<1024px)
+│   │   │   ├── 📄 MobileBottomNav.razor.css #   Scoped CSS cho MobileBottomNav
 │   │   │   ├── 📄 NavMenu.razor            #    Thanh điều hướng (Home, Study, Words, Topics, AI Inbox)
 │   │   │   ├── 📄 NavMenu.razor.css        #    Scoped CSS cho NavMenu
 │   │   │   ├── 📄 ReconnectModal.razor     #    Modal reconnect (Blazor Server)
@@ -345,6 +347,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-10-19 | Task 24.01 – Test harness & Baseline PC | `[NEW] Tests/LearnNN_WebBlazor.Tests/*`, `Source/Services/StudyService.cs`, `LearnNN_WebBlazor.slnx`, `.gitignore` | Xây dựng test harness Playwright .NET (NUnit, SkiaSharp) kiểm thử 3 engine (Chromium, WebKit, Firefox), tạo 20 ảnh screenshot baseline PC chuẩn (1366x768 & 1920x1080) cho 10 routes với kiểm tra sai lệch pixel ≤ 0.1%, kiểm tra console và script chống tràn ngang |
 | 2026-10-19 | Task 25 – Blazor Architecture Refactor | `Source/Components/**`, `Source/wwwroot/study.js`, `docs/task/25_blazor_refactor/*` | Tái cấu trúc chuẩn kiến trúc Blazor được bảo vệ bởi test baseline PC: @key duy nhất cho toàn bộ 18 vòng lặp render, chuyển debounce timer lambda sang named handler an toàn, xử lý Dispose & CancellationTokenSource hủy task delay khi đóng modal, đồng bộ breakpoint 1024px cho view mode, loại bỏ đột biến [Parameter] trong QuizExplanationCard & ViewModeSwitcher, bọc ErrorBoundary quanh @Body kèm auto-recover khi điều hướng, dọn StateHasChanged() dư thừa và giới hạn danh sách dashboard top 5 |
 | 2026-10-19 | Task 24.02 – Breakpoint 1024 + Viewport/Safe-area | `Source/Components/App.razor`, `Source/Components/Layout/MainLayout.razor.css`, `Source/Components/Layout/NavMenu.razor.css`, `Source/wwwroot/app.css` | Nâng breakpoint layout từ 768px lên 1024px (giữ nguyên khai báo khối PC), thêm viewport-fit=cover vào meta viewport, cấu hình dynamic viewport height (100dvh), safe-area padding và overflow guard cho mobile/tablet |
+| 2026-10-19 | Task 24.03 – Mobile Bottom Navigation | `[NEW] Source/Components/Layout/MobileBottomNav.razor`, `[NEW] Source/Components/Layout/MobileBottomNav.razor.css`, `Source/Components/Layout/MainLayout.razor`, `Source/Components/Layout/MainLayout.razor.css` | Triển khai thanh điều hướng dưới đáy (bottom-nav) 5 mục trên mobile (<1024px), ẩn hoàn toàn trên PC, ẩn trong 4 phiên học kèm nút thoát ở topbar, ẩn sidebar trên mobile và dự phòng padding-bottom cho main |
 
 
 

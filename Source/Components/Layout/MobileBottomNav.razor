@@ -1,0 +1,59 @@
+@inject NavigationManager Navigation
+@implements IDisposable
+
+@if (!IsHidden)
+{
+    <nav class="mobile-bottom-nav" aria-label="Điều hướng chính trên di động">
+        <NavLink href="" Match="NavLinkMatch.All" class="bottom-nav-item">
+            <i class="bi bi-house-door bottom-nav-icon"></i>
+            <span class="bottom-nav-label">Trang chủ</span>
+        </NavLink>
+
+        <NavLink href="study" class="bottom-nav-item">
+            <i class="bi bi-mortarboard bottom-nav-icon"></i>
+            <span class="bottom-nav-label">Học tập</span>
+        </NavLink>
+
+        <NavLink href="words" class="bottom-nav-item">
+            <i class="bi bi-journal-text bottom-nav-icon"></i>
+            <span class="bottom-nav-label">Từ vựng</span>
+        </NavLink>
+
+        <NavLink href="topics" class="bottom-nav-item">
+            <i class="bi bi-folder bottom-nav-icon"></i>
+            <span class="bottom-nav-label">Chủ đề</span>
+        </NavLink>
+
+        <NavLink href="ai/inbox" class="bottom-nav-item">
+            <i class="bi bi-robot bottom-nav-icon"></i>
+            <span class="bottom-nav-label">AI Inbox</span>
+        </NavLink>
+    </nav>
+}
+
+@code {
+    private string currentUri = string.Empty;
+
+    private bool IsHidden =>
+        currentUri.Contains("/study/flashcards", StringComparison.OrdinalIgnoreCase) ||
+        currentUri.Contains("/study/match", StringComparison.OrdinalIgnoreCase) ||
+        currentUri.Contains("/study/scramble", StringComparison.OrdinalIgnoreCase) ||
+        currentUri.Contains("/study/quiz", StringComparison.OrdinalIgnoreCase);
+
+    protected override void OnInitialized()
+    {
+        currentUri = Navigation.Uri;
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        currentUri = e.Location;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+}

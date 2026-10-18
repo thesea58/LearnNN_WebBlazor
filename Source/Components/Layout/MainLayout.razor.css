@@ -82,6 +82,18 @@ main {
         min-height: 100dvh;
     }
 
+    .sidebar {
+        display: none !important;
+    }
+
+    main {
+        padding-bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    main.study-session {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
     .top-row {
         padding-top: env(safe-area-inset-top, 0px);
         padding-left: max(1rem, env(safe-area-inset-left, 0px));
