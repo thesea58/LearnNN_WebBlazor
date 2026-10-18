@@ -1,29 +1,29 @@
 # 📓 Task 25 – Progress Log
 
 ## Trạng thái
-- **Sub-task đang làm**: Hoàn thành 25.01; chuyển sang 25.02 (`@key` cho mọi `@foreach`) · **Vòng**: 1 · **Fail liên tiếp**: 0
+- **Sub-task đang làm**: Hoàn thành 25.02; chuyển sang 25.03 (Async an toàn) · **Vòng**: 2 · **Fail liên tiếp**: 0
 
 ## Bảng vi phạm (từ 25.01)
 | # | File | Dòng | Nhóm | Rủi ro | Mô tả vi phạm & giải pháp | TT |
 |---|---|---|---|---|---|---|
-| 1 | `Source/Components/Pages/Home.razor` | 211 | Nhóm 25.02 | Thấp | `@foreach (var word in recentWords)` render `<tr>` thiếu `@key`. Thêm `@key="word.Id"`. | ⬜ |
-| 2 | `Source/Components/Pages/Home.razor` | 266 | Nhóm 25.02 | Thấp | `@foreach (var topic in topicsList)` render danh sách nhóm chủ đề thiếu `@key`. Thêm `@key="topic.Id"`. | ⬜ |
-| 3 | `Source/Components/Pages/Weather.razor` | 26 | Nhóm 25.02 | Thấp | `@foreach (var forecast in forecasts)` render bảng thời tiết thiếu `@key`. Thêm `@key="forecast.Date"`. | ⬜ |
-| 4 | `Source/Components/Pages/Ai/AiInbox.razor` | 379 | Nhóm 25.02 | Thấp | `@foreach (var c in sandboxEnrichResult.Collocations)` badge thiếu `@key`. Thêm `@key="c"`. | ⬜ |
-| 5 | `Source/Components/Pages/Ai/AiInbox.razor` | 394 | Nhóm 25.02 | Thấp | `@foreach (var wf in sandboxEnrichResult.WordFamily)` họ từ thiếu `@key`. Thêm `@key="wf"`. | ⬜ |
-| 6 | `Source/Components/Pages/Study/QuizPractice.razor` | 187 | Nhóm 25.02 | TB | `@for (int i = 0; i < questions.Count; i++)` chi tiết đáp án kèm QuizExplanationCard thiếu `@key`. Thêm `@key="q.WordId"`. | ⬜ |
-| 7 | `Source/Components/Pages/Study/QuizPractice.razor` | 288 | Nhóm 25.02 | TB | `@for (int optIndex = 0; optIndex < currentQ.Options.Count; optIndex++)` nút trắc nghiệm thiếu `@key`. Thêm `@key="capturedIndex"`. | ⬜ |
-| 8 | `Source/Components/Pages/Study/StudyHub.razor` | 134 | Nhóm 25.02 | Thấp | `@foreach (var topic in topics)` dropdown `<option>` thiếu `@key`. Thêm `@key="topic.Id"`. | ⬜ |
-| 9 | `Source/Components/Pages/Study/WordMatchGame.razor` | 125 | Nhóm 25.02 | Cao | `@foreach (var card in cards)` lưới ghép từ thiếu `@key`. Thêm `@key="card.Id"`. | ⬜ |
-| 10 | `Source/Components/Pages/Study/WordScrambleGame.razor` | 141 | Nhóm 25.02 | TB | `@for (int i = 0; i < currentWordClean.Length; i++)` slot ký tự thiếu `@key`. Thêm `@key="slotIndex"`. | ⬜ |
-| 11 | `Source/Components/Pages/Study/WordScrambleGame.razor` | 164 | Nhóm 25.02 | TB | `@foreach (var chip in availableChips)` chip ký tự thiếu `@key`. Thêm `@key="chip.Id"`. | ⬜ |
-| 12 | `Source/Components/Pages/Topics/TopicManage.razor` | 81 | Nhóm 25.02 | Cao | `@for (int i = 0; i < topics.Count; i++)` Table view chứa TopicProgressCircle thiếu `@key`. Thêm `@key="topic.Id"`. | ⬜ |
-| 13 | `Source/Components/Pages/Topics/TopicManage.razor` | 145 | Nhóm 25.02 | Cao | `@for (int i = 0; i < topics.Count; i++)` Card view chứa TopicProgressCircle thiếu `@key`. Thêm `@key="topic.Id"`. | ⬜ |
-| 14 | `Source/Components/Pages/Words/WordFormModal.razor` | 56 | Nhóm 25.02 | Thấp | `@foreach (var topic in Topics)` dropdown `<option>` modal thiếu `@key`. Thêm `@key="topic.Id"`. | ⬜ |
-| 15 | `Source/Components/Pages/Words/WordList.razor` | 70 | Nhóm 25.02 | Thấp | `@foreach (var topic in topics)` dropdown `<option>` filter toolbar thiếu `@key`. Thêm `@key="topic.Id"`. | ⬜ |
-| 16 | `Source/Components/Pages/Words/WordList.razor` | 178 | Nhóm 25.02 | Cao | `@for (int i = 0; i < words.Count; i++)` Table view danh sách từ vựng chính thiếu `@key`. Thêm `@key="word.Id"`. | ⬜ |
-| 17 | `Source/Components/Pages/Words/WordList.razor` | 287 | Nhóm 25.02 | Cao | `@for (int i = 0; i < words.Count; i++)` Card view danh sách từ vựng chính thiếu `@key`. Thêm `@key="word.Id"`. | ⬜ |
-| 18 | `Source/Components/Pages/Words/WordList.razor` | 407 | Nhóm 25.02 | Thấp | `@for (int p = 1; p <= totalPages; p++)` nút phân trang thiếu `@key`. Thêm `@key="targetPage"`. | ⬜ |
+| 1 | `Source/Components/Pages/Home.razor` | 211 | Nhóm 25.02 | Thấp | `@foreach (var word in recentWords)` render `<tr>` thiếu `@key`. Thêm `@key="word.Id"`. | ✅ |
+| 2 | `Source/Components/Pages/Home.razor` | 266 | Nhóm 25.02 | Thấp | `@foreach (var topic in topicsList)` render danh sách nhóm chủ đề thiếu `@key`. Thêm `@key="topic.Id"`. | ✅ |
+| 3 | `Source/Components/Pages/Weather.razor` | 26 | Nhóm 25.02 | Thấp | `@foreach (var forecast in forecasts)` render bảng thời tiết thiếu `@key`. Thêm `@key="forecast.Date"`. | ✅ |
+| 4 | `Source/Components/Pages/Ai/AiInbox.razor` | 379 | Nhóm 25.02 | Thấp | `@foreach (var c in sandboxEnrichResult.Collocations)` badge thiếu `@key`. Thêm `@key="c"`. | ✅ |
+| 5 | `Source/Components/Pages/Ai/AiInbox.razor` | 394 | Nhóm 25.02 | Thấp | `@foreach (var wf in sandboxEnrichResult.WordFamily)` họ từ thiếu `@key`. Thêm `@key="wf"`. | ✅ |
+| 6 | `Source/Components/Pages/Study/QuizPractice.razor` | 187 | Nhóm 25.02 | TB | `@for (int i = 0; i < questions.Count; i++)` chi tiết đáp án kèm QuizExplanationCard thiếu `@key`. Thêm `@key="q.WordId"`. | ✅ |
+| 7 | `Source/Components/Pages/Study/QuizPractice.razor` | 288 | Nhóm 25.02 | TB | `@for (int optIndex = 0; optIndex < currentQ.Options.Count; optIndex++)` nút trắc nghiệm thiếu `@key`. Thêm `@key="capturedIndex"`. | ✅ |
+| 8 | `Source/Components/Pages/Study/StudyHub.razor` | 134 | Nhóm 25.02 | Thấp | `@foreach (var topic in topics)` dropdown `<option>` thiếu `@key`. Thêm `@key="topic.Id"`. | ✅ |
+| 9 | `Source/Components/Pages/Study/WordMatchGame.razor` | 125 | Nhóm 25.02 | Cao | `@foreach (var card in cards)` lưới ghép từ thiếu `@key`. Thêm `@key="card.Id"`. | ✅ |
+| 10 | `Source/Components/Pages/Study/WordScrambleGame.razor` | 141 | Nhóm 25.02 | TB | `@for (int i = 0; i < currentWordClean.Length; i++)` slot ký tự thiếu `@key`. Thêm `@key="slotIndex"`. | ✅ |
+| 11 | `Source/Components/Pages/Study/WordScrambleGame.razor` | 164 | Nhóm 25.02 | TB | `@foreach (var chip in availableChips)` chip ký tự thiếu `@key`. Thêm `@key="chip.Id"`. | ✅ |
+| 12 | `Source/Components/Pages/Topics/TopicManage.razor` | 81 | Nhóm 25.02 | Cao | `@for (int i = 0; i < topics.Count; i++)` Table view chứa TopicProgressCircle thiếu `@key`. Thêm `@key="topic.Id"`. | ✅ |
+| 13 | `Source/Components/Pages/Topics/TopicManage.razor` | 145 | Nhóm 25.02 | Cao | `@for (int i = 0; i < topics.Count; i++)` Card view chứa TopicProgressCircle thiếu `@key`. Thêm `@key="topic.Id"`. | ✅ |
+| 14 | `Source/Components/Pages/Words/WordFormModal.razor` | 56 | Nhóm 25.02 | Thấp | `@foreach (var topic in Topics)` dropdown `<option>` modal thiếu `@key`. Thêm `@key="topic.Id"`. | ✅ |
+| 15 | `Source/Components/Pages/Words/WordList.razor` | 70 | Nhóm 25.02 | Thấp | `@foreach (var topic in topics)` dropdown `<option>` filter toolbar thiếu `@key`. Thêm `@key="topic.Id"`. | ✅ |
+| 16 | `Source/Components/Pages/Words/WordList.razor` | 178 | Nhóm 25.02 | Cao | `@for (int i = 0; i < words.Count; i++)` Table view danh sách từ vựng chính thiếu `@key`. Thêm `@key="word.Id"`. | ✅ |
+| 17 | `Source/Components/Pages/Words/WordList.razor` | 287 | Nhóm 25.02 | Cao | `@for (int i = 0; i < words.Count; i++)` Card view danh sách từ vựng chính thiếu `@key`. Thêm `@key="word.Id"`. | ✅ |
+| 18 | `Source/Components/Pages/Words/WordList.razor` | 407 | Nhóm 25.02 | Thấp | `@for (int p = 1; p <= totalPages; p++)` nút phân trang thiếu `@key`. Thêm `@key="targetPage"`. | ✅ |
 | 19 | `Source/Components/Pages/Words/WordList.razor` | 547 | Nhóm 25.03 | TB | `debounceTimer.Elapsed += async (sender, args) => ...` tạo `async void` tiềm ẩn crash circuit. Tách named handler kèm try/catch. | ⬜ |
 | 20 | `Source/Components/Pages/Words/WordList.razor` | 547, 917 | Nhóm 25.04 | TB | `debounceTimer.Elapsed` lambda ẩn danh không thể `debounceTimer.Elapsed -=` trong `Dispose()`. Tách named handler để unregister. | ⬜ |
 | 21 | `Source/Components/Shared/AiManualBridgeModal.razor` | 174-196 | Nhóm 25.04 | Thấp | `CopyPromptAsync` có `await Task.Delay(2000)` rồi gọi `StateHasChanged()` không CancellationToken khi modal đóng. Implement IDisposable + CTS. | ⬜ |
@@ -43,4 +43,5 @@
 ## Nhật ký
 | Vòng | Thời gian | Sub-task | Việc đã làm | Build/Test/So ảnh PC | Commit |
 |---|---|---|---|---|---|
-| 1 | 2026-10-19 01:14 | 25.01 | Khảo sát kiểm kê 33 vi phạm kiến trúc thuộc 7 nhóm (25.02 -> 25.08) trên toàn bộ codebase; không sửa code | N/A (chỉ đọc) | (pending commit) |
+| 1 | 2026-10-19 01:14 | 25.01 | Khảo sát kiểm kê 33 vi phạm kiến trúc thuộc 7 nhóm (25.02 -> 25.08) trên toàn bộ codebase; không sửa code | N/A (chỉ đọc) | `7a95f9b` |
+| 2 | 2026-10-19 01:23 | 25.02 | Bổ sung `@key` duy nhất cho toàn bộ 18 vòng lặp `@foreach`/`@for` tại 10 file Razor component | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | (pending commit) |

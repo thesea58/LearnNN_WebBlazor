@@ -378,7 +378,7 @@
                                     <div class="d-flex flex-wrap gap-1">
                                         @foreach (var c in sandboxEnrichResult.Collocations)
                                         {
-                                            <span class="badge bg-primary bg-opacity-10 text-primary">@c</span>
+                                            <span @key="c" class="badge bg-primary bg-opacity-10 text-primary">@c</span>
                                         }
                                     </div>
                                 </div>
@@ -393,7 +393,7 @@
                                     <div class="d-flex flex-wrap gap-1">
                                         @foreach (var wf in sandboxEnrichResult.WordFamily)
                                         {
-                                            <span class="badge bg-success bg-opacity-10 text-success">@wf</span>
+                                            <span @key="wf" class="badge bg-success bg-opacity-10 text-success">@wf</span>
                                         }
                                     </div>
                                 </div>

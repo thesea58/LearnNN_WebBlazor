@@ -133,7 +133,7 @@
                     <option value="0">Tất cả chủ đề</option>
                     @foreach (var topic in topics)
                     {
-                        <option value="@topic.Id">@topic.Name</option>
+                        <option @key="topic.Id" value="@topic.Id">@topic.Name</option>
                     }
                 </select>
             </div>

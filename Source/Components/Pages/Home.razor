@@ -210,7 +210,7 @@
                                     <tbody>
                                         @foreach (var word in recentWords)
                                         {
-                                            <tr>
+                                            <tr @key="word.Id">
                                                 <td class="ps-3 fw-bold text-primary">@word.Term</td>
                                                 <td class="text-muted font-monospace small">@(word.Phonetic ?? "-")</td>
                                                 <td>@word.Meaning</td>
@@ -265,7 +265,7 @@
                             <div class="list-group list-group-flush">
                                 @foreach (var topic in topicsList)
                                 {
-                                    <div class="list-group-item d-flex justify-content-between align-items-center px-2 py-2 border-0 border-bottom">
+                                    <div @key="topic.Id" class="list-group-item d-flex justify-content-between align-items-center px-2 py-2 border-0 border-bottom">
                                         <div class="d-flex align-items-center gap-2">
                                             <i class="bi bi-bookmark text-primary"></i>
                                             <span class="fw-semibold text-dark">@topic.Name</span>

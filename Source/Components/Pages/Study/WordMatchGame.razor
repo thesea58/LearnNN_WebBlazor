@@ -129,7 +129,7 @@
                     else if (card.IsWrong) cardClass += " wrong";
                     else if (card.IsSelected) cardClass += " selected";
 
-                    <div class="@cardClass" @onclick="() => OnCardClickedAsync(card)">
+                    <div @key="card.CardId" class="@cardClass" @onclick="() => OnCardClickedAsync(card)">
                         <div class="card-content">
                             @if (card.CardType == MatchCardType.Term)
                             {

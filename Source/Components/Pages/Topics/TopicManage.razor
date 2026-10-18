@@ -83,7 +83,7 @@
                                 var topic = topics[i];
                                 var index = i + 1;
                                 var wordCount = topic.Words?.Count ?? 0;
-                                <tr>
+                                <tr @key="topic.Id">
                                     <td class="ps-4 text-muted fw-semibold">@index</td>
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
@@ -147,7 +147,7 @@
                             var topic = topics[i];
                             var index = i + 1;
                             var wordCount = topic.Words?.Count ?? 0;
-                            <div class="col-12 col-md-6 col-lg-4">
+                            <div @key="topic.Id" class="col-12 col-md-6 col-lg-4">
                                 <div class="card h-100 topic-card bg-white shadow-xs border">
                                     <div class="card-body p-3 d-flex flex-column">
                                         <!-- Header: Folder Icon & Topic Name & Actions -->

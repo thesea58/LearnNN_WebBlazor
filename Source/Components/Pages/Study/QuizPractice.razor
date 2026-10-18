@@ -187,7 +187,7 @@
                     @for (int i = 0; i < questions.Count; i++)
                     {
                         var q = questions[i];
-                        <div class="list-group-item p-3 @(q.IsCorrect ? "bg-light" : "bg-danger-subtle bg-opacity-25")">
+                        <div @key="q.WordId" class="list-group-item p-3 @(q.IsCorrect ? "bg-light" : "bg-danger-subtle bg-opacity-25")">
                             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-1">
                                 <span class="fw-bold text-dark">
                                     Câu @(i + 1): <span class="text-primary fs-5">@q.Term</span>
@@ -304,7 +304,7 @@
                         }
                     }
 
-                    <button type="button" class="@btnClass" disabled="@currentQ.IsAnswered"
+                    <button @key="capturedIndex" type="button" class="@btnClass" disabled="@currentQ.IsAnswered"
                             @onclick="() => SelectOptionAsync(capturedIndex)">
                         <span class="option-badge">@optionLetter</span>
                         <span class="flex-grow-1">@optionText</span>

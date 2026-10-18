@@ -8,7 +8,7 @@
 | ID | Nhóm | Phạm vi & tiêu chí | TT |
 |---|---|---|---|
 | 25.01 | **Kiểm kê vi phạm** | Quét toàn bộ `Source/Components/**` và `Source/Services/**`, lập bảng vi phạm (file, dòng, nhóm, mức rủi ro) vào `PROGRESS.md`; không sửa code | ✅ |
-| 25.02 | **`@key` cho mọi `@foreach`** | Mọi vòng lặp render danh sách có `@key` duy nhất (Id); không đổi thứ tự/logic | ⬜ |
+| 25.02 | **`@key` cho mọi `@foreach`** | Mọi vòng lặp render danh sách có `@key` duy nhất (Id); không đổi thứ tự/logic | ✅ |
 | 25.03 | **Async an toàn** | Loại `.Result`/`.Wait()`/`async void` không cần thiết; dùng `await` | ⬜ |
 | 25.04 | **Dispose & Event** | Component đăng ký event/Timer/`IJSObjectReference` triển khai `IDisposable`/`IAsyncDisposable`, hủy đăng ký | ⬜ |
 | 25.05 | **JS Interop đúng chỗ** | JS chỉ trong `OnAfterRenderAsync(firstRender)`/handler; không trong `OnInitializedAsync`; không `onresize`→C# | ⬜ |

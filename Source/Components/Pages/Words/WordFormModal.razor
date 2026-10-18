@@ -55,7 +55,7 @@
                                     <option value="0">-- Chọn chủ đề --</option>
                                     @foreach (var topic in Topics)
                                     {
-                                        <option value="@topic.Id">@topic.Name</option>
+                                        <option @key="topic.Id" value="@topic.Id">@topic.Name</option>
                                     }
                                 </InputSelect>
                                 @if (model.TopicId <= 0 && isAttemptedSubmit)

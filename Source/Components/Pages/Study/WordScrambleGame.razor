@@ -144,7 +144,7 @@
                     bool hasLetter = slotIndex < userSlots.Count;
                     string letterChar = hasLetter ? userSlots[slotIndex].Letter.ToString() : "";
 
-                    <div class="letter-slot @(hasLetter ? "filled cursor-pointer" : "")"
+                    <div @key="slotIndex" class="letter-slot @(hasLetter ? "filled cursor-pointer" : "")"
                          @onclick="() => OnRemoveLetterAtAsync(slotIndex)"
                          title="@(hasLetter ? "Bấm để gỡ chữ cái này" : "")">
                         @letterChar
@@ -163,7 +163,7 @@
             <div class="d-flex flex-wrap justify-content-center gap-2 my-3">
                 @foreach (var chip in availableChips)
                 {
-                    <button type="button" class="letter-chip" disabled="@chip.IsUsed"
+                    <button @key="chip.Id" type="button" class="letter-chip" disabled="@chip.IsUsed"
                             @onclick="() => OnLetterChipClickedAsync(chip)">
                         @chip.Letter
                     </button>
