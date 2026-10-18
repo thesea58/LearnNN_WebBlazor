@@ -286,4 +286,21 @@ a:hover {
         border-color: var(--primary) !important;
     }
 }
+
+/* ==========================================================================
+   Mobile & Tablet (< 1024px) Safe Area & Viewport Utilities (Task 24.02)
+   ========================================================================== */
+:root {
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+}
+
+@media (max-width: 1023.98px) {
+    body {
+        overflow-x: hidden;
+        min-height: 100dvh;
+    }
+}
 
