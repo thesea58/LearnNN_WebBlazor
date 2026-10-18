@@ -2,6 +2,16 @@
 
 > Chạy ở gốc repo, nhánh `web_mobile`, **sau khi 24.01 (baseline PC) = ✅**.
 
+## Giao thức Resume & chống mất tiến độ (hết token / hết hạn mức / bị ngắt)
+Mọi lần chạy PHẢI bắt đầu bằng:
+1. Đọc `PROGRESS.md` → sub-task `🔄` và checkpoint cuối.
+2. `git status --short`: nếu có thay đổi chưa commit (trừ `*.db`, `bin/`, `obj/`) → `dotnet build`, `dotnet test`, so ảnh PC. **Xanh** → commit tiếp; **đỏ/không rõ** → `git checkout -- <file>` (hoặc `git stash push -m "recovered-25.XX"`), ghi log, làm lại nhóm đó.
+3. Dừng tiến trình `dotnet`/`node` đang giữ cổng 5099 trước khi chạy app.
+4. Sub-agent chưa trả kết quả coi như mất: giao lại.
+- **Checkpoint**: ghi `PROGRESS.md` ở đầu vòng ("đang làm 25.XX, file dự kiến …"), sau mỗi bước lớn, và cuối vòng.
+- **Ngưỡng**: ngữ cảnh ~70% → hoàn tất hoặc revert vòng hiện tại, cập nhật `PROGRESS.md`, `/compact`. Sắp hết token: chỉ commit `wip(refactor): [Task 25.XX] checkpoint` khi build/test/so ảnh xanh, nếu không thì revert.
+- **Tự chạy lại**: `/schedule` cron 30–60 phút với prompt *"Đọc docs/task/25_blazor_refactor/AGENT_PROMPT.md và thực thi PROMPT theo Giao thức Resume; nếu tất cả đã ✅/🚫 thì không làm gì."*
+
 ## PROMPT
 
 Bạn là Orchestrator. Hoàn thành mọi sub-task trong `docs/task/25_blazor_refactor/README.md` theo vòng lặp **Sửa → Test → So ảnh PC → Ghi log → Commit**, không hỏi người dùng trừ điều kiện dừng.

@@ -4,6 +4,17 @@
 > (hoặc: `agy "Đọc và thực thi docs/task/24_web_mobile/AGENT_PROMPT.md, phần PROMPT"`).
 > Khuyến nghị dùng cùng `/goal` để agent không dừng sớm.
 
+### R. Giao thức Resume & chống mất tiến độ (hết token / hết hạn mức / bị ngắt)
+Mọi lần chạy (kể cả lần đầu) PHẢI bắt đầu bằng bước này:
+1. Đọc `PROGRESS.md` → xác định sub-task `🔄` và checkpoint cuối.
+2. `git status --short`: nếu có thay đổi chưa commit (trừ `*.db`, `bin/`, `obj/`) thuộc sub-task `🔄` → chạy `dotnet build`, `dotnet test`, so ảnh PC. **Xanh** → tiếp tục/commit; **đỏ hoặc không rõ nguồn gốc** → `git stash push -m "recovered-<sub-task>"` (hoặc `git checkout -- <file>`), ghi vào `PROGRESS.md`, làm lại sub-task từ đầu.
+3. Dọn tiến trình nền sót: dừng mọi `dotnet`/`node` đang giữ cổng 5099 trước khi chạy app mới (`Get-NetTCPConnection -LocalPort 5099` → `Stop-Process`).
+4. Sub-agent chưa trả kết quả ở lần chạy trước coi như mất: giao lại.
+
+**Checkpoint bắt buộc**: ghi `PROGRESS.md` (a) ở ĐẦU vòng – "đang làm 24.XX, dự kiến sửa file A, B"; (b) sau mỗi bước lớn (Developer xong, Tester xong); (c) cuối vòng.
+**Ngưỡng chủ động**: khi ngữ cảnh ~70% → hoàn tất hoặc revert vòng hiện tại, cập nhật `PROGRESS.md`, chạy `/compact`, rồi tiếp tục từ `PROGRESS.md`. Nếu sắp hết token mà chưa xong: commit `wip(mobile): [Task 24.XX] checkpoint` (chỉ khi build xanh) hoặc revert; KHÔNG để code dở không ghi nhận. Commit WIP được squash/ghi chú khi sub-task xong.
+**Tự chạy lại khi hết hạn mức**: người dùng dùng `/schedule` (cron, vd mỗi 30–60 phút) với prompt: *"Đọc docs/task/24_web_mobile/AGENT_PROMPT.md và thực thi PROMPT theo Giao thức Resume; nếu tất cả sub-task đã ✅/🚫 thì không làm gì."*
+
 ---
 
 ## PROMPT
