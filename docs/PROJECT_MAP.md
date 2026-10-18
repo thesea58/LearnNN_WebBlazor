@@ -56,7 +56,8 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📁 16_personalization_core_srs/ #    ✅ Task 16 – Personalization Core & SRS Engine
 │       ├── 📁 17_ai_infrastructure_manual_bridge/ # ✅ Task 17 – AI Infrastructure & Manual Bridge
 │       ├── 📁 18_ai_quiz_explainer_trap_detector/ # ✅ Task 18 – AI Quiz Explainer & Trap Detector
-│       └── 📁 23_multi_view_mode/          #    ✅ Task 23 – Multi-View Mode (Table & Card Grid)
+│       ├── 📁 23_multi_view_mode/          #    ✅ Task 23 – Multi-View Mode (Table & Card Grid)
+│       └── 📁 24_web_mobile/               #    ⬜ Task 24 – Web Mobile (README backlog, AGENT_PROMPT.md vòng lặp Agy CLI, PROGRESS.md nhật ký, evidence/)
 │
 ├── 📁 Source/                              # 💻 MÃ NGUỒN CHÍNH (Blazor Web App)
 │   ├── 📄 LearnNN_WebBlazor.csproj         #    Project file (.NET 10)
@@ -326,6 +327,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-10-11 | Nghiên cứu Deploy Public & Mobile | `[NEW] docs/design/04_deployment_guide.md`, `[NEW] Dockerfile`, `[NEW] docker-compose.yml`, `[NEW] .dockerignore`, `Source/Program.cs` | Nghiên cứu & xây dựng cẩm nang deploy đa phương án (Cloudflare Tunnel, Wi-Fi LAN, VPS Docker Caddy 24/7, Fly.io) truy cập điện thoại di động (HTTPS, WebSockets, persistent SQLite storage, PWA Add-to-Home-Screen) và cấu hình ForwardedHeaders cho Reverse Proxy. |
 | 2026-10-12 | Fix AI API Key Detection & Settings Enhancement | `Source/Program.cs`, `Source/LearnNN_WebBlazor.csproj`, `Source/Services/Ai/GeminiApiExecutor.cs`, `Source/Components/Pages/Ai/AiSettings.razor`, `docs/PROJECT_MAP.md` | Tối ưu cơ chế nạp API Key đa nguồn (User/Machine Registry, .env, aliases GEMINI/GOOGLE/AI_API_KEY, tự động trim quotes, auto chuyển Hybrid), thêm UserSecretsId, thêm ô nhập trực tiếp API key & nút kiểm tra kết nối tức thì trên /ai/settings |
 | 2026-10-12 | Upgrade Gemini Models to 3.5 | `Source/appsettings.json`, `Source/Models/Ai/AiOptions.cs`, `Source/Data/Entities/AiRequest.cs`, `docs/PROJECT_MAP.md` | Nâng cấp mô hình Gemini mặc định từ 2.5 lên `gemini-3.5-flash-lite` và `gemini-3.5-flash` theo chính sách cập nhật mới nhất của Google AI Studio |
+| 2026-10-18 | Task 24 – Web Mobile (lập kế hoạch) | `[NEW] docs/task/24_web_mobile/README.md`, `AGENT_PROMPT.md`, `PROGRESS.md`, `docs/task/README.md`, nhánh git `web_mobile` | Tạo nhánh `web_mobile`, backlog 11 sub-task (responsive, PWA, mobile UX) và prompt orchestrator + sub-agents để Agy CLI lặp Sửa → Test → Commit liên tục; trạng thái lưu trong `PROGRESS.md` |
 
 
 
