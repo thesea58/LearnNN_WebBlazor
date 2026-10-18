@@ -1,8 +1,10 @@
 @page "/ai/settings"
 @rendermode InteractiveServer
 @using LearnNN_WebBlazor.Models.Ai
+@using LearnNN_WebBlazor.Services.Ai
 @using Microsoft.Extensions.Options
 @inject IOptions<AiOptions> AiConfigOptions
+@inject GeminiApiExecutor ApiExecutor
 @inject NavigationManager Navigation
 
 <PageTitle>Cài Đặt AI – AI Settings | LearnNN</PageTitle>
@@ -109,12 +111,12 @@
         </div>
     </div>
 
-    @* Section 2: API Key Security & Status *@
+    @* Section 2: API Key Security & Management *@
     <div class="card border-0 shadow-sm rounded-4 mb-4">
         <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
-                    <i class="bi bi-shield-lock text-success"></i> 2. Trạng Thái API Key & Chuẩn Bảo Mật
+                    <i class="bi bi-shield-lock-fill text-success"></i> 2. Quản Lý & Bảo Mật API Key
                 </h5>
                 @if (hasApiKey)
                 {
@@ -130,6 +132,90 @@
                 }
             </div>
 
+            @if (hasApiKey)
+            {
+                @* Masked Key Safe Display *@
+                <div class="p-3 bg-light rounded-3 border mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="small fw-semibold text-secondary">
+                            <i class="bi bi-key-fill text-warning me-1"></i> Khóa API hiện hành (Đã ẩn bảo mật):
+                        </span>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size: 0.75rem;">
+                            <i class="bi bi-shield-shaded"></i> Bảo mật máy chủ (Zero Leakage)
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mt-2">
+                        <span class="font-monospace fs-6 px-3 py-2 bg-white rounded border flex-grow-1 text-dark user-select-none" style="letter-spacing: 1px;">
+                            @maskedCurrentKey
+                        </span>
+                        <button class="btn btn-outline-primary d-flex align-items-center gap-1 px-3 py-2"
+                                type="button"
+                                disabled="@isTestingConnection"
+                                @onclick="TestConnectionAsync">
+                            @if (isTestingConnection)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status"></span>
+                                <span>Đang test...</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-broadcast"></i>
+                                <span>Kiểm Tra Kết Nối</span>
+                            }
+                        </button>
+                    </div>
+                    <div class="text-muted mt-2 small" style="font-size: 0.78rem;">
+                        <i class="bi bi-info-circle me-1"></i> Vì lý do an toàn tuyệt đối, hệ thống chỉ hiển thị 4 ký tự đầu và 4 ký tự cuối. Trình duyệt (F12 / Inspect / Copy) hoàn toàn không thể trích xuất chuỗi key gốc.
+                    </div>
+                </div>
+            }
+
+            @* Input to enter or change key *@
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-dark small mb-1">
+                    @(hasApiKey ? "Thay đổi API Key mới (Để trống nếu tiếp tục dùng key hiện tại):" : "Google AI Studio (Gemini) API Key:")
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-shield-lock text-muted"></i></span>
+                    <input type="password"
+                           class="form-control font-monospace"
+                           placeholder="@(hasApiKey ? "•••••••••••••••••••• (Dán key mới để thay thế...)" : "Dán API Key tại đây để kích hoạt...")"
+                           autocomplete="off"
+                           @bind="newApiKeyInput"
+                           @bind:event="oninput" />
+                    @if (!hasApiKey)
+                    {
+                        <button class="btn btn-outline-primary d-flex align-items-center gap-1"
+                                type="button"
+                                disabled="@(isTestingConnection || string.IsNullOrWhiteSpace(newApiKeyInput))"
+                                @onclick="TestConnectionAsync">
+                            @if (isTestingConnection)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status"></span>
+                                <span>Đang test...</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-broadcast"></i>
+                                <span>Kiểm Tra Kết Nối</span>
+                            }
+                        </button>
+                    }
+                </div>
+                <div class="form-text small text-muted">
+                    Lấy API Key miễn phí tại <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-decoration-none">Google AI Studio <i class="bi bi-box-arrow-up-right"></i></a>. Key nhập trực tiếp sẽ được bảo vệ ngay khi bấm Lưu Cấu Hình.
+                </div>
+            </div>
+
+            @if (testResult != null)
+            {
+                <div class="alert @(testResult.Value.IsSuccess ? "alert-success" : "alert-danger") alert-dismissible fade show p-2 px-3 small mb-3" role="alert">
+                    <i class="bi @(testResult.Value.IsSuccess ? "bi-check-circle-fill" : "bi-exclamation-triangle-fill") me-1"></i>
+                    @testResult.Value.Message
+                    <button type="button" class="btn-close p-2" @onclick="() => testResult = null"></button>
+                </div>
+            }
+
             @* Security Guarantee Note *@
             <div class="alert alert-info border-0 rounded-3 p-3 small mb-3">
                 <div class="fw-bold d-flex align-items-center gap-1 mb-1">
@@ -138,19 +224,37 @@
                 <div>
                     Để tránh tuyệt đối nguy cơ rò rỉ API Key lên GitHub hoặc các kho lưu trữ mã nguồn mở,
                     LearnNN không lưu API Key dạng văn bản thuần trong file `appsettings.json`.
-                    Hệ thống tự động nạp key an toàn qua <strong>.NET User Secrets</strong> hoặc <strong>Biến môi trường</strong>.
+                    Hệ thống tự động nạp key an toàn qua <strong>Biến môi trường</strong>, file <strong>.env</strong>, hoặc <strong>.NET User Secrets</strong>.
                 </div>
             </div>
 
             <div class="bg-light p-3 rounded-3 small">
-                <div class="fw-semibold text-dark mb-2">Cách cấu hình API Key an toàn trên máy của bạn:</div>
-                <div class="mb-2">
-                    <span class="badge bg-dark">Cách 1 (.NET User Secrets - Khuyến nghị khi dev):</span>
-                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace">dotnet user-secrets set "Ai:ApiKey" "AIzaSy..."</pre>
+                <div class="fw-semibold text-dark mb-2">Các cách cấu hình biến môi trường tự động nhận (không lo lộ key):</div>
+                
+                <div class="mb-3">
+                    <span class="badge bg-primary">Cách 1 (PowerShell - Lưu vĩnh viễn trên Windows):</span>
+                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace">[System.Environment]::SetEnvironmentVariable('GEMINI_API_KEY', 'AIzaSy...', 'User')</pre>
+                    <div class="text-muted mt-1" style="font-size: 0.78rem;">
+                        <i class="bi bi-info-circle"></i> Lệnh này lưu key vào Windows User Registry. Khởi động lại terminal/app để nhận biến.
+                    </div>
                 </div>
+
+                <div class="mb-3">
+                    <span class="badge bg-secondary">Cách 2 (File .env ở thư mục gốc dự án):</span>
+                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace">GEMINI_API_KEY=AIzaSy...</pre>
+                    <div class="text-muted mt-1" style="font-size: 0.78rem;">
+                        <i class="bi bi-check2-circle text-success"></i> File <code>.env</code> đã được cấu hình trong <code>.gitignore</code>, không bao giờ bị đẩy lên GitHub.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <span class="badge bg-dark">Cách 3 (.NET User Secrets - Khuyến nghị cho lập trình viên .NET):</span>
+                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace">dotnet user-secrets set "Ai:ApiKey" "AIzaSy..." --project Source</pre>
+                </div>
+
                 <div>
-                    <span class="badge bg-dark">Cách 2 (Biến môi trường OS):</span>
-                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace">set GEMINI_API_KEY="AIzaSy..." (Windows CMD/PowerShell)</pre>
+                    <span class="badge bg-secondary">Cách 4 (Windows Command Prompt - CMD):</span>
+                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace">setx GEMINI_API_KEY "AIzaSy..."</pre>
                 </div>
             </div>
         </div>
@@ -201,6 +305,10 @@
     private string selectedChatbotUrl = "https://gemini.google.com/";
     private bool hasApiKey = false;
     private bool showSavedAlert = false;
+    private string maskedCurrentKey = string.Empty;
+    private string newApiKeyInput = string.Empty;
+    private bool isTestingConnection = false;
+    private (bool IsSuccess, string Message)? testResult = null;
 
     protected override void OnInitialized()
     {
@@ -210,13 +318,66 @@
             ? config.PreferredChatbotUrl
             : "https://gemini.google.com/";
         hasApiKey = config.HasApiKey;
+        if (hasApiKey)
+        {
+            maskedCurrentKey = FormatMaskedKey(config.ApiKey);
+        }
+        newApiKeyInput = string.Empty;
+    }
+
+    private static string FormatMaskedKey(string? rawKey)
+    {
+        if (string.IsNullOrWhiteSpace(rawKey)) return string.Empty;
+        var clean = rawKey.Trim('"', '\'', ' ');
+        if (clean.Length <= 8)
+        {
+            return "••••••••";
+        }
+        return $"{clean[..4]}••••••••••••{clean[^4..]}";
+    }
+
+    private async Task TestConnectionAsync()
+    {
+        isTestingConnection = true;
+        testResult = null;
+        StateHasChanged();
+
+        try
+        {
+            // If the user typed a new key to test, use that. Otherwise test the server's configured key.
+            string keyToTest = !string.IsNullOrWhiteSpace(newApiKeyInput)
+                ? newApiKeyInput.Trim('"', '\'', ' ')
+                : (AiConfigOptions.Value.ApiKey ?? string.Empty);
+
+            testResult = await ApiExecutor.TestConnectionAsync(keyToTest);
+        }
+        finally
+        {
+            isTestingConnection = false;
+            StateHasChanged();
+        }
     }
 
     private void SaveSettings()
     {
-        // Update in-memory options for the active session
+        if (!string.IsNullOrWhiteSpace(newApiKeyInput))
+        {
+            var cleanKey = newApiKeyInput.Trim('"', '\'', ' ');
+            AiConfigOptions.Value.ApiKey = cleanKey;
+            maskedCurrentKey = FormatMaskedKey(cleanKey);
+            newApiKeyInput = string.Empty; // Zero-out the input immediately after saving
+            hasApiKey = true;
+
+            // Auto-upgrade to Hybrid if previously Manual
+            if (selectedMode == AiMode.Manual)
+            {
+                selectedMode = AiMode.Hybrid;
+            }
+        }
+
         AiConfigOptions.Value.Mode = selectedMode;
         AiConfigOptions.Value.PreferredChatbotUrl = selectedChatbotUrl;
+        hasApiKey = AiConfigOptions.Value.HasApiKey;
         showSavedAlert = true;
     }
 }

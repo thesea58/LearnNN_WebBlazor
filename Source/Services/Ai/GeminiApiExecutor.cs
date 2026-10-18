@@ -139,4 +139,72 @@ public class GeminiApiExecutor : IAiExecutor
         }
         return null;
     }
+
+    /// <summary>
+    /// Tests connectivity and API key validity against Google Gemini API.
+    /// <para>VN: Kiểm tra kết nối và tính hợp lệ của API Key với Google Gemini API.</para>
+    /// </summary>
+    public async Task<(bool IsSuccess, string Message)> TestConnectionAsync(
+        string? apiKeyOverride = null,
+        CancellationToken cancellationToken = default)
+    {
+        string? apiKey = !string.IsNullOrWhiteSpace(apiKeyOverride)
+            ? apiKeyOverride.Trim('"', '\'', ' ')
+            : _options.Value.ApiKey;
+
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            return (false, "Chưa cung cấp API Key để kiểm tra.");
+        }
+
+        string model = _options.Value.FastModel;
+        string requestUri = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
+
+        var testBody = new
+        {
+            contents = new[]
+            {
+                new
+                {
+                    parts = new[]
+                    {
+                        new { text = "Ping test. Please reply with: {\"status\": \"ok\"}" }
+                    }
+                }
+            },
+            generationConfig = new
+            {
+                responseMimeType = "application/json",
+                maxOutputTokens = 30
+            }
+        };
+
+        try
+        {
+            using var content = new StringContent(
+                JsonSerializer.Serialize(testBody),
+                Encoding.UTF8,
+                "application/json");
+
+            using var response = await _httpClient.PostAsync(requestUri, content, cancellationToken);
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return (true, $"Kết nối thành công! API Key hợp lệ và phản hồi tốt từ model \"{model}\".");
+            }
+
+            string friendlyMessage = ExtractErrorMessage(responseContent)
+                ?? $"Gọi API Gemini thất bại (Mã lỗi {(int)response.StatusCode} {response.StatusCode}).";
+            return (false, friendlyMessage);
+        }
+        catch (TaskCanceledException)
+        {
+            return (false, "Quá thời gian kết nối (Timeout). Vui lòng kiểm tra lại mạng Internet.");
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Lỗi kết nối tới Gemini API: {ex.Message}");
+        }
+    }
 }

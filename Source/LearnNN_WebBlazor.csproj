@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <UserSecretsId>learnnn-webblazor-secrets</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

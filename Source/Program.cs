@@ -34,10 +34,88 @@ builder.Services.AddScoped<IStudyService, StudyService>();
 builder.Services.Configure<AiOptions>(builder.Configuration.GetSection(AiOptions.SectionName));
 builder.Services.PostConfigure<AiOptions>(options =>
 {
-    var envKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
-    if (!string.IsNullOrWhiteSpace(envKey) && string.IsNullOrWhiteSpace(options.ApiKey))
+    // 1. Resolve API key if not configured or empty in appsettings
+    if (string.IsNullOrWhiteSpace(options.ApiKey))
     {
-        options.ApiKey = envKey;
+        var candidates = new[] { "GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_AI_KEY", "AI_API_KEY" };
+
+        foreach (var keyName in candidates)
+        {
+            var val = Environment.GetEnvironmentVariable(keyName);
+            if (string.IsNullOrWhiteSpace(val) && OperatingSystem.IsWindows())
+            {
+                val = Environment.GetEnvironmentVariable(keyName, EnvironmentVariableTarget.User)
+                      ?? Environment.GetEnvironmentVariable(keyName, EnvironmentVariableTarget.Machine);
+            }
+
+            if (!string.IsNullOrWhiteSpace(val))
+            {
+                options.ApiKey = val.Trim('"', '\'', ' ');
+                break;
+            }
+        }
+
+        // Check local .env file fallback
+        if (string.IsNullOrWhiteSpace(options.ApiKey))
+        {
+            var envFiles = new[]
+            {
+                Path.Combine(Directory.GetCurrentDirectory(), ".env"),
+                Path.Combine(AppContext.BaseDirectory, ".env"),
+                Path.Combine(Directory.GetCurrentDirectory(), "..", ".env")
+            };
+
+            foreach (var envFile in envFiles)
+            {
+                if (File.Exists(envFile))
+                {
+                    try
+                    {
+                        foreach (var line in File.ReadAllLines(envFile))
+                        {
+                            var trimmed = line.Trim();
+                            if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith("#")) continue;
+                            var parts = trimmed.Split('=', 2);
+                            if (parts.Length == 2)
+                            {
+                                var k = parts[0].Trim();
+                                var v = parts[1].Trim('"', '\'', ' ');
+                                if (candidates.Contains(k, StringComparer.OrdinalIgnoreCase) ||
+                                    k.Equals("Ai__ApiKey", StringComparison.OrdinalIgnoreCase) ||
+                                    k.Equals("Ai:ApiKey", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (!string.IsNullOrWhiteSpace(v))
+                                    {
+                                        options.ApiKey = v;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // Ignore file read error on local .env
+                    }
+                }
+                if (!string.IsNullOrWhiteSpace(options.ApiKey)) break;
+            }
+        }
+    }
+    else
+    {
+        // Sanitize quotes if set via appsettings or config
+        options.ApiKey = options.ApiKey.Trim('"', '\'', ' ');
+    }
+
+    // 2. If an API key is present and mode was default Manual, auto-promote to Hybrid so automated API calls take effect
+    if (!string.IsNullOrWhiteSpace(options.ApiKey) && options.Mode == AiMode.Manual)
+    {
+        var configuredMode = builder.Configuration.GetSection("Ai")["Mode"];
+        if (string.IsNullOrWhiteSpace(configuredMode) || configuredMode.Equals("Manual", StringComparison.OrdinalIgnoreCase))
+        {
+            options.Mode = AiMode.Hybrid;
+        }
     }
 });
 builder.Services.AddHttpClient<GeminiApiExecutor>();
