@@ -14,7 +14,7 @@
 | 25.05 | **JS Interop đúng chỗ** | JS chỉ trong `OnAfterRenderAsync(firstRender)`/handler; không trong `OnInitializedAsync`; không `onresize`→C# | ✅ |
 | 25.06 | **`[Parameter]` bất biến** | Không gán lại parameter trong component; dùng `EventCallback<T>`/biến cục bộ | ✅ |
 | 25.07 | **ErrorBoundary & Render** | Bọc vùng nội dung chính (MainLayout body) và widget độc lập; bỏ `StateHasChanged` dư; `ShouldRender` chỉ khi đo được lợi ích | ✅ |
-| 25.08 | **Virtualize (có điều kiện)** | Chỉ danh sách >50 dòng trên một trang không phân trang; `/words` giữ paging | 🔄 |
+| 25.08 | **Virtualize (có điều kiện)** | Chỉ danh sách >50 dòng trên một trang không phân trang; `/words` giữ paging | ✅ |
 | 25.09 | **Code-behind & C# hiện đại (tùy chọn, rủi ro thấp)** | Tách `.razor.cs` cho component có `@code` > ~150 dòng; primary constructor cho DI; không đổi hành vi | ⬜ |
 
 ## Quy tắc an toàn

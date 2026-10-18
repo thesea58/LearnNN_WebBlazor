@@ -298,8 +298,9 @@
     {
         try
         {
-            topicsList = await VocabularyService.GetAllTopicsAsync();
-            topicCount = topicsList.Count;
+            var allTopics = await VocabularyService.GetAllTopicsAsync();
+            topicCount = allTopics.Count;
+            topicsList = allTopics.Take(5).ToList();
 
             totalWords = await VocabularyService.GetWordCountAsync(new WordFilterModel { MasteredFilter = MasteredFilter.All });
             masteredWords = await VocabularyService.GetWordCountAsync(new WordFilterModel { MasteredFilter = MasteredFilter.Mastered });

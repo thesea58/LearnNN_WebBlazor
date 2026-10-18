@@ -1,7 +1,7 @@
 # 📓 Task 25 – Progress Log
 
 ## Trạng thái
-- **Sub-task đang làm**: Hoàn thành 25.07; chuyển sang 25.08 (Virtualize / List bounds) · **Vòng**: 7 · **Fail liên tiếp**: 0
+- **Sub-task đang làm**: Hoàn thành toàn bộ Task 25 (25.01 -> 25.08); chuyển sang Task 24.02 · **Vòng**: 8 · **Fail liên tiếp**: 0
 
 ## Bảng vi phạm (từ 25.01)
 | # | File | Dòng | Nhóm | Rủi ro | Mô tả vi phạm & giải pháp | TT |
@@ -36,9 +36,9 @@
 | 28 | `Source/Components/Pages/Study/QuizPractice.razor` | 719 | Nhóm 25.07 | Thấp | `StateHasChanged()` dư thừa trong `finally` của event handler `@onclick`. Loại bỏ. | ✅ |
 | 29 | `Source/Components/Pages/Study/QuizPractice.razor` | 800 | Nhóm 25.07 | Thấp | `StateHasChanged()` dư thừa trong `finally` của EventCallback submit. Loại bỏ. | ✅ |
 | 30 | `Source/Components/Pages/Ai/AiSettings.razor` | 357 | Nhóm 25.07 | Thấp | `StateHasChanged()` dư thừa trong `finally` của event handler `@onclick`. Loại bỏ. | ✅ |
-| 31 | `Source/Components/Pages/Topics/TopicManage.razor` | 380 | Nhóm 25.08 | TB | Nạp toàn bộ chủ đề không giới hạn khi số lượng lớn. Cân nhắc phân trang hoặc Virtualize. | ⬜ |
-| 32 | `Source/Components/Pages/Ai/AiInbox.razor` | 462-466 | Nhóm 25.08 | TB | Nạp tối đa 100 yêu cầu không phân trang. Cân nhắc Virtualize. | ⬜ |
-| 33 | `Source/Components/Pages/Home.razor` | 301 | Nhóm 25.08 | Thấp | `topicsList = await VocabularyService.GetAllTopicsAsync();` không `.Take(5)` như recentWords. Giới hạn top 5. | ⬜ |
+| 31 | `Source/Components/Pages/Topics/TopicManage.razor` | 380 | Nhóm 25.08 | TB | Số lượng topic thực tế ít (<20), card/table có TopicProgressCircle chiều cao biến thiên; giữ binding trực tiếp không ép Virtualize. | ✅ |
+| 32 | `Source/Components/Pages/Ai/AiInbox.razor` | 462-466 | Nhóm 25.08 | TB | Accordion yêu cầu AI pending có form tương tác và kích thước biến thiên; giữ rendering trực tiếp không ép Virtualize. | ✅ |
+| 33 | `Source/Components/Pages/Home.razor` | 301 | Nhóm 25.08 | Thấp | Giới hạn topicsList hiển thị top 5 (`allTopics.Take(5).ToList()`) đồng bộ với recentWords, giữ nguyên tổng số topicCount. | ✅ |
 
 ## Nhật ký
 | Vòng | Thời gian | Sub-task | Việc đã làm | Build/Test/So ảnh PC | Commit |
@@ -49,4 +49,5 @@
 | 4 | 2026-10-19 01:37 | 25.04 | Hủy đăng ký debounceTimer.Elapsed trong WordList.razor Dispose(); triển khai IDisposable và CancellationTokenSource hủy Task.Delay khi đóng modal trong AiManualBridgeModal.razor | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | `88d8495` |
 | 5 | 2026-10-19 01:43 | 25.05 | Đồng bộ breakpoint tự động phát hiện ViewMode (card < 1024px, table >= 1024px) trong study.js và Razor components theo mobile-desktop-lock.md | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | `fb22bde` |
 | 6 | 2026-10-19 01:49 | 25.06 | Loại bỏ đột biến [Parameter] trực tiếp trong QuizExplanationCard và ViewModeSwitcher, hỗ trợ local fallback và phát EventCallback | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | `e1f7df1` |
-| 7 | 2026-10-19 01:55 | 25.07 | Bọc ErrorBoundary quanh @Body trong MainLayout (kèm auto-recover trên OnParametersSet) và dọn dẹp StateHasChanged() dư thừa trong finally block của các async handler | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | pending |
+| 7 | 2026-10-19 01:55 | 25.07 | Bọc ErrorBoundary quanh @Body trong MainLayout (kèm auto-recover trên OnParametersSet) và dọn dẹp StateHasChanged() dư thừa trong finally block của các async handler | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | `8daa80f` |
+| 8 | 2026-10-19 01:59 | 25.08 | Đánh giá Virtualize danh sách: giữ phân trang /words, xác nhận TopicManage/AiInbox không ép Virtualize sai cỡ, giới hạn topicsList Take(5) trên Home.razor | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | pending |
