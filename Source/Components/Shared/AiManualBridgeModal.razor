@@ -2,6 +2,7 @@
 @using LearnNN_WebBlazor.Models.Ai
 @inject IJSRuntime JS
 @inject IOptions<AiOptions> AiConfigOptions
+@implements IDisposable
 
 @if (IsVisible)
 {
@@ -160,6 +161,7 @@
     private bool copiedPrompt = false;
     private bool copiedFixPrompt = false;
     private bool hasError => !string.IsNullOrWhiteSpace(ErrorMessage);
+    private CancellationTokenSource? copyResetCts;
 
     protected override void OnParametersSet()
     {
@@ -168,7 +170,15 @@
             pastedJson = string.Empty;
             copiedPrompt = false;
             copiedFixPrompt = false;
+            CancelPendingDelay();
         }
+    }
+
+    private void CancelPendingDelay()
+    {
+        copyResetCts?.Cancel();
+        copyResetCts?.Dispose();
+        copyResetCts = null;
     }
 
     private async Task CopyPromptAsync()
@@ -178,9 +188,20 @@
         copiedPrompt = true;
         StateHasChanged();
 
-        await Task.Delay(2000);
-        copiedPrompt = false;
-        StateHasChanged();
+        CancelPendingDelay();
+        copyResetCts = new CancellationTokenSource();
+        var token = copyResetCts.Token;
+
+        try
+        {
+            await Task.Delay(2000, token);
+            copiedPrompt = false;
+            StateHasChanged();
+        }
+        catch (OperationCanceledException)
+        {
+            // Expected when modal is closed or disposed
+        }
     }
 
     private async Task CopyFixPromptAsync()
@@ -190,9 +211,20 @@
         copiedFixPrompt = true;
         StateHasChanged();
 
-        await Task.Delay(2000);
-        copiedFixPrompt = false;
-        StateHasChanged();
+        CancelPendingDelay();
+        copyResetCts = new CancellationTokenSource();
+        var token = copyResetCts.Token;
+
+        try
+        {
+            await Task.Delay(2000, token);
+            copiedFixPrompt = false;
+            StateHasChanged();
+        }
+        catch (OperationCanceledException)
+        {
+            // Expected when modal is closed or disposed
+        }
     }
 
     private async Task OpenChatbotTabAsync()
@@ -217,6 +249,12 @@
 
     private async Task HandleClose()
     {
+        CancelPendingDelay();
         await OnClose.InvokeAsync();
+    }
+
+    public void Dispose()
+    {
+        CancelPendingDelay();
     }
 }
