@@ -7,6 +7,7 @@ const CACHE_NAME = 'learnnn-cache-v1';
 // Pre-cached core static assets
 const PRECACHE_ASSETS = [
     '/',
+    '/offline.html',
     '/manifest.webmanifest',
     '/favicon.png',
     '/app.css',
@@ -73,9 +74,9 @@ self.addEventListener('fetch', (event) => {
                     return networkResponse;
                 })
                 .catch(() => {
-                    // Offline fallback: return cached root
+                    // Offline fallback: return cached request, or dedicated offline page, or root
                     return caches.match(event.request).then((cachedResponse) => {
-                        return cachedResponse || caches.match('/');
+                        return cachedResponse || caches.match('/offline.html') || caches.match('/');
                     });
                 })
         );

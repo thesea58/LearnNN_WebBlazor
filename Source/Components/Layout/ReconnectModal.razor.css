@@ -22,12 +22,12 @@
 
 #components-reconnect-modal {
     background-color: white;
-    width: 20rem;
-    margin: 20vh auto;
-    padding: 2rem;
+    width: min(calc(100vw - 32px), 22rem);
+    margin: 15vh auto;
+    padding: 1.75rem 1.5rem;
     border: 0;
-    border-radius: 0.5rem;
-    box-shadow: 0 3px 6px 2px rgba(0, 0, 0, 0.3);
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
     opacity: 0;
     transition: display 0.5s allow-discrete, overlay 0.5s allow-discrete;
     animation: components-reconnect-modal-fadeOutOpacity 0.5s both;
@@ -86,22 +86,40 @@
 #components-reconnect-modal p {
     margin: 0;
     text-align: center;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: #1e293b;
+}
+
+.components-reconnect-subtext {
+    font-size: 0.8125rem;
+    color: #64748b;
+    margin-top: 4px;
+    display: inline-block;
 }
 
 #components-reconnect-modal button {
     border: 0;
-    background-color: #6b9ed2;
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
     color: white;
-    padding: 4px 24px;
-    border-radius: 4px;
+    min-height: 44px;
+    min-width: 130px;
+    padding: 8px 24px;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    transition: opacity 0.2s, transform 0.1s;
 }
 
     #components-reconnect-modal button:hover {
-        background-color: #3b6ea2;
+        background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
     }
 
     #components-reconnect-modal button:active {
-        background-color: #6b9ed2;
+        transform: scale(0.98);
+        opacity: 0.9;
     }
 
 .components-rejoining-animation {
@@ -112,7 +130,7 @@
 
     .components-rejoining-animation div {
         position: absolute;
-        border: 3px solid #0087ff;
+        border: 3px solid #4f46e5;
         opacity: 1;
         border-radius: 50%;
         animation: components-rejoining-animation 1.5s cubic-bezier(0, 0.2, 0.8, 1) infinite;

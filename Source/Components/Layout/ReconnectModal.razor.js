@@ -8,20 +8,51 @@ retryButton.addEventListener("click", retry);
 const resumeButton = document.getElementById("components-resume-button");
 resumeButton.addEventListener("click", resume);
 
+let isRetrying = false;
+
+function isModalVisible() {
+    return reconnectModal && (reconnectModal.open ||
+        reconnectModal.classList.contains("components-reconnect-show") ||
+        reconnectModal.classList.contains("components-reconnect-retrying") ||
+        reconnectModal.classList.contains("components-reconnect-failed") ||
+        reconnectModal.classList.contains("components-reconnect-paused") ||
+        reconnectModal.classList.contains("components-reconnect-resume-failed"));
+}
+
+// Auto-reconnect listeners for mobile resilience (app switching, screen unlock, network recovery)
+window.addEventListener("online", async () => {
+    if (isModalVisible()) {
+        await retry();
+    }
+});
+
+document.addEventListener("visibilitychange", async () => {
+    if (document.visibilityState === "visible" && isModalVisible()) {
+        await retry();
+    }
+});
+
+window.addEventListener("focus", async () => {
+    if (isModalVisible()) {
+        await retry();
+    }
+});
+
 function handleReconnectStateChanged(event) {
     if (event.detail.state === "show") {
         reconnectModal.showModal();
     } else if (event.detail.state === "hide") {
         reconnectModal.close();
     } else if (event.detail.state === "failed") {
-        document.addEventListener("visibilitychange", retryWhenDocumentBecomesVisible);
+        // Circuit failed, auto-retry will be triggered on visibility change or online
     } else if (event.detail.state === "rejected") {
         location.reload();
     }
 }
 
 async function retry() {
-    document.removeEventListener("visibilitychange", retryWhenDocumentBecomesVisible);
+    if (isRetrying) return;
+    isRetrying = true;
 
     try {
         // Reconnect will asynchronously return:
@@ -40,8 +71,9 @@ async function retry() {
             }
         }
     } catch (err) {
-        // We got an exception, server is currently unavailable
-        document.addEventListener("visibilitychange", retryWhenDocumentBecomesVisible);
+        // Exception: server is currently unavailable
+    } finally {
+        isRetrying = false;
     }
 }
 
@@ -56,8 +88,3 @@ async function resume() {
     }
 }
 
-async function retryWhenDocumentBecomesVisible() {
-    if (document.visibilityState === "visible") {
-        await retry();
-    }
-}

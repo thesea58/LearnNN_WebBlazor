@@ -1,4 +1,4 @@
-﻿<script type="module" src="@Assets["Components/Layout/ReconnectModal.razor.js"]"></script>
+<script type="module" src="@Assets["Components/Layout/ReconnectModal.razor.js"]"></script>
 
 <dialog id="components-reconnect-modal" data-nosnippet>
     <div class="components-reconnect-container">
@@ -7,25 +7,27 @@
             <div></div>
         </div>
         <p class="components-reconnect-first-attempt-visible">
-            Rejoining the server...
+            Đang kết nối lại với máy chủ...<br />
+            <span class="components-reconnect-subtext">Rejoining server...</span>
         </p>
         <p class="components-reconnect-repeated-attempt-visible">
-            Rejoin failed... trying again in <span id="components-seconds-to-next-attempt"></span> seconds.
+            Đang thử kết nối lại sau <span id="components-seconds-to-next-attempt"></span> giây...
         </p>
         <p class="components-reconnect-failed-visible">
-            Failed to rejoin.<br />Please retry or reload the page.
+            Mất kết nối với máy chủ.<br />
+            <span class="components-reconnect-subtext">Vui lòng bấm Thử lại hoặc tải lại trang.</span>
         </p>
         <button id="components-reconnect-button" class="components-reconnect-failed-visible">
-            Retry
+            Thử lại kết nối
         </button>
         <p class="components-pause-visible">
-            The session has been paused by the server.
+            Phiên làm việc tạm dừng bởi máy chủ.
         </p>
         <p class="components-resume-failed-visible">
-            Failed to resume the session.<br />Please retry or reload the page.
+            Không thể tiếp tục phiên.<br />Vui lòng thử lại hoặc tải lại trang.
         </p>
         <button id="components-resume-button" class="components-pause-visible components-resume-failed-visible">
-            Resume
+            Tiếp tục phiên học
         </button>
     </div>
 </dialog>

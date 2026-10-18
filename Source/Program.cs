@@ -11,7 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 #region Service Registration
 
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents(options =>
+    {
+        // Retain disconnected circuits for 10 minutes to protect active mobile study sessions during brief backgrounding or network switches
+        options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromMinutes(10);
+        options.DisconnectedCircuitMaxRetained = 200;
+    });
 
 // Support Reverse Proxy headers (Cloudflare Tunnel, Caddy, Nginx, Docker)
 builder.Services.Configure<ForwardedHeadersOptions>(options =>

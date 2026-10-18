@@ -180,6 +180,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │   └── 📁 wwwroot/                         # 🌐 Static files (served publicly)
 │       ├── 📄 manifest.webmanifest         #    PWA Web App Manifest (tên, màu theme, biểu tượng)
 │       ├── 📄 service-worker.js            #    Service Worker (cache static shell, bypass SignalR circuits, offline fallback)
+│       ├── 📄 offline.html                 #    Trang ngoại tuyến độc lập khi mất kết nối mạng (Task 24.10)
 │       ├── 📁 icons/                       #    PWA Icons & Favicons
 │       │   ├── 📄 icon-192.png             #    PWA standard icon (192x192)
 │       │   ├── 📄 icon-512.png             #    PWA standard icon (512x512)
@@ -210,6 +211,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📄 DoubleSubmitGuardTests.cs    # Kiểm thử cơ chế chống double-submit khi click nhanh (Task 24.07)
 │       ├── 📄 InputAndTouchErgonomicsTests.cs # Kiểm thử công thái học input, scroll-margin, touch gaps (Task 24.08)
 │       ├── 📄 PwaMobileTests.cs            # Kiểm thử tính hợp lệ của PWA (manifest, icons, service worker, meta tags) (Task 24.09)
+│       ├── 📄 BlazorResilienceTests.cs     # Kiểm thử tính kiên cường kết nối Blazor Server & offline (Task 24.10)
 │       ├── 📁 Helpers/                     # Tiện ích test (Blazor readiness, Image comparison, Overflow check)
 │       └── 📁 Baselines/                   # 20 ảnh chụp màn hình PC chuẩn cho 10 routes
 │
@@ -369,6 +371,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-10-19 | Task 24.07 – Chống Double-Submit | `Source/Components/Pages/**`, `[NEW] Tests/LearnNN_WebBlazor.Tests/DoubleSubmitGuardTests.cs` | Triển khai cơ chế phòng chống double-submit 2 lớp (UI disabled + early-return guard trong handler) cho toàn bộ các nút gọi async (Flashcard SRS rating, WordFormModal, TopicManage save/delete, WordList delete/import, QuizPractice batch mastery/AI explainer, WordScrambleGame answer/skip, AiInbox delete/sandbox, AiSettings test connection), bổ sung bộ test tự động Playwright |
 | 2026-10-19 | Task 24.08 – Công thái học Input & Hover | `Source/wwwroot/app.css`, `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Ai/AiSettings.razor`, `[NEW] Tests/LearnNN_WebBlazor.Tests/InputAndTouchErgonomicsTests.cs` | Tối ưu công thái học nhập liệu & cảm ứng: inputmode="search" trên WordList, type/inputmode="url" trên AiSettings, scroll-margin-bottom 24px chống bàn phím ảo che input, form-check touch target >= 44px, khoảng cách phân trang 8px, @media (hover: none) loại bỏ hoàn toàn sticky hover trên mobile |
 | 2026-10-19 | Task 24.09 – PWA Manifest & Service Worker | `Source/Components/App.razor`, `[NEW] Source/wwwroot/manifest.webmanifest`, `[NEW] Source/wwwroot/service-worker.js`, `[NEW] Source/wwwroot/icons/*`, `[NEW] Tests/LearnNN_WebBlazor.Tests/PwaMobileTests.cs` | Cấu hình PWA hoàn chỉnh: tạo manifest.webmanifest (standalone, theme-color #4f46e5), bộ 5 icons PNG chuẩn (192, 512, maskable 192/512, apple-touch-icon 180), liên kết thẻ meta/link trong App.razor, service-worker.js (cache-first static, offline navigation fallback, bypass SignalR circuits), bộ test tự động PwaMobileTests (4/4 test xanh) |
+| 2026-10-19 | Task 24.10 – Resilience Blazor Server | `Source/Components/Layout/ReconnectModal.razor`, `Source/Components/Layout/ReconnectModal.razor.css`, `Source/Components/Layout/ReconnectModal.razor.js`, `Source/Program.cs`, `Source/wwwroot/service-worker.js`, `[NEW] Source/wwwroot/offline.html`, `[NEW] Tests/LearnNN_WebBlazor.Tests/BlazorResilienceTests.cs` | Gia cố tính kiên cường Blazor Server: ReconnectModal mobile min(calc(100vw-32px), 22rem), nút thử lại touch target >= 44px, Việt hóa thông điệp; JS auto-reconnect khi quay lại tab/đổi mạng (online, visibilitychange, focus) kèm guard isRetrying; trang offline.html độc lập tự reload khi có mạng; service-worker.js pre-cache & fallback offline; Program.cs mở rộng DisconnectedCircuitRetentionPeriod (10 phút) bảo vệ phiên học; bộ test BlazorResilienceTests (5/5 xanh) |
 
 
 

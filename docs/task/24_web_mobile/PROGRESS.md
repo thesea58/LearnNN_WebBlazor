@@ -3,8 +3,8 @@
 > Agent PHẢI đọc file này đầu mỗi vòng và ghi thêm cuối mỗi vòng. Không xóa lịch sử.
 
 ## Trạng thái hiện tại
-- **Sub-task đang làm**: Hoàn thành 24.09 (PWA); chuyển tiếp sang 24.10 (Resilience Blazor Server).
-- **Số vòng lặp đã chạy**: 9
+- **Sub-task đang làm**: Hoàn thành 24.10 (Resilience Blazor Server); chuyển tiếp sang 24.11 (Performance mobile).
+- **Số vòng lặp đã chạy**: 10
 - **Số lần thất bại liên tiếp ở sub-task hiện tại**: 0
 
 ## Backlog lỗi phát hiện (Bug Backlog)
@@ -23,5 +23,6 @@
 | 7 | 2026-10-19 03:20 | 24.07 | Triển khai cơ chế phòng chống double-submit 2 lớp (UI disabled + early-return guard) trên toàn bộ các nút gọi async: FlashcardStudy (4 nút SRS), WordFormModal (submit), TopicManage (save/delete), WordList (delete/import), QuizPractice (batch mastery/AI explainer), WordScrambleGame (chip/answer/skip), AiInbox (delete/sandbox/bridge submit), AiSettings (test connection); bổ sung bộ test Playwright DoubleSubmitGuardTests.cs | Passed 99/99 tests (3/3 DoubleSubmitGuardTests, 20/20 PC Baselines khớp 100%, Reviewer PASS) | `d0c2344` |
 | 8 | 2026-10-19 03:32 | 24.08 | Tối ưu công thái học nhập liệu & cảm ứng: inputmode="search" trên WordList, type/inputmode="url" trên AiSettings, scroll-margin-bottom 24px chống bàn phím ảo che input, form-check touch target >= 44px, khoảng cách phân trang 8px, @media (hover: none) loại bỏ hoàn toàn sticky hover trên mobile; bổ sung bộ test Playwright InputAndTouchErgonomicsTests.cs | Passed 103/103 tests (4/4 InputAndTouchErgonomicsTests, 20/20 PC Baselines khớp 100%, Reviewer PASS) | `d40b091` |
 | 9 | 2026-10-19 03:42 | 24.09 | Cấu hình PWA hoàn chỉnh: tạo `manifest.webmanifest`, bộ 5 PNG icons (`icon-192`, `icon-512`, `icon-maskable-192`, `icon-maskable-512`, `apple-touch-icon-180`), thẻ meta `theme-color`, `apple-mobile-web-app-*` trong `App.razor`, `service-worker.js` (pre-cache tĩnh, offline navigation fallback, bảo vệ nghiêm ngặt bypass `/ _blazor` và `/ _framework` SignalR circuits); bổ sung bộ test Playwright `PwaMobileTests.cs` | Passed 107/107 tests (4/4 PwaMobileTests, 20/20 PC Baselines khớp 100%, Reviewer PASS) | `e6113b2` |
+| 10 | 2026-10-19 03:51 | 24.10 | Gia cố tính kiên cường Blazor Server (Resilience): ReconnectModal chuẩn mobile `min(calc(100vw - 32px), 22rem)`, nút thử lại touch target >= 44px, Việt hóa thông điệp; JS auto-reconnect khi quay lại tab/đổi mạng (`online`, `visibilitychange`, `focus`) kèm guard `isRetrying`; trang offline fallback `offline.html` độc lập tự reload khi có mạng; `service-worker.js` pre-cache & fallback offline; `Program.cs` mở rộng DisconnectedCircuitRetentionPeriod lên 10 phút bảo vệ phiên học; bổ sung bộ test Playwright `BlazorResilienceTests.cs` | Passed 112/112 tests (5/5 BlazorResilienceTests, 20/20 PC Baselines khớp 100%, Reviewer PASS) | `pending` |
 
 
