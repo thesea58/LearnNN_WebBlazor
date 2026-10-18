@@ -195,6 +195,10 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 │       ├── 📄 TestServerFixture.cs         # Quản lý vòng đời web server cổng 5099 + test DB
 │       ├── 📄 PcBaselineTests.cs           # Kiểm thử hồi quy thị giác PC (1366x768 & 1920x1080)
 │       ├── 📄 MultiEngineHarnessTests.cs   # Kiểm thử đa engine (Chromium, WebKit, Firefox) & mobile viewports
+│       ├── 📄 MobileNavigationTests.cs     # Kiểm thử thanh điều hướng đáy (BottomNav) & nút thoát topbar
+│       ├── 📄 WordsAndTopicsMobileTests.cs # Kiểm thử giao diện di động Words & Topics (stack table, touch target)
+│       ├── 📄 StudyMobileTests.cs          # Kiểm thử học từ vựng mobile (tap lật flashcard, sticky SRS, chống tràn)
+│       ├── 📄 ModalAndAiMobileTests.cs     # Kiểm thử công thái học modal & chống tràn các trang AI (Task 24.06)
 │       ├── 📁 Helpers/                     # Tiện ích test (Blazor readiness, Image comparison, Overflow check)
 │       └── 📁 Baselines/                   # 20 ảnh chụp màn hình PC chuẩn cho 10 routes
 │
@@ -350,6 +354,7 @@ LearnNN_WebBlazor/                          # 🏠 Repository root
 | 2026-10-19 | Task 24.03 – Mobile Bottom Navigation | `[NEW] Source/Components/Layout/MobileBottomNav.razor`, `[NEW] Source/Components/Layout/MobileBottomNav.razor.css`, `Source/Components/Layout/MainLayout.razor`, `Source/Components/Layout/MainLayout.razor.css` | Triển khai thanh điều hướng dưới đáy (bottom-nav) 5 mục trên mobile (<1024px), ẩn hoàn toàn trên PC, ẩn trong 4 phiên học kèm nút thoát ở topbar, ẩn sidebar trên mobile và dự phòng padding-bottom cho main |
 | 2026-10-19 | Task 24.04 – Words & Topics Mobile | `Source/Components/Pages/Words/WordList.razor`, `Source/Components/Pages/Topics/TopicManage.razor`, `Source/wwwroot/app.css` | Bổ sung mẫu table-responsive-stack với data-label cho bảng từ vựng và chủ đề trên mobile (<=767.98px), tối ưu touch target phân trang >=44px, nút hành động >=44px, cỡ chữ 16px cho form input và padding compact trên điện thoại |
 | 2026-10-19 | Task 24.05 – Study Mobile & Flashcard Touch | `Source/Components/Pages/Study/FlashcardStudy.razor`, `Source/wwwroot/study.css`, `Source/wwwroot/study.js` | Tối ưu tap lật thẻ, 4 nút SRS dính đáy (sticky bottom) trong tầm ngón cái, hỗ trợ cử chỉ vuốt tùy chọn (mặc định tắt), tối ưu Match/Scramble/Quiz hiển thị gọn gàng không tràn ở viewport 360px |
+| 2026-10-19 | Task 24.06 – Modals & AI Pages Mobile | `Source/wwwroot/app.css`, `Source/Components/App.razor`, `Source/Components/Shared/AiManualBridgeModal.razor`, `Source/Components/Pages/Ai/AiInbox.razor`, `Source/Components/Pages/Ai/AiSettings.razor`, `[NEW] Tests/LearnNN_WebBlazor.Tests/ModalAndAiMobileTests.cs` | Tối ưu công thái học Modal trên mobile (calc(100vw-24px), max-height: 90dvh hoặc visualViewport khi mở bàn phím ảo, header/footer sticky, body cuộn cảm ứng, touch target >= 44px), xử lý chống tràn ngang 360px cho các trang AI (/ai/inbox, /ai/settings) và code blocks, bổ sung bộ test tự động 6/6 test xanh |
 
 
 

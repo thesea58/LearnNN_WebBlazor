@@ -33,6 +33,15 @@
             a.click();
             document.body.removeChild(a);
         };
+
+        if (window.visualViewport) {
+            const updateVv = () => {
+                document.documentElement.style.setProperty('--visual-viewport-height', `${window.visualViewport.height}px`);
+            };
+            window.visualViewport.addEventListener('resize', updateVv);
+            window.visualViewport.addEventListener('scroll', updateVv);
+            updateVv();
+        }
     </script>
 </body>
 

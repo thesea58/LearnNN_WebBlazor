@@ -11,7 +11,7 @@
 
 <div class="container py-4" style="max-width: 900px;">
     @* Page Header *@
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 pb-2 border-bottom">
         <div class="d-flex align-items-center gap-3">
             <span class="fs-1">⚙️</span>
             <div>
@@ -144,8 +144,8 @@
                             <i class="bi bi-shield-shaded"></i> Bảo mật máy chủ (Zero Leakage)
                         </span>
                     </div>
-                    <div class="d-flex align-items-center gap-2 mt-2">
-                        <span class="font-monospace fs-6 px-3 py-2 bg-white rounded border flex-grow-1 text-dark user-select-none" style="letter-spacing: 1px;">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                        <span class="font-monospace fs-6 px-3 py-2 bg-white rounded border flex-grow-1 text-dark user-select-none" style="letter-spacing: 1px; word-break: break-all;">
                             @maskedCurrentKey
                         </span>
                         <button class="btn btn-outline-primary d-flex align-items-center gap-1 px-3 py-2"
@@ -232,29 +232,29 @@
                 <div class="fw-semibold text-dark mb-2">Các cách cấu hình biến môi trường tự động nhận (không lo lộ key):</div>
                 
                 <div class="mb-3">
-                    <span class="badge bg-primary">Cách 1 (PowerShell - Lưu vĩnh viễn trên Windows):</span>
-                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace">[System.Environment]::SetEnvironmentVariable('GEMINI_API_KEY', 'AIzaSy...', 'User')</pre>
+                    <span class="badge bg-primary text-wrap text-start">Cách 1 (PowerShell - Lưu vĩnh viễn trên Windows):</span>
+                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace" style="white-space: pre-wrap; word-break: break-all;">[System.Environment]::SetEnvironmentVariable('GEMINI_API_KEY', 'AIzaSy...', 'User')</pre>
                     <div class="text-muted mt-1" style="font-size: 0.78rem;">
                         <i class="bi bi-info-circle"></i> Lệnh này lưu key vào Windows User Registry. Khởi động lại terminal/app để nhận biến.
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <span class="badge bg-secondary">Cách 2 (File .env ở thư mục gốc dự án):</span>
-                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace">GEMINI_API_KEY=AIzaSy...</pre>
+                    <span class="badge bg-secondary text-wrap text-start">Cách 2 (File .env ở thư mục gốc dự án):</span>
+                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace" style="white-space: pre-wrap; word-break: break-all;">GEMINI_API_KEY=AIzaSy...</pre>
                     <div class="text-muted mt-1" style="font-size: 0.78rem;">
                         <i class="bi bi-check2-circle text-success"></i> File <code>.env</code> đã được cấu hình trong <code>.gitignore</code>, không bao giờ bị đẩy lên GitHub.
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <span class="badge bg-dark">Cách 3 (.NET User Secrets - Khuyến nghị cho lập trình viên .NET):</span>
-                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace">dotnet user-secrets set "Ai:ApiKey" "AIzaSy..." --project Source</pre>
+                    <span class="badge bg-dark text-wrap text-start">Cách 3 (.NET User Secrets - Khuyến nghị cho lập trình viên .NET):</span>
+                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace" style="white-space: pre-wrap; word-break: break-all;">dotnet user-secrets set "Ai:ApiKey" "AIzaSy..." --project Source</pre>
                 </div>
 
                 <div>
-                    <span class="badge bg-secondary">Cách 4 (Windows Command Prompt - CMD):</span>
-                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace">setx GEMINI_API_KEY "AIzaSy..."</pre>
+                    <span class="badge bg-secondary text-wrap text-start">Cách 4 (Windows Command Prompt - CMD):</span>
+                    <pre class="bg-dark text-light p-2 rounded mt-1 mb-0 font-monospace" style="white-space: pre-wrap; word-break: break-all;">setx GEMINI_API_KEY "AIzaSy..."</pre>
                 </div>
             </div>
         </div>

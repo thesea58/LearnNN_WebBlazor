@@ -35,11 +35,11 @@
                     @* Step 1: Copy Prompt *@
                     <div class="card border-0 bg-light rounded-3 mb-4 shadow-sm">
                         <div class="card-body p-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
                                 <span class="fw-bold text-primary">
                                     <i class="bi bi-1-circle-fill me-1"></i> Bước 1: Sao chép Prompt
                                 </span>
-                                <div class="d-flex gap-2">
+                                <div class="d-flex flex-wrap gap-2">
                                     <button class="btn btn-sm @(copiedPrompt ? "btn-success" : "btn-primary") shadow-sm"
                                             @onclick="CopyPromptAsync">
                                         <i class="bi @(copiedPrompt ? "bi-check2" : "bi-clipboard") me-1"></i>
@@ -96,7 +96,7 @@
 
                                     @if (!string.IsNullOrWhiteSpace(FixPrompt))
                                     {
-                                        <div class="mt-2 pt-2 border-top border-danger border-opacity-25 d-flex align-items-center justify-content-between">
+                                        <div class="mt-2 pt-2 border-top border-danger border-opacity-25 d-flex flex-wrap align-items-center justify-content-between gap-2">
                                             <span>Chatbot trả lời sai cú pháp? Hãy copy prompt sửa lỗi này:</span>
                                             <button class="btn btn-sm btn-outline-danger shadow-sm" @onclick="CopyFixPromptAsync">
                                                 <i class="bi @(copiedFixPrompt ? "bi-check2" : "bi-arrow-repeat") me-1"></i>
@@ -111,12 +111,12 @@
                 </div>
 
                 @* Modal Footer *@
-                <div class="modal-footer bg-light px-4 py-3 border-top-0 d-flex justify-content-between rounded-bottom-4">
+                <div class="modal-footer bg-light px-4 py-3 border-top-0 d-flex flex-wrap justify-content-between gap-2 rounded-bottom-4">
                     <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1" @onclick="HandleDeferToInbox">
                         <i class="bi bi-inbox"></i> Để sau (Lưu vào AI Inbox)
                     </button>
 
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-wrap gap-2">
                         <button type="button" class="btn btn-secondary px-3" @onclick="HandleClose">
                             Đóng
                         </button>

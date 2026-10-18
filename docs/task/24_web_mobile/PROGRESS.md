@@ -3,8 +3,8 @@
 > Agent PHẢI đọc file này đầu mỗi vòng và ghi thêm cuối mỗi vòng. Không xóa lịch sử.
 
 ## Trạng thái hiện tại
-- **Sub-task đang làm**: Hoàn thành 24.05; chuyển tiếp sang 24.06 (Modals & AI pages mobile).
-- **Số vòng lặp đã chạy**: 5
+- **Sub-task đang làm**: Hoàn thành 24.06; chuyển tiếp sang 24.07 (Chống double-submit).
+- **Số vòng lặp đã chạy**: 6
 - **Số lần thất bại liên tiếp ở sub-task hiện tại**: 0
 
 ## Backlog lỗi phát hiện (Bug Backlog)
@@ -19,5 +19,6 @@
 | 3 | 2026-10-19 02:18 | 24.03 | Tạo MobileBottomNav.razor và MobileBottomNav.razor.css (5 mục, ẩn trên PC >=1024px, ẩn khi ở 4 phiên học), thêm nút Thoát ở topbar mobile khi học, ẩn sidebar trên mobile (<1024px) và dự phòng padding-bottom cho main; bổ sung test Playwright MobileNavigationTests.cs | Passed 79/79 tests (6/6 MobileNavigationTests, 20/20 PC Baselines khớp 100%, Reviewer PASS) | `49fe4c2` |
 | 4 | 2026-10-19 02:26 | 24.04 | Bổ sung class table-responsive-stack và data-label cho bảng WordList và TopicManage; thêm media query responsive stack table <= 767.98px; font-size 16px chống auto-zoom; touch target >= 44px cho phân trang & nút hành động; thêm test WordsAndTopicsMobileTests.cs | Passed 84/84 tests (5/5 WordsAndTopicsMobileTests, 20/20 PC Baselines khớp 100%, Reviewer PASS) | `0f68eca` |
 | 5 | 2026-10-19 02:42 | 24.05 | Tối ưu tap lật Flashcard, 4 nút SRS dính đáy (sticky bottom) dạng hàng ngang trên mobile trong tầm ngón cái; tùy chọn cử chỉ vuốt (mặc định tắt, ẩn trên PC); tối ưu chống tràn 360px cho Match, Scramble, Quiz bằng flex-wrap và gap-2 gap-sm-3; sửa parser JsonElement trong OverflowHelper; bổ sung test StudyMobileTests.cs | Passed 90/90 tests (6/6 StudyMobileTests, 20/20 PC Baselines khớp 100%, Reviewer PASS) | `37723b0` |
+| 6 | 2026-10-19 03:04 | 24.06 | Tối ưu công thái học Modal trên mobile: calc(100vw-24px), max-height 90dvh + đồng bộ visualViewport khi mở bàn phím ảo, sticky header/footer, cuộn touch, touch target >= 44px; chống tràn ngang 360px cho /ai/inbox, /ai/settings và modal bằng flex-wrap, pre-wrap, badge text-wrap; bổ sung test Playwright ModalAndAiMobileTests.cs | Passed 96/96 tests (6/6 ModalAndAiMobileTests, 20/20 PC Baselines khớp 100%, Reviewer PASS) | `6000406` |
 
 

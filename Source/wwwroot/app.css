@@ -242,6 +242,14 @@ a:hover {
     }
 }
 
+/* Monospace pre container safe wrapping */
+pre {
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 /* Touch-optimized Buttons (Minimum touch target size) */
 .btn-audio-touch {
     width: 42px;
@@ -326,6 +334,76 @@ a:hover {
 
     .table-responsive-stack .btn-group .btn {
         min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Allow multi-line text wrapping for badges on mobile */
+    .badge {
+        white-space: normal;
+    }
+
+    /* Mobile & Tablet (< 1024px) Modal Ergonomics (Task 24.06) */
+    .modal-dialog {
+        width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - 24px) !important;
+        margin: 12px auto !important;
+        max-height: min(90dvh, calc(var(--visual-viewport-height, 100dvh) - 24px)) !important;
+    }
+
+    .modal-content {
+        max-height: min(90dvh, calc(var(--visual-viewport-height, 100dvh) - 24px)) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+
+    .modal-content > form {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        flex-shrink: 0;
+    }
+
+    .modal-header:not([class*="bg-"]) {
+        background-color: var(--surface, #ffffff);
+    }
+
+    .modal-header .btn-close {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0.75rem;
+    }
+
+    .modal-body {
+        overflow-y: auto !important;
+        flex: 1 1 auto !important;
+        -webkit-overflow-scrolling: touch;
+        min-height: 0;
+    }
+
+    .modal-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        flex-shrink: 0;
+        background-color: var(--surface, #ffffff) !important;
+        --bs-bg-opacity: 1 !important;
+        border-top: 1px solid var(--border-color, #e2e8f0) !important;
+        gap: 0.5rem;
+    }
+
+    .modal-footer .btn {
         min-height: 44px;
         display: inline-flex;
         align-items: center;
