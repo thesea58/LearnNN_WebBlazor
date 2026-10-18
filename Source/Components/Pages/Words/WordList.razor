@@ -544,15 +544,7 @@
         // Setup debounce timer for search input to reduce server load
         debounceTimer = new System.Timers.Timer(300);
         debounceTimer.AutoReset = false;
-        debounceTimer.Elapsed += async (sender, args) =>
-        {
-            await InvokeAsync(async () =>
-            {
-                currentPage = 1;
-                await LoadWordsAsync();
-                StateHasChanged();
-            });
-        };
+        debounceTimer.Elapsed += OnDebounceTimerElapsed;
 
         // Apply topic filter from query string if navigated from Topics page
         if (TopicId.HasValue && TopicId.Value > 0)
@@ -668,6 +660,23 @@
         searchTerm = e.Value?.ToString() ?? string.Empty;
         debounceTimer?.Stop();
         debounceTimer?.Start();
+    }
+
+    private async void OnDebounceTimerElapsed(object? sender, System.Timers.ElapsedEventArgs e)
+    {
+        try
+        {
+            await InvokeAsync(async () =>
+            {
+                currentPage = 1;
+                await LoadWordsAsync();
+                StateHasChanged();
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Debounce timer error: {ex.Message}");
+        }
     }
 
     private async Task ClearSearch()

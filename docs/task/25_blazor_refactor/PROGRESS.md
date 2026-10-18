@@ -1,7 +1,7 @@
 # 📓 Task 25 – Progress Log
 
 ## Trạng thái
-- **Sub-task đang làm**: Hoàn thành 25.02; chuyển sang 25.03 (Async an toàn) · **Vòng**: 2 · **Fail liên tiếp**: 0
+- **Sub-task đang làm**: Hoàn thành 25.03; chuyển sang 25.04 (Dispose & Event) · **Vòng**: 3 · **Fail liên tiếp**: 0
 
 ## Bảng vi phạm (từ 25.01)
 | # | File | Dòng | Nhóm | Rủi ro | Mô tả vi phạm & giải pháp | TT |
@@ -24,7 +24,7 @@
 | 16 | `Source/Components/Pages/Words/WordList.razor` | 178 | Nhóm 25.02 | Cao | `@for (int i = 0; i < words.Count; i++)` Table view danh sách từ vựng chính thiếu `@key`. Thêm `@key="word.Id"`. | ✅ |
 | 17 | `Source/Components/Pages/Words/WordList.razor` | 287 | Nhóm 25.02 | Cao | `@for (int i = 0; i < words.Count; i++)` Card view danh sách từ vựng chính thiếu `@key`. Thêm `@key="word.Id"`. | ✅ |
 | 18 | `Source/Components/Pages/Words/WordList.razor` | 407 | Nhóm 25.02 | Thấp | `@for (int p = 1; p <= totalPages; p++)` nút phân trang thiếu `@key`. Thêm `@key="targetPage"`. | ✅ |
-| 19 | `Source/Components/Pages/Words/WordList.razor` | 547 | Nhóm 25.03 | TB | `debounceTimer.Elapsed += async (sender, args) => ...` tạo `async void` tiềm ẩn crash circuit. Tách named handler kèm try/catch. | ⬜ |
+| 19 | `Source/Components/Pages/Words/WordList.razor` | 547 | Nhóm 25.03 | TB | `debounceTimer.Elapsed += async (sender, args) => ...` tạo `async void` tiềm ẩn crash circuit. Tách named handler kèm try/catch. | ✅ |
 | 20 | `Source/Components/Pages/Words/WordList.razor` | 547, 917 | Nhóm 25.04 | TB | `debounceTimer.Elapsed` lambda ẩn danh không thể `debounceTimer.Elapsed -=` trong `Dispose()`. Tách named handler để unregister. | ⬜ |
 | 21 | `Source/Components/Shared/AiManualBridgeModal.razor` | 174-196 | Nhóm 25.04 | Thấp | `CopyPromptAsync` có `await Task.Delay(2000)` rồi gọi `StateHasChanged()` không CancellationToken khi modal đóng. Implement IDisposable + CTS. | ⬜ |
 | 22 | `Source/Components/Pages/Topics/TopicManage.razor` | 344 | Nhóm 25.05 | Thấp | `viewModeHelper.getViewMode` kiểm tra `< 768px` thay vì breakpoint thống nhất `< 1024px`. Đồng bộ với Task 24. | ⬜ |
@@ -44,4 +44,5 @@
 | Vòng | Thời gian | Sub-task | Việc đã làm | Build/Test/So ảnh PC | Commit |
 |---|---|---|---|---|---|
 | 1 | 2026-10-19 01:14 | 25.01 | Khảo sát kiểm kê 33 vi phạm kiến trúc thuộc 7 nhóm (25.02 -> 25.08) trên toàn bộ codebase; không sửa code | N/A (chỉ đọc) | `7a95f9b` |
-| 2 | 2026-10-19 01:23 | 25.02 | Bổ sung `@key` duy nhất cho toàn bộ 18 vòng lặp `@foreach`/`@for` tại 10 file Razor component | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | (pending commit) |
+| 2 | 2026-10-19 01:23 | 25.02 | Bổ sung `@key` duy nhất cho toàn bộ 18 vòng lặp `@foreach`/`@for` tại 10 file Razor component | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | `be19925` |
+| 3 | 2026-10-19 01:31 | 25.03 | Thay thế lambda ẩn danh async void của debounceTimer trong WordList.razor bằng named handler OnDebounceTimerElapsed bọc try/catch an toàn | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | pending |
