@@ -1,9 +1,11 @@
+using System.IO.Compression;
 using LearnNN_WebBlazor.Components;
 using LearnNN_WebBlazor.Data;
 using LearnNN_WebBlazor.Models.Ai;
 using LearnNN_WebBlazor.Services;
 using LearnNN_WebBlazor.Services.Ai;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +19,28 @@ builder.Services.AddRazorComponents()
         options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromMinutes(10);
         options.DisconnectedCircuitMaxRetained = 200;
     });
+
+// Response compression for mobile network efficiency (Brotli & Gzip)
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat([
+        "application/javascript",
+        "text/css",
+        "image/svg+xml",
+        "application/manifest+json"
+    ]);
+});
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
 
 // Support Reverse Proxy headers (Cloudflare Tunnel, Caddy, Nginx, Docker)
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -161,6 +185,23 @@ using (var scope = app.Services.CreateScope())
 #region HTTP Pipeline
 
 app.UseForwardedHeaders();
+app.UseResponseCompression();
+
+// Dynamic cache-control headers for static and PWA assets
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/service-worker.js", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+    }
+    else if (context.Request.Path.StartsWithSegments("/icons", StringComparison.OrdinalIgnoreCase) ||
+             context.Request.Path.StartsWithSegments("/favicon.png", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.Headers.CacheControl = "public, max-age=604800, immutable";
+    }
+
+    await next();
+});
 
 if (!app.Environment.IsDevelopment())
 {
