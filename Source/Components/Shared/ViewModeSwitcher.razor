@@ -5,6 +5,7 @@
     <button type="button" 
             class="btn btn-sm @(EffectiveMode == ViewMode.Table ? "btn-primary active" : "btn-outline-secondary bg-white") d-inline-flex align-items-center gap-1 px-3 py-1" 
             @onclick="() => SetModeAsync(ViewMode.Table)"
+            aria-label="Kiểu dòng (Bảng chi tiết)"
             title="Kiểu dòng (Bảng chi tiết)">
         <i class="bi bi-list-ul"></i>
         <span class="d-none d-sm-inline fw-medium">Dòng</span>
@@ -12,6 +13,7 @@
     <button type="button" 
             class="btn btn-sm @(EffectiveMode == ViewMode.Card ? "btn-primary active" : "btn-outline-secondary bg-white") d-inline-flex align-items-center gap-1 px-3 py-1" 
             @onclick="() => SetModeAsync(ViewMode.Card)"
+            aria-label="Kiểu thẻ icon (Trực quan)"
             title="Kiểu icon / thẻ (Trực quan, chạm mượt)">
         <i class="bi bi-grid-fill"></i>
         <span class="d-none d-sm-inline fw-medium">Thẻ icon</span>

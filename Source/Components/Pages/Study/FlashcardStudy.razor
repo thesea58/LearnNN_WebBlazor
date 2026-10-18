@@ -144,7 +144,7 @@
                             <i class="bi bi-bookmark me-1"></i>@(currentWord.Topic?.Name ?? "Chung")
                         </span>
 
-                        <button type="button" class="speaker-btn" title="Phát âm từ này"
+                        <button type="button" class="speaker-btn" aria-label="@($"Nghe phát âm từ {currentWord.Term}")" title="Phát âm từ này"
                                 @onclick:stopPropagation="true" @onclick="() => SpeakTermAsync(currentWord.Term)">
                             <i class="bi bi-volume-up-fill fs-5"></i>
                         </button>
@@ -176,7 +176,7 @@
                             Ý nghĩa & Ví dụ
                         </span>
 
-                        <button type="button" class="speaker-btn" title="Phát âm từ này"
+                        <button type="button" class="speaker-btn" aria-label="@($"Nghe phát âm từ {currentWord.Term}")" title="Phát âm từ này"
                                 @onclick:stopPropagation="true" @onclick="() => SpeakTermAsync(currentWord.Term)">
                             <i class="bi bi-volume-up-fill fs-5"></i>
                         </button>

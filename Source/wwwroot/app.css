@@ -533,4 +533,38 @@ pre {
         transform: none !important;
     }
 }
+
+/* ==========================================================================
+   Accessibility: Focus indicator & Screen Reader Utilities (Task 24.12)
+   ========================================================================== */
+
+/* Focus indicators for interactive elements (links, buttons, form controls, widgets) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[role="checkbox"]:focus-visible,
+[role="radio"]:focus-visible,
+[role="tab"]:focus-visible,
+.btn:focus-visible {
+    outline: 2px solid var(--primary, #4f46e5) !important;
+    outline-offset: 2px !important;
+}
+
+/* Screen reader only utility (visually hidden) */
+.sr-only,
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
 

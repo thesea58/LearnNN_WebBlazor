@@ -129,7 +129,13 @@
                     else if (card.IsWrong) cardClass += " wrong";
                     else if (card.IsSelected) cardClass += " selected";
 
-                    <div @key="card.CardId" class="@cardClass" @onclick="() => OnCardClickedAsync(card)">
+                    <div @key="card.CardId" 
+                         class="@cardClass" 
+                         role="button"
+                         tabindex="0"
+                         aria-label="@($"Thẻ {(card.CardType == MatchCardType.Term ? "từ tiếng Anh" : "nghĩa tiếng Việt")}: {card.Content}")"
+                         aria-pressed="@(card.IsSelected ? "true" : "false")"
+                         @onclick="() => OnCardClickedAsync(card)">
                         <div class="card-content">
                             @if (card.CardType == MatchCardType.Term)
                             {

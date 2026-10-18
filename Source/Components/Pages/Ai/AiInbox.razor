@@ -164,7 +164,7 @@
                                         <i class="bi @(expandedRequestId == req.Id ? "bi-chevron-up" : "bi-chevron-down") me-1"></i>
                                         @(expandedRequestId == req.Id ? "Ẩn kết quả JSON" : "Xem kết quả JSON")
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteRequestAsync(req.Id)">
+                                    <button class="btn btn-sm btn-outline-danger" aria-label="@($"Xóa yêu cầu {req.RequestId}")" title="Xóa yêu cầu" @onclick="() => DeleteRequestAsync(req.Id)">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>

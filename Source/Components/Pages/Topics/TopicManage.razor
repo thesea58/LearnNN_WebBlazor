@@ -123,10 +123,10 @@
                                     </td>
                                     <td data-label="Hành động" class="text-end pe-4">
                                         <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" title="Sửa chủ đề" @onclick="() => OpenEditModal(topic)">
+                                            <button class="btn btn-outline-primary" aria-label="@($"Sửa chủ đề {topic.Name}")" title="Sửa chủ đề" @onclick="() => OpenEditModal(topic)">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
-                                            <button class="btn btn-outline-danger" title="Xóa chủ đề" @onclick="() => OpenDeleteModal(topic)">
+                                            <button class="btn btn-outline-danger" aria-label="@($"Xóa chủ đề {topic.Name}")" title="Xóa chủ đề" @onclick="() => OpenDeleteModal(topic)">
                                                 <i class="bi bi-trash3"></i>
                                             </button>
                                         </div>
@@ -163,10 +163,10 @@
                                             </div>
 
                                             <div class="btn-group btn-group-sm flex-shrink-0">
-                                                <button class="btn btn-outline-secondary border-0 btn-action-touch p-1 text-primary" title="Sửa chủ đề" @onclick="() => OpenEditModal(topic)">
+                                                <button class="btn btn-outline-secondary border-0 btn-action-touch p-1 text-primary" aria-label="@($"Sửa chủ đề {topic.Name}")" title="Sửa chủ đề" @onclick="() => OpenEditModal(topic)">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </button>
-                                                <button class="btn btn-outline-secondary border-0 btn-action-touch p-1 text-danger" title="Xóa chủ đề" @onclick="() => OpenDeleteModal(topic)">
+                                                <button class="btn btn-outline-secondary border-0 btn-action-touch p-1 text-danger" aria-label="@($"Xóa chủ đề {topic.Name}")" title="Xóa chủ đề" @onclick="() => OpenDeleteModal(topic)">
                                                     <i class="bi bi-trash3"></i>
                                                 </button>
                                             </div>
@@ -232,7 +232,7 @@
                             @(isEditing ? "Chỉnh sửa chủ đề" : "Thêm chủ đề mới")
                         </h5>
                     </div>
-                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseFormModal" disabled="@isSubmitting"></button>
+                    <button type="button" class="btn-close" aria-label="Đóng" @onclick="CloseFormModal" disabled="@isSubmitting"></button>
                 </div>
                 
                 <div class="modal-body px-4 py-3">

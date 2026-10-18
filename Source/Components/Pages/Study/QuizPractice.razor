@@ -261,7 +261,7 @@
                     Câu hỏi trắc nghiệm
                 </span>
 
-                <button type="button" class="speaker-btn btn-sm" title="Phát âm từ"
+                <button type="button" class="speaker-btn btn-sm" aria-label="@($"Nghe phát âm từ {currentQ.Term}")" title="Phát âm từ"
                         @onclick="() => SpeakTermAsync(currentQ.Term)">
                     <i class="bi bi-volume-up-fill fs-6"></i>
                 </button>
@@ -304,7 +304,7 @@
                         }
                     }
 
-                    <button @key="capturedIndex" type="button" class="@btnClass" disabled="@currentQ.IsAnswered"
+                    <button @key="capturedIndex" type="button" class="@btnClass" aria-label="@($"Đáp án {optionLetter}: {optionText}")" disabled="@currentQ.IsAnswered"
                             @onclick="() => SelectOptionAsync(capturedIndex)">
                         <span class="option-badge">@optionLetter</span>
                         <span class="flex-grow-1">@optionText</span>

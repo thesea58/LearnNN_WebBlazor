@@ -33,7 +33,7 @@
         <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i>
             Đã lưu thay đổi cấu hình phiên làm việc thành công!
-            <button type="button" class="btn-close" @onclick="() => showSavedAlert = false"></button>
+            <button type="button" class="btn-close" aria-label="Đóng" @onclick="() => showSavedAlert = false"></button>
         </div>
     }
 
@@ -212,7 +212,7 @@
                 <div class="alert @(testResult.Value.IsSuccess ? "alert-success" : "alert-danger") alert-dismissible fade show p-2 px-3 small mb-3" role="alert">
                     <i class="bi @(testResult.Value.IsSuccess ? "bi-check-circle-fill" : "bi-exclamation-triangle-fill") me-1"></i>
                     @testResult.Value.Message
-                    <button type="button" class="btn-close p-2" @onclick="() => testResult = null"></button>
+                    <button type="button" class="btn-close p-2" aria-label="Đóng" @onclick="() => testResult = null"></button>
                 </div>
             }
 

@@ -3,8 +3,8 @@
 > Agent PHẢI đọc file này đầu mỗi vòng và ghi thêm cuối mỗi vòng. Không xóa lịch sử.
 
 ## Trạng thái hiện tại
-- **Sub-task đang làm**: Hoàn thành 24.11 (Performance mobile); chuyển tiếp sang 24.12 (Accessibility).
-- **Số vòng lặp đã chạy**: 11
+- **Sub-task đang làm**: Hoàn thành 24.12 (Accessibility); chuyển tiếp sang 24.13 (Regression, Docs & Release).
+- **Số vòng lặp đã chạy**: 12
 - **Số lần thất bại liên tiếp ở sub-task hiện tại**: 0
 
 ## Backlog lỗi phát hiện (Bug Backlog)
@@ -25,5 +25,7 @@
 | 9 | 2026-10-19 03:42 | 24.09 | Cấu hình PWA hoàn chỉnh: tạo `manifest.webmanifest`, bộ 5 PNG icons (`icon-192`, `icon-512`, `icon-maskable-192`, `icon-maskable-512`, `apple-touch-icon-180`), thẻ meta `theme-color`, `apple-mobile-web-app-*` trong `App.razor`, `service-worker.js` (pre-cache tĩnh, offline navigation fallback, bảo vệ nghiêm ngặt bypass `/ _blazor` và `/ _framework` SignalR circuits); bổ sung bộ test Playwright `PwaMobileTests.cs` | Passed 107/107 tests (4/4 PwaMobileTests, 20/20 PC Baselines khớp 100%, Reviewer PASS) | `e6113b2` |
 | 10 | 2026-10-19 03:51 | 24.10 | Gia cố tính kiên cường Blazor Server (Resilience): ReconnectModal chuẩn mobile `min(calc(100vw - 32px), 22rem)`, nút thử lại touch target >= 44px, Việt hóa thông điệp; JS auto-reconnect khi quay lại tab/đổi mạng (`online`, `visibilitychange`, `focus`) kèm guard `isRetrying`; trang offline fallback `offline.html` độc lập tự reload khi có mạng; `service-worker.js` pre-cache & fallback offline; `Program.cs` mở rộng DisconnectedCircuitRetentionPeriod lên 10 phút bảo vệ phiên học; bổ sung bộ test Playwright `BlazorResilienceTests.cs` | Passed 112/112 tests (5/5 BlazorResilienceTests, 20/20 PC Baselines khớp 100%, Reviewer PASS) | `eb12867` |
 | 11 | 2026-10-19 03:57 | 24.11 | Tối ưu hiệu năng mobile (Performance): Kích hoạt Response Compression Brotli & Gzip (Level Fastest cho text/css/js/json/svg), cấu hình Cache-Control tĩnh (1 tuần cho icons/favicons, no-cache cho service-worker), đo kiểm Web Vitals LCP < 2.5s và CLS < 0.1 trên mobile iPhone 14; bổ sung bộ test Playwright `MobilePerformanceTests.cs` | Passed 117/117 tests (5/5 MobilePerformanceTests, 20/20 PC Baselines khớp 100%, Reviewer PASS) | `450a029` |
+| 12 | 2026-10-19 04:14 | 24.12 | Trợ năng Web & Mobile (Accessibility): Cấu hình thẻ root `<html lang="vi">` trong `App.razor`; thiết lập `:focus-visible` (outline 2px solid primary, offset 2px) cho tất cả interactive elements (`a`, `button`, `input`, `select`, `textarea`, `[role="button"]`, `.btn`) và class screen-reader (`.sr-only`, `.visually-hidden`); bổ sung `aria-label` cho toàn bộ các nút icon-only (đóng modal, loa phát âm TTS, hành động bảng/card, nút xóa bộ lọc, toggle view mode dòng/thẻ); bổ sung bộ test Playwright `MobileAccessibilityTests.cs` | Passed 121/121 tests (4/4 MobileAccessibilityTests, 20/20 PC Baselines khớp 100%, Reviewer PASS) | `acee848` |
+
 
 

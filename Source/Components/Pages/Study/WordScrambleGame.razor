@@ -130,7 +130,7 @@
                             @currentWord.Phonetic
                         </span>
                     }
-                    <button class="speaker-btn btn-sm" title="Phát âm" @onclick="() => SpeakTermAsync(currentWord.Term)">
+                    <button class="speaker-btn btn-sm" aria-label="@($"Nghe phát âm từ {currentWord.Term}")" title="Phát âm" @onclick="() => SpeakTermAsync(currentWord.Term)">
                         <i class="bi bi-volume-up-fill fs-6"></i>
                     </button>
                 </div>
@@ -145,6 +145,9 @@
                     string letterChar = hasLetter ? userSlots[slotIndex].Letter.ToString() : "";
 
                     <div @key="slotIndex" class="letter-slot @(hasLetter ? "filled cursor-pointer" : "")"
+                         role="@(hasLetter ? "button" : null)"
+                         tabindex="@(hasLetter ? 0 : -1)"
+                         aria-label="@(hasLetter ? $"Ô chữ {slotIndex + 1}: {letterChar}. Bấm để gỡ" : $"Ô chữ {slotIndex + 1} trống")"
                          @onclick="() => OnRemoveLetterAtAsync(slotIndex)"
                          title="@(hasLetter ? "Bấm để gỡ chữ cái này" : "")">
                         @letterChar
@@ -163,7 +166,7 @@
             <div class="d-flex flex-wrap justify-content-center gap-2 my-3">
                 @foreach (var chip in availableChips)
                 {
-                    <button @key="chip.Id" type="button" class="letter-chip" disabled="@(chip.IsUsed || isCheckingAnswer)"
+                    <button @key="chip.Id" type="button" class="letter-chip" aria-label="@($"Chữ cái {chip.Letter}")" disabled="@(chip.IsUsed || isCheckingAnswer)"
                             @onclick="() => OnLetterChipClickedAsync(chip)">
                         @chip.Letter
                     </button>
