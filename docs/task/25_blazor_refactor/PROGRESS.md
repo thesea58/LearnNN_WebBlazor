@@ -1,7 +1,7 @@
 # 📓 Task 25 – Progress Log
 
 ## Trạng thái
-- **Sub-task đang làm**: Hoàn thành 25.06; chuyển sang 25.07 (ErrorBoundary & Render) · **Vòng**: 6 · **Fail liên tiếp**: 0
+- **Sub-task đang làm**: Hoàn thành 25.07; chuyển sang 25.08 (Virtualize / List bounds) · **Vòng**: 7 · **Fail liên tiếp**: 0
 
 ## Bảng vi phạm (từ 25.01)
 | # | File | Dòng | Nhóm | Rủi ro | Mô tả vi phạm & giải pháp | TT |
@@ -31,11 +31,11 @@
 | 23 | `Source/Components/Pages/Words/WordList.razor` | 574 | Nhóm 25.05 | Thấp | Tương tự dòng 344 của TopicManage. Đồng bộ với Task 24. | ✅ |
 | 24 | `Source/Components/Shared/QuizExplanationCard.razor` | 105, 116 | Nhóm 25.06 | Cao | `[Parameter] public bool IsExpanded` bị gán đột biến `IsExpanded = !IsExpanded;`. Đổi sang chỉ emit `IsExpandedChanged.InvokeAsync`. | ✅ |
 | 25 | `Source/Components/Shared/ViewModeSwitcher.razor` | 28, 42 | Nhóm 25.06 | Cao | `[Parameter] public ViewMode CurrentMode` bị gán `CurrentMode = newMode;`. Đổi sang chỉ emit `CurrentModeChanged.InvokeAsync`. | ✅ |
-| 26 | `Source/Components/Layout/MainLayout.razor` | 22-24 | Nhóm 25.07 | Cao | `@Body` chưa được bọc `<ErrorBoundary>`. Bọc `<ErrorBoundary>` kèm fallback UI thân thiện và nút Thử lại. | ⬜ |
-| 27 | `Source/Components/Pages/Study/QuizPractice.razor` | 664 | Nhóm 25.07 | Thấp | `StateHasChanged()` dư thừa trong `finally` của event handler `@onclick`. Loại bỏ. | ⬜ |
-| 28 | `Source/Components/Pages/Study/QuizPractice.razor` | 719 | Nhóm 25.07 | Thấp | `StateHasChanged()` dư thừa trong `finally` của event handler `@onclick`. Loại bỏ. | ⬜ |
-| 29 | `Source/Components/Pages/Study/QuizPractice.razor` | 800 | Nhóm 25.07 | Thấp | `StateHasChanged()` dư thừa trong `finally` của EventCallback submit. Loại bỏ. | ⬜ |
-| 30 | `Source/Components/Pages/Ai/AiSettings.razor` | 357 | Nhóm 25.07 | Thấp | `StateHasChanged()` dư thừa trong `finally` của event handler `@onclick`. Loại bỏ. | ⬜ |
+| 26 | `Source/Components/Layout/MainLayout.razor` | 22-24 | Nhóm 25.07 | Cao | `@Body` chưa được bọc `<ErrorBoundary>`. Bọc `<ErrorBoundary>` kèm fallback UI thân thiện và nút Thử lại. | ✅ |
+| 27 | `Source/Components/Pages/Study/QuizPractice.razor` | 664 | Nhóm 25.07 | Thấp | `StateHasChanged()` dư thừa trong `finally` của event handler `@onclick`. Loại bỏ. | ✅ |
+| 28 | `Source/Components/Pages/Study/QuizPractice.razor` | 719 | Nhóm 25.07 | Thấp | `StateHasChanged()` dư thừa trong `finally` của event handler `@onclick`. Loại bỏ. | ✅ |
+| 29 | `Source/Components/Pages/Study/QuizPractice.razor` | 800 | Nhóm 25.07 | Thấp | `StateHasChanged()` dư thừa trong `finally` của EventCallback submit. Loại bỏ. | ✅ |
+| 30 | `Source/Components/Pages/Ai/AiSettings.razor` | 357 | Nhóm 25.07 | Thấp | `StateHasChanged()` dư thừa trong `finally` của event handler `@onclick`. Loại bỏ. | ✅ |
 | 31 | `Source/Components/Pages/Topics/TopicManage.razor` | 380 | Nhóm 25.08 | TB | Nạp toàn bộ chủ đề không giới hạn khi số lượng lớn. Cân nhắc phân trang hoặc Virtualize. | ⬜ |
 | 32 | `Source/Components/Pages/Ai/AiInbox.razor` | 462-466 | Nhóm 25.08 | TB | Nạp tối đa 100 yêu cầu không phân trang. Cân nhắc Virtualize. | ⬜ |
 | 33 | `Source/Components/Pages/Home.razor` | 301 | Nhóm 25.08 | Thấp | `topicsList = await VocabularyService.GetAllTopicsAsync();` không `.Take(5)` như recentWords. Giới hạn top 5. | ⬜ |
@@ -48,4 +48,5 @@
 | 3 | 2026-10-19 01:31 | 25.03 | Thay thế lambda ẩn danh async void của debounceTimer trong WordList.razor bằng named handler OnDebounceTimerElapsed bọc try/catch an toàn | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | `1b96f68` |
 | 4 | 2026-10-19 01:37 | 25.04 | Hủy đăng ký debounceTimer.Elapsed trong WordList.razor Dispose(); triển khai IDisposable và CancellationTokenSource hủy Task.Delay khi đóng modal trong AiManualBridgeModal.razor | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | `88d8495` |
 | 5 | 2026-10-19 01:43 | 25.05 | Đồng bộ breakpoint tự động phát hiện ViewMode (card < 1024px, table >= 1024px) trong study.js và Razor components theo mobile-desktop-lock.md | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | `fb22bde` |
-| 6 | 2026-10-19 01:49 | 25.06 | Loại bỏ đột biến [Parameter] trực tiếp trong QuizExplanationCard và ViewModeSwitcher, hỗ trợ local fallback và phát EventCallback | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | pending |
+| 6 | 2026-10-19 01:49 | 25.06 | Loại bỏ đột biến [Parameter] trực tiếp trong QuizExplanationCard và ViewModeSwitcher, hỗ trợ local fallback và phát EventCallback | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | `e1f7df1` |
+| 7 | 2026-10-19 01:55 | 25.07 | Bọc ErrorBoundary quanh @Body trong MainLayout (kèm auto-recover trên OnParametersSet) và dọn dẹp StateHasChanged() dư thừa trong finally block của các async handler | Passed 73/73 tests (Build 0 warnings, so ảnh PC 1366x768 & 1920x1080 khớp 100%, Reviewer PASS) | pending |

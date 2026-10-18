@@ -20,7 +20,30 @@
         </header>
 
         <article class="content px-3 px-md-4 py-3 flex-grow-1">
-            @Body
+            <ErrorBoundary @ref="errorBoundary">
+                <ChildContent>
+                    @Body
+                </ChildContent>
+                <ErrorContent Context="exception">
+                    <div class="alert alert-danger rounded-4 p-4 my-3 shadow-sm" role="alert">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-exclamation-triangle-fill fs-4 text-danger"></i>
+                            <h5 class="alert-heading fw-bold mb-0">Đã xảy ra sự cố không mong muốn</h5>
+                        </div>
+                        <p class="text-secondary small mb-3">
+                            Trang gặp phải sự cố trong quá trình kết xuất dữ liệu. Bạn có thể nhấn thử lại hoặc quay về trang chủ.
+                        </p>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3" @onclick="() => errorBoundary?.Recover()">
+                                <i class="bi bi-arrow-clockwise me-1"></i> Thử lại
+                            </button>
+                            <a href="/" class="btn btn-danger btn-sm rounded-pill px-3">
+                                <i class="bi bi-house-door me-1"></i> Về Trang chủ
+                            </a>
+                        </div>
+                    </div>
+                </ErrorContent>
+            </ErrorBoundary>
         </article>
 
         <footer class="app-footer text-muted border-top px-4 py-3 text-center text-md-start">
@@ -41,4 +64,14 @@
     <a href="." class="reload">Tải lại</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    private ErrorBoundary? errorBoundary;
+
+    protected override void OnParametersSet()
+    {
+        // Automatically reset the error boundary whenever routing or parameters update
+        errorBoundary?.Recover();
+    }
+}
 
