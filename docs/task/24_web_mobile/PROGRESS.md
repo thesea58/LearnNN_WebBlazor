@@ -29,3 +29,4 @@
 
 
 
+| 13 | 2026-10-19 04:18 | 24.13 | Hồi quy tổng thể, Tài liệu hóa & Phát hành (Regression, Docs & Release): Kiểm thử toàn bộ 121 tests xanh (bao gồm 20/20 baseline PC 1366x768 & 1920x1080), cập nhật checklist kiểm thử điện thoại thật (`start-mobile.bat`) trong `04_deployment_guide.md`, hoàn thiện tài liệu `README.md`, `PROJECT_MAP.md`, `docs/task/README.md` | Passed 121/121 tests (0 failed, 20/20 PC Baselines khớp 100%, Reviewer PASS) | `1d076b1` |

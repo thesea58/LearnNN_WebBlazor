@@ -235,3 +235,22 @@ Nếu không muốn tự cài đặt hệ điều hành Linux trên VPS, bạn c
    - Khi bạn mở lại điện thoại, modal Reconnect (`ReconnectModal.razor`) sẽ tự động xuất hiện và kết nối lại sau 1-2 giây.
 3. **Sao lưu dữ liệu SQLite định kỳ**:
    - Để an toàn dữ liệu học tập và chuỗi SRS SM-2, hãy tạo cron job sao lưu file `LearnNN_VocabDB.db` hàng ngày (hoặc dùng tính năng Export CSV/JSON có sẵn trong mục Cài đặt của app).
+
+---
+
+## 6. 📱 Checklist Kiểm thử Thực tế trên Điện thoại Thật (`start-mobile.bat`)
+
+Dưới đây là checklist từng bước dành cho Chủ dự án (Product Owner) hoặc QA để nghiệm thu thực tế trên điện thoại (iPhone Safari & Android Chrome):
+
+| STT | Hạng mục kiểm tra | Thao tác thực hiện | Kết quả mong đợi | Đạt? |
+|:---:|---|---|---|:---:|
+| 1 | **Khởi chạy 1-Click** | Nhấp đúp chuột vào file `start-mobile.bat` trên máy tính | Cửa sổ hiển thị link HTTPS cố định và mã QR trực tiếp trên terminal | [ ] |
+| 2 | **Quét QR & Đăng nhập** | Dùng Camera điện thoại quét mã QR và đăng nhập tài khoản Microsoft/GitHub | Truy cập vào Dashboard trang chủ LearnNN an toàn, bảo mật | [ ] |
+| 3 | **Cài đặt PWA (Standalone)** | • iOS Safari: Bấm Chia sẻ -> "Thêm vào MH chính"<br>• Android: Bấm menu -> "Cài đặt ứng dụng" | Icon LearnNN hiển thị sắc nét trên màn hình chính; mở lên ở chế độ toàn màn hình không có thanh URL | [ ] |
+| 4 | **Thanh Điều hướng Đáy (Bottom-nav)** | Chạm chuyển đổi giữa 5 tabs: Trang chủ, Học tập, Từ vựng, Chủ đề, AI Inbox | Chuyển trang mượt mà, tab đang chọn sáng nổi bật; nội dung trang không bị che khuất | [ ] |
+| 5 | **Kho Từ vựng & Chủ đề Mobile** | Mở `/words` và `/topics` | Mặc định hiển thị dạng Card trực quan; chuyển đổi sang dạng Dòng (Table Stack) hiển thị đầy đủ data-label, không vỡ layout | [ ] |
+| 6 | **Công thái học Cảm ứng** | Chạm vào các nút phát âm loa, nút sửa, nút xóa, nút phân trang | Touch target rộng rãi (>= 44px), chạm nhạy tức thì, không bị dính trạng thái hover giả lập | [ ] |
+| 7 | **Học Flashcard & SRS** | Vào `/study/flashcards`: Chạm lật thẻ 3D, bấm thử 1 trong 4 nút SRS | Thẻ lật 3D mượt mà; 4 nút SRS dính đáy trong tầm với ngón cái; thanh bottom-nav tự động ẩn và topbar có nút "Thoát" | [ ] |
+| 8 | **Game & Quiz trên Mobile** | Chơi thử Word Match, Word Scramble, Quiz | Các thẻ bài và ô chữ tự co giãn vừa vặn màn hình (kể cả 360px), không bị cuộn ngang | [ ] |
+| 9 | **Kiên cường Blazor (Resilience)** | Đang học Flashcard -> khóa màn hình điện thoại 30 giây hoặc chuyển sang app khác -> mở lại | Ứng dụng tự động reconnect ngầm (không crash circuit), giữ nguyên thẻ từ đang học | [ ] |
+| 10 | **Dự phòng Ngoại tuyến (Offline)** | Bật chế độ máy bay trên điện thoại | Hiển thị trang fallback "Mất kết nối Internet" thân thiện; khi tắt chế độ máy bay, trang tự động tải lại | [ ] |

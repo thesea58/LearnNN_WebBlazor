@@ -25,18 +25,38 @@
 - Phân trang server-side linh hoạt (20 từ/trang).
 - Form modal thêm/sửa từ vựng với đầy đủ validation (`DataAnnotationsValidator`).
 
-### 4. Thành phần Dùng chung (Shared Components)
-- `ConfirmDeleteModal`: Modal xác nhận trước khi thực hiện hành động xóa nguy hiểm, hỗ trợ backdrop click, loading state khi đang xử lý.
-- `LoadingSpinner`: Vòng xoay tải dữ liệu với thông báo tùy biến và các kích thước khác nhau.
-- `AlertMessage`: Hộp thông báo kết quả (Success, Warning, Error, Info) hỗ trợ đóng thủ công hoặc tự động biến mất (Auto-dismiss) sau 4 giây.
+### 4. Trung tâm Học tập & Trò chơi Từ vựng (`/study`)
+- **Flashcard 3D**: Lật thẻ 3D trực quan, phát âm Audio Web Speech API, tích hợp thuật toán lặp lại ngắt quãng SuperMemo-2 (SM-2) với 4 mức đánh giá (Quên, Khó, Tốt, Dễ) và Anki-style re-queueing trong phiên.
+- **Game Ghép đôi (Word Match)**: Nối từ tiếng Anh và nghĩa tiếng Việt với đồng hồ bấm giờ và đánh giá số bước.
+- **Game Xếp chữ (Word Scramble)**: Xếp các ký tự đảo lộn để đoán từ vựng với gợi ý âm thanh và bóc tách chữ cái.
+- **Bài kiểm tra Trắc nghiệm (Quiz)**: Luyện tập 4 lựa chọn, tự động sinh distractor từ kho từ vựng và lưu vết tỷ lệ chính xác.
+
+### 5. Hạ tầng Trí tuệ Nhân tạo (AI Infrastructure)
+- **3 Chế độ hoạt động**: Auto (Gemini API), Manual Bridge (Copy/Paste miễn phí 100%), và Hybrid (gọi API tự động, tự hạ cấp sang Manual khi mạng yếu hoặc chạm giới hạn 429).
+- **AI Quiz Explainer & Trap Detector**: Bóc tách bẫy trắc nghiệm, giải thích ngữ pháp và cung cấp mẹo nhớ trực tiếp trên từng câu sai trong Quiz.
+- **AI Inbox & Sandbox (`/ai/inbox`)**: Quản lý lịch sử prompt, phòng thí nghiệm thử nghiệm sinh dữ liệu từ vựng.
+
+### 6. Trình bày Đa chế độ & Trợ năng (Multi-View & Accessibility)
+- **Kiểu Dòng (Table) & Kiểu Thẻ Icon (Card Grid)**: Xem danh sách theo bảng chi tiết hoặc dạng lưới thẻ chạm mượt mà trên điện thoại.
+- **Trợ năng (A11y)**: Hỗ trợ chỉ báo `:focus-visible` chuẩn WCAG 2.4.7, thuộc tính `aria-label` cho toàn bộ các nút icon, thẻ `<html lang="vi">` và tiện ích đọc màn hình `.sr-only`.
+
+### 7. Trải nghiệm Di động & PWA (Web Mobile & PWA)
+- **Giao diện Điện thoại Chuẩn mực (<1024px)**: Thanh điều hướng dưới đáy (Bottom-nav) 5 mục, bảng tự động chuyển `table-responsive-stack`, chống bàn phím ảo che input.
+- **Khóa Bố cục PC (>=1024px)**: Bảo toàn 100% giao diện và hành vi máy tính để bàn (được bảo vệ bởi 20 baseline screenshots).
+- **Cài đặt PWA (Standalone)**: Cấu hình `manifest.webmanifest`, bộ icon PNG đa kích thước, chạy toàn màn hình không có thanh URL.
+- **Blazor Server Resilience**: Tự động kết nối lại khi quay lại tab / đổi mạng, trang `offline.html` dự phòng độc lập, lưu giữ phiên học 10 phút.
+- **Khởi chạy 1-Click (`start-mobile.bat`)**: Tự động mở đường hầm Microsoft Dev Tunnels HTTPS cố định và hiển thị mã QR để quét bằng camera điện thoại.
 
 ---
 
 ## 🛠️ Công nghệ sử dụng
 
 - **Framework**: .NET 10 Blazor Web App (Interactive Server render mode)
-- **Data Access**: Entity Framework Core 10 với SQLite (`learnnn.db`)
-- **UI & Styling**: Bootstrap 5, Bootstrap Icons, Modern CSS variables & glassmorphism
+- **Data Access**: Entity Framework Core 10 với SQLite (`LearnNN_VocabDB.db`)
+- **AI Engine**: Google AI Studio Gemini API (`gemini-3.5-flash`, `gemini-3.5-flash-lite`) & Manual Bridge
+- **PWA & Offline**: Service Worker (Cache-First static assets, SignalR bypass, Offline fallback)
+- **UI & Styling**: Bootstrap 5, Bootstrap Icons, CSS custom properties & Glassmorphism
+- **Automated Testing**: Playwright .NET, NUnit, SkiaSharp visual pixel-by-pixel comparison (121 tests pass 100%)
 - **Design Pattern**: 3-Tier Layered Architecture (Entities -> DbContext -> Service Layer -> UI Components)
 
 ---
@@ -46,20 +66,21 @@
 ```
 LearnNN_WebBlazor/
 ├── docs/                               # Tài liệu thiết kế, task & kiến trúc
-│   ├── design/                         # ERD, DB design, spec kiến trúc
-│   ├── task/                           # Kế hoạch & tiến độ 9 tasks
+│   ├── design/                         # ERD, DB design, spec kiến trúc, deployment guide
+│   ├── task/                           # Kế hoạch & tiến độ 25 tasks
 │   └── PROJECT_MAP.md                  # Bản đồ kiến trúc chuẩn mực của dự án
 │
 ├── Source/                             # Mã nguồn chính
 │   ├── Data/                           # Data Access Layer (AppDbContext, Entities)
-│   │   └── Entities/                   # Topic.cs, Word.cs
-│   ├── Models/                         # DTOs, ViewModels, Enums (WordFilterModel, AlertType)
-│   ├── Services/                       # Business Logic (IVocabularyService, VocabularyService)
-│   ├── Components/                     # Giao diện Blazor UI
-│   │   ├── Layout/                     # MainLayout, NavMenu, ReconnectModal
-│   │   ├── Pages/                      # Home, Topics/TopicManage, Words/WordList, WordFormModal
-│   │   └── Shared/                     # ConfirmDeleteModal, LoadingSpinner, AlertMessage
-│   └── wwwroot/                        # Static assets (CSS, images, libraries)
+│   ├── Models/                         # DTOs, ViewModels, Enums, AI options
+│   ├── Services/                       # Business Logic (Vocabulary, SRS Engine, AI Services)
+│   ├── Components/                     # Giao diện Blazor UI (Layout, Pages, Shared)
+│   └── wwwroot/                        # Static assets (CSS, Icons PWA, Service Worker)
+│
+├── Tests/                              # Kiểm thử tự động E2E & Visual Regression
+│   └── LearnNN_WebBlazor.Tests/        # Playwright .NET test suite (121 tests, 20 PC baselines)
+│
+└── start-mobile.bat                    # Script khởi chạy 1-click truy cập từ điện thoại qua QR Code
 ```
 
 ---
