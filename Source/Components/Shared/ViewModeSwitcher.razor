@@ -3,14 +3,14 @@
 <!-- #region: View Mode Switcher Component -->
 <div class="btn-group shadow-xs view-mode-switcher" role="group" aria-label="Chế độ hiển thị">
     <button type="button" 
-            class="btn btn-sm @(CurrentMode == ViewMode.Table ? "btn-primary active" : "btn-outline-secondary bg-white") d-inline-flex align-items-center gap-1 px-3 py-1" 
+            class="btn btn-sm @(EffectiveMode == ViewMode.Table ? "btn-primary active" : "btn-outline-secondary bg-white") d-inline-flex align-items-center gap-1 px-3 py-1" 
             @onclick="() => SetModeAsync(ViewMode.Table)"
             title="Kiểu dòng (Bảng chi tiết)">
         <i class="bi bi-list-ul"></i>
         <span class="d-none d-sm-inline fw-medium">Dòng</span>
     </button>
     <button type="button" 
-            class="btn btn-sm @(CurrentMode == ViewMode.Card ? "btn-primary active" : "btn-outline-secondary bg-white") d-inline-flex align-items-center gap-1 px-3 py-1" 
+            class="btn btn-sm @(EffectiveMode == ViewMode.Card ? "btn-primary active" : "btn-outline-secondary bg-white") d-inline-flex align-items-center gap-1 px-3 py-1" 
             @onclick="() => SetModeAsync(ViewMode.Card)"
             title="Kiểu icon / thẻ (Trực quan, chạm mượt)">
         <i class="bi bi-grid-fill"></i>
@@ -34,13 +34,32 @@
     public EventCallback<ViewMode> CurrentModeChanged { get; set; }
     #endregion
 
+    #region State
+    private ViewMode? _localMode;
+    private ViewMode EffectiveMode => _localMode ?? CurrentMode;
+    #endregion
+
+    protected override void OnParametersSet()
+    {
+        if (CurrentModeChanged.HasDelegate)
+        {
+            _localMode = null;
+        }
+    }
+
     #region Event Handlers
     private async Task SetModeAsync(ViewMode newMode)
     {
-        if (CurrentMode != newMode)
+        if (EffectiveMode != newMode)
         {
-            CurrentMode = newMode;
-            await CurrentModeChanged.InvokeAsync(newMode);
+            if (CurrentModeChanged.HasDelegate)
+            {
+                await CurrentModeChanged.InvokeAsync(newMode);
+            }
+            else
+            {
+                _localMode = newMode;
+            }
         }
     }
     #endregion

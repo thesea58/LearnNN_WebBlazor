@@ -25,13 +25,13 @@
                 }
             </div>
 
-            <button type="button" class="btn btn-sm btn-link text-muted p-0 text-decoration-none" title="@(IsExpanded ? "Thu gọn" : "Mở rộng")">
-                <i class="bi @(IsExpanded ? "bi-chevron-up" : "bi-chevron-down") fs-6"></i>
+            <button type="button" class="btn btn-sm btn-link text-muted p-0 text-decoration-none" title="@(EffectiveExpanded ? "Thu gọn" : "Mở rộng")">
+                <i class="bi @(EffectiveExpanded ? "bi-chevron-up" : "bi-chevron-down") fs-6"></i>
             </button>
         </div>
 
         @* Card Body (Collapsible) *@
-        @if (IsExpanded)
+        @if (EffectiveExpanded)
         {
             <div class="card-body p-4 pt-2">
                 @* 1. Correct Answer Reasoning *@
@@ -109,12 +109,31 @@
 
     #endregion
 
+    #region State
+    private bool? _localExpanded;
+    private bool EffectiveExpanded => _localExpanded ?? IsExpanded;
+    #endregion
+
+    protected override void OnParametersSet()
+    {
+        if (IsExpandedChanged.HasDelegate)
+        {
+            _localExpanded = null;
+        }
+    }
+
     #region Methods
 
     private async Task ToggleExpandAsync()
     {
-        IsExpanded = !IsExpanded;
-        await IsExpandedChanged.InvokeAsync(IsExpanded);
+        if (IsExpandedChanged.HasDelegate)
+        {
+            await IsExpandedChanged.InvokeAsync(!EffectiveExpanded);
+        }
+        else
+        {
+            _localExpanded = !EffectiveExpanded;
+        }
     }
 
     private static string GetTrapBadgeClass(string trapType)
