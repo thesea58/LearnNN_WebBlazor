@@ -13,9 +13,9 @@
 
 <PageTitle>Kiểm tra Trắc nghiệm - LearnNN 📘</PageTitle>
 
-<div class="container py-3" style="max-width: 800px;">
+<div class="container py-3 quiz-practice-container" style="max-width: 800px;">
     <!-- #region: Top Navigation & Progress Bar -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3 quiz-top-nav">
         <a href="/study" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-arrow-left me-1"></i> Trở về Hub
         </a>
@@ -255,7 +255,7 @@
         var currentQ = questions[currentIndex];
 
         <!-- #region: Active Question Card -->
-        <div class="card border rounded-4 p-4 p-md-5 bg-white shadow-sm mb-4">
+        <div class="card border rounded-4 p-4 p-md-5 bg-white shadow-sm mb-4 quiz-card">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">
                     Câu hỏi trắc nghiệm
@@ -268,7 +268,7 @@
             </div>
 
             <!-- Question Prompt -->
-            <div class="text-center my-3">
+            <div class="text-center my-3 quiz-prompt">
                 <h1 class="display-5 fw-bold text-primary mb-1">@currentQ.Term</h1>
                 @if (!string.IsNullOrWhiteSpace(currentQ.Phonetic))
                 {
@@ -284,7 +284,7 @@
             </div>
 
             <!-- Options Grid -->
-            <div class="mt-4">
+            <div class="mt-4 quiz-options-grid">
                 @for (int optIndex = 0; optIndex < currentQ.Options.Count; optIndex++)
                 {
                     int capturedIndex = optIndex;

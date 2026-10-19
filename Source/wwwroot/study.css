@@ -471,11 +471,82 @@
         font-size: 1.15rem !important;
     }
 
-    /* Quiz Option Button Touch Target on Mobile */
+    /* Quiz Compact Spacing on Mobile (<768px) */
+    .quiz-practice-container {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+
+    .quiz-top-nav {
+        gap: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .quiz-top-nav .btn-sm {
+        padding: 0.25rem 0.5rem !important;
+    }
+
+    .quiz-top-nav .badge {
+        padding: 0.35rem 0.6rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    .quiz-practice-container .progress-container {
+        margin-bottom: 0.75rem !important;
+        height: 5px !important;
+    }
+
+    .quiz-card {
+        padding: 1rem 0.85rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .quiz-card .speaker-btn {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .quiz-prompt {
+        margin-top: 0.25rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .quiz-prompt h1 {
+        font-size: 1.85rem !important;
+        margin-bottom: 0.15rem !important;
+    }
+
+    .quiz-prompt .fs-6 {
+        font-size: 0.85rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+
+    .quiz-prompt .badge {
+        margin-bottom: 0.35rem !important;
+        padding: 0.2rem 0.55rem !important;
+    }
+
+    .quiz-prompt .text-muted {
+        font-size: 0.85rem !important;
+    }
+
+    .quiz-options-grid {
+        margin-top: 0.65rem !important;
+    }
+
+    /* Quiz Option Button Compact on Mobile */
     .quiz-option-btn {
-        min-height: 48px;
-        padding: 0.875rem 1rem !important;
-        font-size: 0.95rem !important;
+        min-height: 44px;
+        padding: 0.55rem 0.75rem !important;
+        font-size: 0.9rem !important;
+        margin-bottom: 0.45rem !important;
+        gap: 0.65rem !important;
+    }
+
+    .quiz-option-btn .option-badge {
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 0.825rem !important;
     }
 }
 
