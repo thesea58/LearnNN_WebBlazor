@@ -63,10 +63,17 @@ public class StudyMobileTests
         Assert.That(box, Is.Not.Null);
         Assert.That(box!.Height, Is.GreaterThanOrEqualTo(44.0), "SRS button height must be >= 44px.");
 
-        // Verify sticky controls container
+        // Verify controls container sits naturally below flashcard (not sticky, no overlap)
         var controls = page.Locator(".flashcard-controls-container");
         var position = await controls.EvaluateAsync<string>("el => window.getComputedStyle(el).position");
-        Assert.That(position, Is.EqualTo("sticky"), "Controls container must be sticky on mobile.");
+        Assert.That(position, Is.EqualTo("static"), "Controls container must sit naturally below the card on mobile.");
+
+        var cardBox = await flashcard.BoundingBoxAsync();
+        var controlsBox = await controls.BoundingBoxAsync();
+        Assert.That(cardBox, Is.Not.Null);
+        Assert.That(controlsBox, Is.Not.Null);
+        Assert.That(controlsBox!.Y, Is.GreaterThanOrEqualTo(cardBox!.Y + cardBox.Height - 2.0),
+            "Controls container must sit below the flashcard without overlapping.");
     }
 
     [Test]
