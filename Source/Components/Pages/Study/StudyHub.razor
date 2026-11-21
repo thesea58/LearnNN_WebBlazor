@@ -78,13 +78,13 @@
                 <div class="col-lg-5 text-lg-end">
                     @if (srsStats.DueTodayCount > 0)
                     {
-                        <button class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm rounded-pill" @onclick="NavigateToSrsReview">
+                        <button class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm rounded-pill min-touch-target" @onclick="NavigateToSrsReview">
                             <i class="bi bi-lightning-charge-fill me-1"></i> Ôn tập SRS ngay (@srsStats.DueTodayCount từ)
                         </button>
                     }
                     else
                     {
-                        <button class="btn btn-success text-white fw-bold px-4 py-2 shadow-sm rounded-pill" @onclick="NavigateToFlashcards">
+                        <button class="btn btn-success text-white fw-bold px-4 py-2 shadow-sm rounded-pill min-touch-target" @onclick="NavigateToFlashcards">
                             <i class="bi bi-plus-circle me-1"></i> Học từ mới ngay
                         </button>
                     }
@@ -191,6 +191,26 @@
     <!-- #endregion: Filter Configuration Bar -->
 
     <!-- #region: Learning Activities Grid -->
+    @if (availableWordsCount == 0)
+    {
+        <div class="alert alert-warning border border-warning-subtle rounded-4 d-flex align-items-center gap-3 p-3 mb-4 shadow-xs" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-4 text-warning flex-shrink-0"></i>
+            <div>
+                <strong class="d-block mb-1">Không có từ vựng nào sẵn sàng để học!</strong>
+                <span class="small text-muted">
+                    @if (onlyUnmastered && totalWordsCount > 0)
+                    {
+                        <span>Bạn đã thuộc tất cả các từ trong chủ đề này (@totalWordsCount/@totalWordsCount từ). Hãy tắt tuỳ chọn <strong>"Chỉ học từ chưa thuộc"</strong> ở trên để ôn tập lại hoặc chọn chủ đề khác.</span>
+                    }
+                    else
+                    {
+                        <span>Chưa có từ vựng nào trong danh sách. Hãy thêm từ mới hoặc chọn <strong>"Tất cả chủ đề"</strong> để bắt đầu học.</span>
+                    }
+                </span>
+            </div>
+        </div>
+    }
+
     <div class="mb-4">
         <h5 class="fw-bold text-dark mb-3">
             <i class="bi bi-book-half text-primary me-2"></i>1. Phương pháp học ghi nhớ
@@ -198,7 +218,11 @@
         <div class="row g-3">
             <!-- Flashcards 3D -->
             <div class="col-md-6 col-lg-6">
-                <div class="study-mode-card">
+                <div class="study-mode-card @(availableWordsCount == 0 ? "disabled" : "")"
+                     role="button"
+                     tabindex="@(availableWordsCount == 0 ? "-1" : "0")"
+                     @onclick="NavigateToFlashcards"
+                     aria-label="Thẻ ghi nhớ Flashcards 3D">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="mode-icon-wrapper" style="background-color: var(--primary-subtle); color: var(--primary);">
                             <i class="bi bi-card-text"></i>
@@ -209,7 +233,7 @@
                     <p class="text-muted small flex-grow-1 mb-3">
                         Lật thẻ 3D hai mặt xem phiên âm, nghe phát âm bản xứ (TTS), nghĩa tiếng Việt và ví dụ câu. Phím tắt Space để lật thẻ và đánh dấu đã nhớ.
                     </p>
-                    <button class="btn btn-primary w-100" @onclick="NavigateToFlashcards" disabled="@(availableWordsCount == 0)">
+                    <button class="btn btn-primary w-100 min-touch-target" @onclick="NavigateToFlashcards" @onclick:stopPropagation disabled="@(availableWordsCount == 0)">
                         <i class="bi bi-play-circle-fill me-1"></i> Bắt đầu học Flashcard
                     </button>
                 </div>
@@ -217,7 +241,11 @@
 
             <!-- Spaced Review / Quick Test shortcut -->
             <div class="col-md-6 col-lg-6">
-                <div class="study-mode-card">
+                <div class="study-mode-card @(availableWordsCount < 4 ? "disabled" : "")"
+                     role="button"
+                     tabindex="@(availableWordsCount < 4 ? "-1" : "0")"
+                     @onclick="NavigateToQuiz"
+                     aria-label="Kiểm tra Trắc nghiệm 4 Đáp án">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="mode-icon-wrapper" style="background-color: var(--success-subtle); color: var(--success);">
                             <i class="bi bi-check2-all"></i>
@@ -228,7 +256,7 @@
                     <p class="text-muted small flex-grow-1 mb-3">
                         Rèn luyện phản xạ với bài kiểm tra trắc nghiệm 4 lựa chọn, tự động sinh đáp án gây nhiễu và thống kê phân tích các câu làm sai.
                     </p>
-                    <button class="btn btn-success w-100" @onclick="NavigateToQuiz" disabled="@(availableWordsCount < 4)">
+                    <button class="btn btn-success w-100 min-touch-target" @onclick="NavigateToQuiz" @onclick:stopPropagation disabled="@(availableWordsCount < 4)">
                         <i class="bi bi-patch-question-fill me-1"></i> Làm bài trắc nghiệm
                     </button>
                 </div>
@@ -243,7 +271,11 @@
         <div class="row g-3">
             <!-- Word Matching Game -->
             <div class="col-md-6 col-lg-6">
-                <div class="study-mode-card">
+                <div class="study-mode-card @(availableWordsCount < 2 ? "disabled" : "")"
+                     role="button"
+                     tabindex="@(availableWordsCount < 2 ? "-1" : "0")"
+                     @onclick="NavigateToMatching"
+                     aria-label="Game Nối Từ (Word Matching)">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="mode-icon-wrapper" style="background-color: var(--warning-subtle); color: var(--warning);">
                             <i class="bi bi-intersect"></i>
@@ -254,7 +286,7 @@
                     <p class="text-muted small flex-grow-1 mb-3">
                         Thử thách ghép đôi từ tiếng Anh với nghĩa tiếng Việt tương ứng trên bảng thẻ ngẫu nhiên. Tính thời gian, bước đi và chuỗi điểm thưởng (combo).
                     </p>
-                    <button class="btn btn-warning text-dark fw-bold w-100" @onclick="NavigateToMatching" disabled="@(availableWordsCount < 2)">
+                    <button class="btn btn-warning text-dark fw-bold w-100 min-touch-target" @onclick="NavigateToMatching" @onclick:stopPropagation disabled="@(availableWordsCount < 2)">
                         <i class="bi bi-controller me-1"></i> Chơi Game Nối Từ
                     </button>
                 </div>
@@ -262,7 +294,11 @@
 
             <!-- Word Scramble Game -->
             <div class="col-md-6 col-lg-6">
-                <div class="study-mode-card">
+                <div class="study-mode-card @(availableWordsCount == 0 ? "disabled" : "")"
+                     role="button"
+                     tabindex="@(availableWordsCount == 0 ? "-1" : "0")"
+                     @onclick="NavigateToScramble"
+                     aria-label="Game Sắp Xếp Ký Tự (Word Scramble)">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="mode-icon-wrapper" style="background-color: var(--info-subtle); color: var(--info);">
                             <i class="bi bi-sort-alpha-down"></i>
@@ -273,7 +309,7 @@
                     <p class="text-muted small flex-grow-1 mb-3">
                         Nhìn nghĩa tiếng Việt và ghép các chữ cái tiếng Anh bị đảo lộn thành từ vựng chính xác. Giúp khắc sâu trí nhớ về mặt chữ và chính tả.
                     </p>
-                    <button class="btn btn-info text-white w-100" @onclick="NavigateToScramble" disabled="@(availableWordsCount == 0)">
+                    <button class="btn btn-info text-white w-100 min-touch-target" @onclick="NavigateToScramble" @onclick:stopPropagation disabled="@(availableWordsCount == 0)">
                         <i class="bi bi-puzzle-fill me-1"></i> Chơi Game Xếp Chữ
                     </button>
                 </div>
@@ -328,29 +364,35 @@
         srsStats = await SrsEngineService.GetSrsStatisticsAsync(topicParam);
     }
 
+    private string SrsReviewUrl => $"/study/flashcards?topicId={selectedTopicId}&dueOnly=true&count=50";
+    private string FlashcardsUrl => $"/study/flashcards?topicId={selectedTopicId}&unmastered={onlyUnmastered}&count={itemCount}";
+    private string MatchingUrl => $"/study/match?topicId={selectedTopicId}&unmastered={onlyUnmastered}";
+    private string ScrambleUrl => $"/study/scramble?topicId={selectedTopicId}&unmastered={onlyUnmastered}&count={itemCount}";
+    private string QuizUrl => $"/study/quiz?topicId={selectedTopicId}&unmastered={onlyUnmastered}&count={itemCount}";
+
     private void NavigateToSrsReview()
     {
-        NavigationManager.NavigateTo($"/study/flashcards?topicId={selectedTopicId}&dueOnly=true&count=50");
+        NavigationManager.NavigateTo(SrsReviewUrl);
     }
 
     private void NavigateToFlashcards()
     {
-        NavigationManager.NavigateTo($"/study/flashcards?topicId={selectedTopicId}&unmastered={onlyUnmastered}&count={itemCount}");
+        NavigationManager.NavigateTo(FlashcardsUrl);
     }
 
     private void NavigateToMatching()
     {
-        NavigationManager.NavigateTo($"/study/match?topicId={selectedTopicId}&unmastered={onlyUnmastered}");
+        NavigationManager.NavigateTo(MatchingUrl);
     }
 
     private void NavigateToScramble()
     {
-        NavigationManager.NavigateTo($"/study/scramble?topicId={selectedTopicId}&unmastered={onlyUnmastered}&count={itemCount}");
+        NavigationManager.NavigateTo(ScrambleUrl);
     }
 
     private void NavigateToQuiz()
     {
-        NavigationManager.NavigateTo($"/study/quiz?topicId={selectedTopicId}&unmastered={onlyUnmastered}&count={itemCount}");
+        NavigationManager.NavigateTo(QuizUrl);
     }
 
     #endregion

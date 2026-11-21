@@ -131,4 +131,46 @@ public class StudyMobileTests
         Assert.That(overflowResult.IsOverflowing, Is.False,
             $"Horizontal overflow detected on {route} at 360px: {string.Join(", ", overflowResult.Offenders.Select(o => $"{o.Tag}.{o.Cls} (+{o.OverflowPx}px)"))}");
     }
+
+    [Test]
+    public async Task StudyHub_GameButtons_Clickable_OnIPhoneWebKitAsync()
+    {
+        await using var browser = await _playwright.Webkit.LaunchAsync(new() { Headless = true });
+        var context = await browser.NewContextAsync(new BrowserNewContextOptions
+        {
+            ViewportSize = new ViewportSize { Width = 375, Height = 812 },
+            IsMobile = true,
+            HasTouch = true,
+            UserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/15E148 Safari/604.1"
+        });
+        var page = await context.NewPageAsync();
+
+        await BlazorTestHelper.NavigateAndStabilizeAsync(page, "/study");
+
+        // Verify active cards are semantic links
+        var cards = page.Locator(".study-mode-card");
+        var cardCount = await cards.CountAsync();
+        Assert.That(cardCount, Is.EqualTo(4), "Should render 4 study mode cards.");
+
+        // Check Matching Game card (index 2)
+        var matchCard = cards.Nth(2);
+        var role = await matchCard.GetAttributeAsync("role");
+        Assert.That(role, Is.EqualTo("button"), "Matching game card must have role='button' for touch accessibility.");
+
+        // Check touch target height >= 44px on mobile
+        var ctaBtn = matchCard.Locator(".min-touch-target");
+        var ctaBox = await ctaBtn.BoundingBoxAsync();
+        Assert.That(ctaBox, Is.Not.Null);
+        Assert.That(ctaBox!.Height, Is.GreaterThanOrEqualTo(44.0), "CTA button touch target height must be >= 44px.");
+
+        // Scroll into view and tap the card body
+        await matchCard.ScrollIntoViewIfNeededAsync();
+        await page.WaitForTimeoutAsync(300);
+
+        // Tap the card directly (simulating mobile touchscreen tap anywhere on the card)
+        await matchCard.TapAsync();
+        await page.WaitForTimeoutAsync(1500);
+        TestContext.Progress.WriteLine($"After tap URL: {page.Url}");
+        Assert.That(page.Url, Does.Contain("/study/match"), "Tapping matching card must navigate to /study/match.");
+    }
 }

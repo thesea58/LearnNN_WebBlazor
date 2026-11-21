@@ -14,39 +14,39 @@ if ($env:Path -notlike "*$windowsAppsPath*") {
 
 Clear-Host
 Write-Host "==================================================================" -ForegroundColor Cyan
-Write-Host "   📱 LearnNN WebBlazor - KHỞI ĐỘNG TRUY CẬP ĐIỆN THOẠI (1-CLICK)" -ForegroundColor Yellow
+Write-Host "   [MOBILE] LearnNN WebBlazor - KHOI DONG TRUY CAP DIEN THOAI (1-CLICK)" -ForegroundColor Yellow
 Write-Host "==================================================================" -ForegroundColor Cyan
 Write-Host ""
 
-# 1. Kiểm tra devtunnel CLI
+# 1. Kiem tra devtunnel CLI
 if (-not (Get-Command devtunnel -ErrorAction SilentlyContinue)) {
-    Write-Host "[-] Chưa tìm thấy 'devtunnel' CLI trên máy." -ForegroundColor Yellow
-    Write-Host "[*] Đang tự động cài đặt qua Winget..." -ForegroundColor Green
+    Write-Host "[-] Chua tim thay 'devtunnel' CLI tren may." -ForegroundColor Yellow
+    Write-Host "[*] Dang tu dong cai dat qua Winget..." -ForegroundColor Green
     winget install Microsoft.devtunnel --silent --accept-package-agreements --accept-source-agreements
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 }
 
-# 2. Kiểm tra trạng thái đăng nhập Dev Tunnels
-Write-Host "[*] Đang kiểm tra xác thực Dev Tunnels..." -ForegroundColor Gray
+# 2. Kiem tra trang thai dang nhap Dev Tunnels
+Write-Host "[*] Dang kiem tra xac thuc Dev Tunnels..." -ForegroundColor Gray
 $userShow = devtunnel user show 2>&1 | Out-String
 if ($userShow -match "Not logged in") {
-    Write-Host "[!] Bạn cần đăng nhập tài khoản Microsoft hoặc GitHub 1 LẦN DUY NHẤT để tạo đường hầm riêng tư." -ForegroundColor Yellow
-    Write-Host "[*] Vui lòng đăng nhập trên trình duyệt..." -ForegroundColor Cyan
+    Write-Host "[!] Ban can dang nhap tai khoan Microsoft hoac GitHub 1 LAN DUY NHAT." -ForegroundColor Yellow
+    Write-Host "[*] Vui long dang nhap tren trinh duyet..." -ForegroundColor Cyan
     devtunnel user login
     $userShow = devtunnel user show 2>&1 | Out-String
 }
 Write-Host "[+] $userShow".Trim() -ForegroundColor Green
 
-# 3. Quản lý Tunnel Cố định (Persistent Tunnel)
+# 3. Quan ly Tunnel Co dinh (Persistent Tunnel)
 $tunnelFile = Join-Path $PSScriptRoot ".devtunnel_id"
 $tunnelId = ""
 
-# Đọc từ file nếu đã lưu
+# Doc tu file neu da luu
 if (Test-Path $tunnelFile) {
     $tunnelId = (Get-Content $tunnelFile -Raw).Trim()
 }
 
-# Nếu chưa có ID hoặc cần xác thực lại, kiểm tra danh sách tunnel sẵn có của tài khoản
+# Neu chua co ID hoac can xac thuc lai, kiem tra danh sach tunnel san co cua tai khoan
 $tunnelValid = $false
 if (-not [string]::IsNullOrWhiteSpace($tunnelId)) {
     try {
@@ -63,7 +63,6 @@ if (-not [string]::IsNullOrWhiteSpace($tunnelId)) {
 }
 
 if (-not $tunnelValid) {
-    # Kiểm tra xem tài khoản đã có sẵn tunnel learnnn-vocab chưa
     try {
         $listRaw = devtunnel list -j 2>$null
         if ($listRaw) {
@@ -73,23 +72,22 @@ if (-not $tunnelValid) {
                 if ($found) {
                     $tunnelId = $found.tunnelId
                     $tunnelValid = $true
-                    Write-Host "[+] Đã tìm thấy Tunnel sẵn có: $tunnelId" -ForegroundColor Green
+                    Write-Host "[+] Da tim thay Tunnel san co: $tunnelId" -ForegroundColor Green
                 }
             }
         }
     } catch { }
 }
 
-# Nếu chưa có thì tạo mới
+# Neu chua co thi tao moi
 if (-not $tunnelValid) {
-    Write-Host "[*] Đang khởi tạo Tunnel cố định cho LearnNN..." -ForegroundColor Cyan
+    Write-Host "[*] Dang khoi tao Tunnel co dinh cho LearnNN..." -ForegroundColor Cyan
     $createJson = $null
     try {
         $createJson = devtunnel create learnnn-vocab -j 2>$null | ConvertFrom-Json
     } catch { }
 
     if (-not $createJson -or -not $createJson.tunnel) {
-        # Fallback tạo tunnel với ID ngẫu nhiên nhưng cố định
         $createJson = devtunnel create -j | ConvertFrom-Json
     }
 
@@ -101,14 +99,14 @@ if (-not $tunnelValid) {
 }
 
 if ([string]::IsNullOrWhiteSpace($tunnelId)) {
-    Write-Host "[-] Không tìm thấy Tunnel ID hợp lệ. Đang dùng mặc định learnnn-vocab.asse" -ForegroundColor Yellow
+    Write-Host "[-] Khong tim thay Tunnel ID hop le. Dang dung mac dinh learnnn-vocab.asse" -ForegroundColor Yellow
     $tunnelId = "learnnn-vocab.asse"
 }
 
-# Lưu ID cố định
-Set-Content -Path $tunnelFile -Value $tunnelId -Encoding UTF8
+# Luu ID co dinh
+[System.IO.File]::WriteAllText($tunnelFile, $tunnelId, [System.Text.Encoding]::UTF8)
 
-# 4. Đảm bảo Port 5186 đã được mở trên Tunnel
+# 4. Dam bao Port 5186 da duoc mo tren Tunnel & Cap quyen Anonymous cho Blazor WebSockets
 $showData = devtunnel show $tunnelId -j | ConvertFrom-Json
 $hasPort5186 = $false
 if ($showData.tunnel -and $showData.tunnel.ports) {
@@ -117,12 +115,18 @@ if ($showData.tunnel -and $showData.tunnel.ports) {
 }
 
 if (-not $hasPort5186) {
-    Write-Host "[*] Đang cấu hình mở cổng 5186 cho Tunnel..." -ForegroundColor Gray
+    Write-Host "[*] Dang cau hinh mo cong 5186 cho Tunnel..." -ForegroundColor Gray
     devtunnel port create $tunnelId -p 5186 --protocol http 2>&1 | Out-Null
     $showData = devtunnel show $tunnelId -j | ConvertFrom-Json
 }
 
-# Lấy URL của cổng 5186
+# Cap quyen Anonymous de Blazor Server WebSockets ket noi muot ma khong bi chan 401
+Write-Host "[*] Cau hinh quyen truy cap (Anonymous cho Blazor WebSockets)..." -ForegroundColor Gray
+try {
+    devtunnel access create $tunnelId -a 2>&1 | Out-Null
+} catch { }
+
+# Lay URL cua cong 5186
 $tunnelUrl = ""
 if ($showData.tunnel -and $showData.tunnel.ports) {
     $foundPort = $showData.tunnel.ports | Where-Object { $_.portNumber -eq 5186 }
@@ -136,54 +140,62 @@ if ([string]::IsNullOrWhiteSpace($tunnelUrl)) {
     $tunnelUrl = "https://$cleanId-5186.asse.devtunnels.ms"
 }
 
-# 5. Khởi động Web App Blazor (.NET 10) nếu chưa chạy
+# 5. Khoi dong Web App Blazor (.NET 10) neu chua chay
 $dotnetProc = $null
 $tcpConn = Get-NetTCPConnection -LocalPort 5186 -State Listen -ErrorAction SilentlyContinue
 if ($tcpConn) {
-    Write-Host "[+] Ứng dụng LearnNN_WebBlazor đã đang chạy trên cổng 5186." -ForegroundColor Green
+    Write-Host "[+] Ung dung LearnNN_WebBlazor da dang chay tren cong 5186." -ForegroundColor Green
 } else {
-    Write-Host "[*] Đang khởi chạy ứng dụng LearnNN_WebBlazor (.NET 10)..." -ForegroundColor Cyan
+    Write-Host "[*] Dang khoi chay ung dung LearnNN_WebBlazor (.NET 10)..." -ForegroundColor Cyan
     $projectPath = Join-Path $PSScriptRoot "Source\LearnNN_WebBlazor.csproj"
     $dotnetProc = Start-Process -FilePath "dotnet" -ArgumentList "run --project `"$projectPath`"" -PassThru -WindowStyle Hidden
     Start-Sleep -Seconds 4
 }
 
-# 6. Hiển thị thông tin kết nối và Mã QR
+# Lay dia chi IP noi bo LAN (neu cung mang Wi-Fi)
+$localIp = (Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | 
+    Where-Object { $_.InterfaceAlias -notmatch "Loopback|vEthernet|WSL" -and $_.IPAddress -notlike "169.254*" } | 
+    Select-Object -ExpandProperty IPAddress -First 1)
+
+# 6. Hien thi thong tin ket noi va Ma QR
 Write-Host ""
 Write-Host "==================================================================" -ForegroundColor Green
-Write-Host "   🎉 ĐƯỜNG HẦM CỐ ĐỊNH SẴN SÀNG - TRUY CẬP TỪ ĐIỆN THOẠI" -ForegroundColor Green
+Write-Host "   [READY] DUONG HAM CO DINH SAN SANG - TRUY CAP TU DIEN THOAI" -ForegroundColor Green
 Write-Host "==================================================================" -ForegroundColor Green
 Write-Host ""
-Write-Host " 🌐 LINK TRUY CẬP CỐ ĐỊNH (HTTPS):" -ForegroundColor Yellow
+Write-Host " [HTTPS] LINK TRUY CAP CO DINH (Khuyen nghi cho Dien thoai):" -ForegroundColor Yellow
 Write-Host "    $tunnelUrl" -ForegroundColor Cyan
-Write-Host "    (Link này vĩnh viễn không bao giờ đổi, hãy Bookmark trên điện thoại!)" -ForegroundColor DarkGray
+Write-Host "    (Link co dinh, ho tro HTTPS day du cho WebSockets, TTS am thanh & Camera)" -ForegroundColor DarkGray
+if (-not [string]::IsNullOrWhiteSpace($localIp)) {
+    Write-Host ""
+    Write-Host " [LAN] HOAC LINK NOI BO (Khi dien thoai ket noi cung mang Wi-Fi):" -ForegroundColor Yellow
+    Write-Host "    http://${localIp}:5186" -ForegroundColor Cyan
+}
 Write-Host ""
-Write-Host " 🔐 BẢO MẬT: PRIVATE" -ForegroundColor Magenta
-Write-Host "    Khi mở trên điện thoại, đăng nhập cùng tài khoản Microsoft/GitHub:" -ForegroundColor White
-Write-Host "    $userShow" -ForegroundColor Gray
+Write-Host " [OK] KET NOI TRUC TIEP: Mo link tren dien thoai la vao ngay (khong can dang nhap Microsoft)." -ForegroundColor Green
 Write-Host ""
-Write-Host " 📷 QUÉT MÃ QR DƯỚI ĐÂY BẰNG CAMERA ĐIỆN THOẠI ĐỂ MỞ:" -ForegroundColor Yellow
+Write-Host " [QR CODE] QUET MA QR DUOI DAY BANG CAMERA DIEN THOAI DE MO:" -ForegroundColor Yellow
 Write-Host ""
 
 try {
     curl.exe -s "https://qrenco.de/$tunnelUrl"
 } catch {
-    Write-Host "    (Gõ trực tiếp đường link trên vào Safari/Chrome điện thoại)" -ForegroundColor Gray
+    Write-Host "    (Go truc tiep duong link tren vao Safari/Chrome dien thoai)" -ForegroundColor Gray
 }
 
 Write-Host ""
-Write-Host " 💡 Mẹo: Trên Safari (iOS) chọn 'Thêm vào MH chính', trên Android chọn 'Cài đặt' để dùng như App!" -ForegroundColor Cyan
+Write-Host " [TIP] Meo: Tren Safari (iOS) chon 'Chia se' -> 'Them vao MH chinh' de dung toan man hinh nhu App!" -ForegroundColor Cyan
 Write-Host "------------------------------------------------------------------" -ForegroundColor DarkGray
-Write-Host " Đang duy trì kết nối... Nhấn Ctrl + C để dừng." -ForegroundColor Gray
+Write-Host " Dang duy tri ket noi... Nhan Ctrl + C de dung." -ForegroundColor Gray
 Write-Host ""
 
-# 7. Giữ Tunnel hoạt động
+# 7. Giu Tunnel hoat dong (voi co -a de ho tro Anonymous WebSocket)
 try {
-    devtunnel host $tunnelId
+    devtunnel host $tunnelId -a
 } finally {
     if ($dotnetProc -and -not $dotnetProc.HasExited) {
-        Write-Host "[*] Đang dừng tiến trình .NET Blazor..." -ForegroundColor Gray
+        Write-Host "[*] Dang dung tien trinh .NET Blazor..." -ForegroundColor Gray
         Stop-Process -Id $dotnetProc.Id -Force -ErrorAction SilentlyContinue
     }
-    Write-Host "[*] Đã đóng đường hầm. Tạm biệt!" -ForegroundColor Yellow
+    Write-Host "[*] Da dong duong ham. Tam biet!" -ForegroundColor Yellow
 }
